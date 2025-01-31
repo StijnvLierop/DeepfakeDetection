@@ -18,20 +18,11 @@ class ImageInstance(Instance):
     def data(self):
         return Image.open(self.path).convert('RGB')
 
-class VideoInstance(Instance):
-
-    @cached_property
-    def data(self):
-        raise NotImplementedError
-
-class AudioInstance(Instance):
-
-    @cached_property
-    def data(self):
-        raise NotImplementedError
-
 class ImageSequenceInstance(Instance):
 
     @cached_property
     def data(self) -> List[ImageInstance]:
         return [ImageInstance(os.path.join(self.path, img), self.label) for img in os.listdir(self.path)]
+
+    def __len__(self):
+        return len(self.data)

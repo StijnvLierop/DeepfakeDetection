@@ -1,0 +1,5 @@
+models:
+  - name: Cozzolino2023
+    weights_dir: '/home/stijn/repositories/DeepfakeDetection/deepfake_detection/models/detection/cozzolino_2023/weights/clipdet_latent10k_plus'
+  - name: Corvi2023
+    weights_dir: '/home/stijn/repositories/DeepfakeDetection/deepfake_detection/models/detection/corvi_2023/weights'
