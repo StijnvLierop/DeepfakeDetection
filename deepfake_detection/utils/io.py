@@ -30,7 +30,7 @@ def write_predictions_to_file(results_dir: str,
                       columns=['file', 'prediction', 'ground_truth'])
 
     # Write to file
-    filename = os.path.join(results_dir, get_predictions_filename(dataset, model_name))
+    filename = os.path.join(results_dir, get_predictions_filename(dataset.name, model_name))
     df.to_csv(filename, index=False)
 
     return filename

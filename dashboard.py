@@ -45,7 +45,7 @@ if not os.path.exists(predictions_file):
 else:
     predictions_df = read_predictions_from_file(predictions_file)
 
-if predictions_df:
+if predictions_df is not None:
     # Show predictions
     real_class_label = st.selectbox('Real class label', predictions_df['ground_truth'].unique())
     binary_labels = [0 if l == real_class_label else 1 for l in predictions_df['ground_truth']]

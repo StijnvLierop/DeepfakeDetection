@@ -1,8 +1,6 @@
 import os
 from typing import Iterable
 
-import filetype
-
 from deepfake_detection.data.datasets.dataset import Dataset
 from deepfake_detection.data.datasets.instance import ImageInstance
 
@@ -33,7 +31,7 @@ class FileImageDataset(Dataset):
 
     def __len__(self):
         """
-        Returns the length of the dataset.
+        Returns a the length of the dataset.
         """
         n = 0
         # Loop over folders (labels) in dataset
@@ -42,8 +40,7 @@ class FileImageDataset(Dataset):
             if os.path.isdir(os.path.join(self.path, folder)):
                 # Loop over images
                 for img in os.listdir(os.path.join(self.path, folder)):
-                    # if image
-                    if filetype.is_image(os.path.join(self.path, folder, img)):
+                    if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
                         n += 1
         return n
 
@@ -55,5 +52,5 @@ class FileImageDataset(Dataset):
                 # Loop over images
                 for img in os.listdir(os.path.join(self.path, folder)):
                     # if image
-                    if filetype.is_image(os.path.join(self.path, folder, img)):
+                    if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
                         yield ImageInstance(os.path.join(self.path, folder, img), folder)
