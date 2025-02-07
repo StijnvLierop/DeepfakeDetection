@@ -8,6 +8,7 @@ import torch
 from .openclipnet import OpenClipLinear
 from deepfake_detection.data.datasets.instance import ImageInstance
 from deepfake_detection.models.model import Model
+from ...prediction import Prediction
 
 
 class Cozzolino2023Model(Model):
@@ -16,6 +17,9 @@ class Cozzolino2023Model(Model):
     Code heavily based on the implementation found here: https://grip-unina.github.io/ClipBased-SyntheticImageDetection/
 
     In the original paper an image is classified as synthetic when the score output by the model is bigger than 0.
+
+    Predictions are returned as classifcations and the feature representations used as input for the classifier is
+    returned as embedding.
 
     :param weights_dir: Path to the folder containing the weights of the model.
     :param device: Which device to use for computations.
@@ -30,18 +34,22 @@ class Cozzolino2023Model(Model):
         self.model = model.to(device).eval()
         self.device = device
 
-    def predict(self, instance: ImageInstance):
-
+    def preprocess(self, instance: ImageInstance):
         # Define image transformation
         transform = Compose([Resize(224, interpolation=InterpolationMode.BICUBIC),
                              CenterCrop((224, 224)), transforms.ToTensor(),
                              transforms.Normalize(mean=(0.48145466, 0.4578275, 0.40821073),
-                                                  std=(0.26862954, 0.26130258, 0.27577711),)
+                                                  std=(0.26862954, 0.26130258, 0.27577711), )
                              ])
 
+        return torch.stack([transform(instance.data)], 0)
+
+    def predict(self, instance: ImageInstance) -> Prediction:
         # Run inference
-        out_tens = self.model(torch.stack([transform(instance.data)], 0)
-                              .clone().to(self.device)).cpu().detach().numpy()
+        features = self.model.forward_features(self.preprocess(instance).clone().to(self.device))
+        out = self.model.forward_head(features).cpu().detach().numpy()
+        features = features.cpu().detach().numpy()
 
         # Transform output
-        return out_tens[0, 0]
+        return Prediction(classification={'score': float(out[0, 0])},
+                          embedding=list(features[0].astype(float)))

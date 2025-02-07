@@ -31,7 +31,7 @@ class FileImageDataset(Dataset):
 
     def __len__(self):
         """
-        Returns a the length of the dataset.
+        Returns the length of the dataset.
         """
         n = 0
         # Loop over folders (labels) in dataset

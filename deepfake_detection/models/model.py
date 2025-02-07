@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from deepfake_detection.data.datasets.dataset import Dataset
-
 
 class Model(ABC):
 
@@ -14,5 +12,6 @@ class Model(ABC):
     def predict(self, instance) -> np.ndarray:
         raise NotImplementedError
 
-    def train(self, train_dataset: Dataset):
-        return "This method was not implemented for this model."
+
+    def get_features(self, instance) -> np.ndarray:
+        raise NotImplementedError
