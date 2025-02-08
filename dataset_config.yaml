@@ -2,6 +2,9 @@ datasets:
   - name: synthbuster
     type: FileImageDataset
     path: '/mnt/extern/DeepFake/Datasets/Cozzolino_ea_2023/synthbuster'
+  - name: synthWildX
+    type: FileImageDataset
+    path: '/mnt/extern/DeepFake/Datasets/Cozzolino_ea_2023/synthWildX'
   - name: 'CIFAKE_test'
     type: FileImageDataset
     path: '/mnt/extern/DeepFake/Datasets/CIFAKE/test'

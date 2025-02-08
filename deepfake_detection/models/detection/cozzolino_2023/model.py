@@ -27,12 +27,16 @@ class Cozzolino2023Model(Model):
 
     def __init__(self, weights_dir: str, device='cuda:0'):
         super(Cozzolino2023Model, self).__init__(name='Cozzolino2023')
-        model_path = os.path.join(weights_dir, 'weights.pth')
+        self.weights_dir = weights_dir
+        self.device = device
+        self.model = None
+
+    def load_model(self):
+        model_path = os.path.join(self.weights_dir, 'weights.pth')
         model = OpenClipLinear(num_classes=1, pretrain='clipL14commonpool', normalize=True, next_to_last=True)
         dat = load(model_path, map_location='cpu', weights_only=True)
         model.load_state_dict(dat['model'])
-        self.model = model.to(device).eval()
-        self.device = device
+        self.model = model.to(self.device).eval()
 
     def preprocess(self, instance: ImageInstance):
         # Define image transformation
@@ -45,6 +49,10 @@ class Cozzolino2023Model(Model):
         return torch.stack([transform(instance.data)], 0)
 
     def predict(self, instance: ImageInstance) -> Prediction:
+        # Load model if not yet loaded
+        if self.model is None:
+            self.load_model()
+
         # Run inference
         features = self.model.forward_features(self.preprocess(instance).clone().to(self.device))
         out = self.model.forward_head(features).cpu().detach().numpy()

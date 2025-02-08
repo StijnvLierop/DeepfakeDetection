@@ -4,6 +4,7 @@ import warnings
 from typing import Sequence, Mapping, Collection, Any, Optional, Tuple, Dict
 
 import numpy as np
+import streamlit as st
 
 from deepfake_detection.data.datasets.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
@@ -92,7 +93,7 @@ def decode_prediction(obj: Mapping[str, Any]) -> Prediction:
         meta=obj.get("meta")
     )
 
-
+@st.cache_data
 def read_predictions_from_file(predictions_path: str) -> Sequence[Prediction]:
     """
     This function reads a set of predictions corresponding to a given dataset from a file.

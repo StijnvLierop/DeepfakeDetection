@@ -22,14 +22,22 @@ class Corvi2023Model(Model):
 
     def __init__(self, weights_dir: str, device: str='cuda:0'):
         super(Corvi2023Model, self).__init__(name='Corvi2023')
-        model_path = os.path.join(weights_dir, 'weights.pth')
+        self.weights_dir = weights_dir
+        self.device = device
+        self.model = None
+
+    def load_model(self):
+        model_path = os.path.join(self.weights_dir, 'weights.pth')
         model = resnet50(num_classes=1, stride0=1, dropout=0.5)
         dat = load(model_path, map_location='cpu', weights_only=True)
         model.load_state_dict(dat['model'])
-        self.model = model.to(device).eval()
-        self.device = device
+        self.model = model.to(self.device).eval()
 
     def predict(self, instance: ImageInstance):
+        # Load model if not yet loaded
+        if self.model is None:
+            self.load_model()
+
         # Define image transformation
         transform = Compose([transforms.ToTensor(),
                              transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]

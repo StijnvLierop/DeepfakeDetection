@@ -2,10 +2,12 @@ import os
 
 import streamlit as st
 from stqdm import stqdm
+import plotly.express as px
 
 from deepfake_detection.utils.configuration import parse_dataset_config, parse_model_config
 from deepfake_detection.utils.io import write_predictions_to_file, get_predictions_filename, read_predictions_from_file
 from deepfake_detection.visualization.tsne import run_tsne
+
 
 # Load datasets and models
 datasets = parse_dataset_config('dataset_config.yaml')
@@ -40,5 +42,19 @@ else:
     predictions = read_predictions_from_file(predictions_file)
 
 if predictions is not None:
-    # Show T-SNE
-    st.scatter_chart(run_tsne(dataset, predictions), x='x', y='y', color='label')
+
+    plot_col, img_col = st.columns(2)
+
+    with plot_col:
+        # Show T-SNE
+        tsne_df = run_tsne(dataset, predictions)
+        tsne_fig = px.scatter(data_frame=tsne_df, x='x', y='y', color='label')
+        events = st.plotly_chart(tsne_fig, on_select="rerun")
+
+    with img_col:
+        # Show image of clicked datapoint
+        if len(events['selection']['points']) > 0:
+            x = events['selection']['points'][0]['x']
+            y = events['selection']['points'][0]['y']
+            path = tsne_df.loc[(tsne_df['x'] == x) & (tsne_df['y'] == y), 'filepath'].to_list()[0]
+            st.image(path)
