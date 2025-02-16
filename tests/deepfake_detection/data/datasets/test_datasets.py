@@ -1,8 +1,44 @@
+from typing import List
+
 import pytest
+from pytorchvideo.data.dataset_manifest_utils import VideoDataset
 
 from deepfake_detection.data.datasets.FileImageDataset import FileImageDataset
+from deepfake_detection.data.datasets.FileVideoDataset import FileVideoDataset
 from deepfake_detection.data.datasets.FileImageSequenceDataset import FileImageSequenceDataset
+from deepfake_detection.data.datasets.instance import Instance
+from deepfake_detection.models.prediction import Prediction
 from tests.deepfake_detection.paths import RESOURCES_DIR
+
+@pytest.fixture
+def instances() -> List[Instance]:
+    return [Instance("", labels) for labels in (
+        {"A"},
+        {"A"},
+        {"A", "B", "C"},
+        {"A", "C"},
+        {"B", "C"},
+        {"B", "C"},
+        {"B", "C"},
+        {"C"}
+    )]
+
+
+@pytest.fixture
+def predictions() -> List[List[Prediction]]:
+    return [
+        [Prediction(classification=classification)]
+        for classification in [
+            {"A": 1.0, "B": 0.0, "C": 0.1},  # Ground truth: "A"
+            {"A": 0.5, "B": 0.4, "C": 0.3},  # Ground truth: "A"
+            {"A": 1.0, "B": 0.9, "C": 0.0},  # Ground truth: "ABC"
+            {"A": 1.0, "B": 0.6, "C": 0.5},  # Ground truth: "AC"
+            {"A": 0.0, "B": 0.7, "C": 0.5},  # Ground truth: "BC"
+            {"A": 0.0, "B": 1.0, "C": 0.9},  # Ground truth: "BC"
+            {"A": 0.1, "B": 0.7, "C": 0.4},  # Ground truth: "BC"
+            {"A": 0.7, "B": 0.5, "C": 0.6},  # Ground truth: "C"
+        ]
+    ]
 
 
 @pytest.fixture
@@ -15,15 +51,20 @@ def image_sequence_dataset_path():
     return RESOURCES_DIR / "data" / "test_image_sequence_dataset"
 
 
+@pytest.fixture
+def video_dataset_path():
+    return RESOURCES_DIR / "data" / "test_video_dataset"
+
+
 def test_load_file_image_dataset(image_dataset_path):
     dataset = FileImageDataset(name='test', path=image_dataset_path)
     instances = list(dataset)
 
     assert len(dataset) == 3
     assert len(dataset) == len(instances)
-    assert instances[0].label == 'real'
-    assert instances[1].label == 'model2'
-    assert instances[2].label == 'model1'
+    assert instances[0].class_label == 'camera1'
+    assert instances[1].class_label == 'model2'
+    assert instances[2].class_label == 'model1'
 
 
 def test_load_file_image_sequence_dataset(image_sequence_dataset_path):
@@ -32,9 +73,32 @@ def test_load_file_image_sequence_dataset(image_sequence_dataset_path):
 
     assert len(dataset) == 6
     assert len(dataset) == len(instances)
-    assert instances[0].label == 'real'
+    assert instances[0].class_label == 'camera1'
     assert len(instances[0]) == 4
-    assert instances[2].label == 'model2'
+    assert instances[2].class_label == 'model2'
     assert len(instances[1]) == 4
-    assert instances[4].label == 'model1'
+    assert instances[4].class_label == 'model1'
     assert len(instances[2]) == 4
+
+
+def test_load_video_dataset(video_dataset_path):
+    dataset = FileVideoDataset(name='test', path=video_dataset_path)
+    instances = list(dataset)
+
+    assert len(dataset) == 3
+    assert len(dataset) == len(instances)
+    assert instances[0].class_label == 'camera1'
+    assert instances[1].class_label == 'model2'
+    assert instances[2].class_label == 'model1'
+
+
+def test_hash_dataset_same_name_equal(image_dataset_path):
+    dataset = FileImageDataset(name='test', path=image_dataset_path)
+    dataset2 = FileImageDataset(name='test', path=image_dataset_path)
+    assert hash(dataset) == hash(dataset2)
+
+
+def test_hash_dataset_different_name_different(image_dataset_path):
+    dataset = FileImageDataset(name='test', path=image_dataset_path)
+    dataset2 = FileImageDataset(name='test2', path=image_dataset_path)
+    assert hash(dataset) != hash(dataset2)

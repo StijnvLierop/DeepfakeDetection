@@ -11,10 +11,12 @@ class FileImageDataset(Dataset):
     The dataset should be stored on the filesystem as follows:
 
     <root dataset dir>
-        <label 1>
+        fake
+            <label 1>
             - image 1
             - image 2
-        <label 2>
+        camera1
+            <label 2>
             - image 1
             - image 2
         ...
@@ -25,7 +27,7 @@ class FileImageDataset(Dataset):
     :param name: The name of the dataset.
     """
 
-    def __init__(self, path, name):
+    def __init__(self, path : str, name : str):
         super(FileImageDataset, self).__init__(name=name)
         self.path = path
 
@@ -34,14 +36,17 @@ class FileImageDataset(Dataset):
         Returns the length of the dataset.
         """
         n = 0
-        # Loop over folders (labels) in dataset
+        # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
             # If directory
             if os.path.isdir(os.path.join(self.path, folder)):
-                # Loop over images
-                for img in os.listdir(os.path.join(self.path, folder)):
-                    if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
-                        n += 1
+                for subfolder in os.listdir(os.path.join(self.path, folder)):
+                    # If directory
+                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
+                        # Loop over images
+                        for img in os.listdir(os.path.join(self.path, folder, subfolder)):
+                            if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
+                                n += 1
         return n
 
     def __iter__(self) -> Iterable[ImageInstance]:
@@ -49,8 +54,14 @@ class FileImageDataset(Dataset):
         for folder in os.listdir(self.path):
             # If directory
             if os.path.isdir(os.path.join(self.path, folder)):
-                # Loop over images
-                for img in os.listdir(os.path.join(self.path, folder)):
-                    # if image
-                    if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
-                        yield ImageInstance(os.path.join(self.path, folder, img), folder)
+                for subfolder in os.listdir(os.path.join(self.path, folder)):
+                    # If directory
+                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
+                        # Loop over images
+                        for img in os.listdir(os.path.join(self.path, folder, subfolder)):
+                            if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
+                                yield ImageInstance(os.path.join(self.path, folder, subfolder, img),
+                                                    subfolder,
+                                                    folder)
+                            else:
+                                print("Found file that is not a jpg, jpeg or png file: {}".format(img))

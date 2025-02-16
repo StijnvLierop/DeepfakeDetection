@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-import numpy as np
+from deepfake_detection.models.prediction import Prediction
 
 
 class Model(ABC):
@@ -9,9 +9,5 @@ class Model(ABC):
         self.name = name
 
     @abstractmethod
-    def predict(self, instance) -> np.ndarray:
-        raise NotImplementedError
-
-
-    def get_features(self, instance) -> np.ndarray:
+    def predict(self, instance) -> Prediction:
         raise NotImplementedError

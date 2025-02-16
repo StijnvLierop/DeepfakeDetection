@@ -18,7 +18,7 @@ class Cozzolino2023Model(Model):
 
     In the original paper an image is classified as synthetic when the score output by the model is bigger than 0.
 
-    Predictions are returned as classifcations and the feature representations used as input for the classifier is
+    Predictions are returned as classifications and the feature representations used as input for the classifier is
     returned as embedding.
 
     :param weights_dir: Path to the folder containing the weights of the model.
@@ -59,5 +59,6 @@ class Cozzolino2023Model(Model):
         features = features.cpu().detach().numpy()
 
         # Transform output
-        return Prediction(classification={'score': float(out[0, 0])},
+        return Prediction(classification={'camera1': float(out[0, 0])<=0,
+                                          'fake': float(out[0, 0])>0},
                           embedding=list(features[0].astype(float)))

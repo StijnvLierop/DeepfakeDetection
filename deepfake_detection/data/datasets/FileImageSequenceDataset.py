@@ -11,20 +11,22 @@ class FileImageSequenceDataset(Dataset):
     The dataset should be stored on the filesystem as follows:
 
     <root dataset dir>
-        <label 1>
-            - <image sequence 1>
-                - frame 1
-                - frame 2
-            - <image sequence 2>
-                - frame 1
-                - frame 2
-        <label 2>
-            - <image sequence 1>
-                - frame 1
-                - frame 2
-            - <image sequence 2>
-                - frame 1
-                - frame 2
+        real
+            <label 1>
+                - <image sequence 1>
+                    - frame 1
+                    - frame 2
+                - <image sequence 2>
+                    - frame 1
+                    - frame 2
+        fake
+            <label 2>
+                - <image sequence 1>
+                    - frame 1
+                    - frame 2
+                - <image sequence 2>
+                    - frame 1
+                    - frame 2
         ...
 
     Non-image files are ignored.
@@ -33,7 +35,7 @@ class FileImageSequenceDataset(Dataset):
     :param name: The name of the dataset.
     """
 
-    def __init__(self, name, path):
+    def __init__(self, name: str, path: str):
         super().__init__(name)
         self.path = path
 
@@ -42,15 +44,19 @@ class FileImageSequenceDataset(Dataset):
         Returns the length of the dataset.
         """
         n = 0
-        # Loop over folders (models) in dataset
+        # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
             # If directory
             if os.path.isdir(os.path.join(self.path, folder)):
-                # Loop over subdirs with image sequences inside them
-                for img_folder in os.listdir(os.path.join(self.path, folder)):
-                    # if folder
-                    if os.path.isdir(os.path.join(self.path, folder, img_folder)):
-                        n += 1
+                # Loop over folders (models) in dataset
+                for subfolder in os.listdir(os.path.join(self.path, folder)):
+                    # If directory
+                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
+                        # Loop over subdirs with image sequences inside them
+                        for img_folder in os.listdir(os.path.join(self.path, folder, subfolder)):
+                            # if folder
+                            if os.path.isdir(os.path.join(self.path, folder, subfolder, img_folder)):
+                                n += 1
         return n
 
     def __iter__(self) -> Iterable[ImageSequenceInstance]:
@@ -58,8 +64,14 @@ class FileImageSequenceDataset(Dataset):
         for folder in os.listdir(self.path):
             # If directory
             if os.path.isdir(os.path.join(self.path, folder)):
-                # Loop over image sequences
-                for img_folder in os.listdir(os.path.join(self.path, folder)):
-                    # if folder
-                    if os.path.isdir(os.path.join(self.path, folder, img_folder)):
-                        yield ImageSequenceInstance(os.path.join(self.path, folder, img_folder), folder)
+                # Loop over folders (models) in dataset
+                for subfolder in os.listdir(os.path.join(self.path, folder)):
+                    # If directory
+                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
+                        # Loop over subdirs with image sequences inside them
+                        for img_folder in os.listdir(os.path.join(self.path, folder, subfolder)):
+                            # if folder
+                            if os.path.isdir(os.path.join(self.path, folder, subfolder, img_folder)):
+                                yield ImageSequenceInstance(os.path.join(self.path, folder, subfolder, img_folder),
+                                                            subfolder,
+                                                            folder)

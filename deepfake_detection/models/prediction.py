@@ -81,6 +81,9 @@ class Prediction:
             and self.text == other.text \
             and np.array_equal(self.image, other.image)
 
+    def __hash__(self):
+        return hash((self.classification, self.embedding, self.text, str(self.image), str(self.meta)))
+
     def __eq__(self, other) -> bool:
         return isinstance(other, self.__class__) \
             and self.is_close(other, epsilon=0.)

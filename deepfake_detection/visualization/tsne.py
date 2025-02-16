@@ -5,22 +5,28 @@ import pandas as pd
 from sklearn.manifold import TSNE
 import streamlit as st
 
+from deepfake_detection.data.datasets.FileImageDataset import FileImageDataset
 from deepfake_detection.data.datasets.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
 
-@st.cache_data
-def run_tsne(_dataset: Dataset, _predictions: Sequence[Prediction]) -> pd.DataFrame:
+hash_funcs = {
+    FileImageDataset: lambda x: x.__hash__(),
+    Prediction: lambda x: x.__hash__(),
+}
+
+@st.cache_data(hash_funcs=hash_funcs)
+def run_tsne(dataset: Dataset, predictions: Sequence[Prediction]) -> pd.DataFrame:
     """
     This function calculates a T-SNE given a model and a dataset. The model should support getting the features.
 
-    :param _dataset: The dataset to pass through the model.
-    :param _predictions: The predictions containing the features.
+    :param dataset: The dataset to pass through the model.
+    :param predictions: The predictions containing the features.
     :return: A dataframe containing the T-SNE features and associated labels for the given dataset and model.
     """
     # Get feature representations
-    features = [p.embedding for p in _predictions]
-    labels = [i.label for i in _dataset]
-    filepaths = [i.path for i in _dataset]
+    features = [p.embedding for p in predictions]
+    labels = [i.class_label for i in dataset]
+    filepaths = [i.path for i in dataset]
 
     # Run T-SNE on features
     features_embedded = (TSNE(n_components=2, learning_rate='auto', init='random')

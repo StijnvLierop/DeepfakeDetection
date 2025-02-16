@@ -1,10 +1,13 @@
 datasets:
-  - name: synthbuster
+  - name: Synthbuster
     type: FileImageDataset
     path: '/mnt/extern/DeepFake/Datasets/Cozzolino_ea_2023/synthbuster'
-  - name: synthWildX
+  - name: SynthWildX
     type: FileImageDataset
     path: '/mnt/extern/DeepFake/Datasets/Cozzolino_ea_2023/synthWildX'
-  - name: 'CIFAKE_test'
+  - name: CIFAKE-test
     type: FileImageDataset
     path: '/mnt/extern/DeepFake/Datasets/CIFAKE/test'
+  - name: FaceForensics++
+    type: FileVideoDataset
+    path: '/mnt/extern/DeepFake/Datasets/FaceForensics++-dataset/FaceForensics++'

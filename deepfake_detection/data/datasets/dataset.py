@@ -11,9 +11,12 @@ class Dataset(ABC, Iterable[Instance]):
     :param name: The name of the dataset.
     """
 
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
 
     @abstractmethod
     def __iter__(self):
         raise NotImplementedError
+
+    def __hash__(self):
+        return hash(self.name)
