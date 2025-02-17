@@ -45,7 +45,7 @@ class FileImageDataset(Dataset):
                     if os.path.isdir(os.path.join(self.path, folder, subfolder)):
                         # Loop over images
                         for img in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
+                            if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
                                 n += 1
         return n
 
@@ -59,7 +59,7 @@ class FileImageDataset(Dataset):
                     if os.path.isdir(os.path.join(self.path, folder, subfolder)):
                         # Loop over images
                         for img in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            if img.split('.')[-1] in ['jpg', 'jpeg', 'png']:
+                            if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
                                 yield ImageInstance(os.path.join(self.path, folder, subfolder, img),
                                                     subfolder,
                                                     folder)

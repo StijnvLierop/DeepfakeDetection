@@ -46,7 +46,7 @@ class FileVideoDataset(Dataset):
                         for img_folder in os.listdir(os.path.join(self.path, folder, subfolder)):
                             # Loop over videos
                             for video in os.listdir(os.path.join(self.path, folder, subfolder)):
-                                if video.split('.')[-1] in ['mp4', 'mov']:
+                                if video.split('.')[-1].lower() in ['mp4', 'mov']:
                                     n += 1
         return n
 
@@ -61,7 +61,7 @@ class FileVideoDataset(Dataset):
                     if os.path.isdir(os.path.join(self.path, folder, subfolder)):
                         # Loop over videos
                         for video in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            if video.split('.')[-1] in ['mp4', 'mov']:
+                            if video.split('.')[-1].lower() in ['mp4', 'mov']:
                                 yield VideoInstance(os.path.join(self.path, folder, subfolder),
                                                     subfolder,
                                                     folder)

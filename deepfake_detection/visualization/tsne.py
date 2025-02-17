@@ -5,14 +5,13 @@ import pandas as pd
 from sklearn.manifold import TSNE
 import streamlit as st
 
-from deepfake_detection.data.datasets.FileImageDataset import FileImageDataset
 from deepfake_detection.data.datasets.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
+from deepfake_detection.utils.parameters import DATASETS
 
-hash_funcs = {
-    FileImageDataset: lambda x: x.__hash__(),
-    Prediction: lambda x: x.__hash__(),
-}
+
+hash_funcs = {d: lambda x: x.__hash__() for d in DATASETS.values()}
+hash_funcs[Prediction] = lambda x: x.__hash__()
 
 @st.cache_data(hash_funcs=hash_funcs)
 def run_tsne(dataset: Dataset, predictions: Sequence[Prediction]) -> pd.DataFrame:
