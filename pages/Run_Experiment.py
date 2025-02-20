@@ -4,7 +4,6 @@ import streamlit as st
 from stqdm import stqdm
 import plotly.express as px
 
-from deepfake_detection.evaluation.metrics import accuracy
 from deepfake_detection.utils.configuration import parse_dataset_config, parse_model_config
 from deepfake_detection.utils.io import write_predictions_to_file, get_predictions_filename, read_predictions_from_file
 from deepfake_detection.visualization.tsne import run_tsne

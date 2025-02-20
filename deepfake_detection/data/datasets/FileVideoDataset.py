@@ -38,17 +38,31 @@ class FileVideoDataset(Dataset):
         for folder in os.listdir(self.path):
             # If directory
             if os.path.isdir(os.path.join(self.path, folder)):
-                # Loop over classes (models) in dataset
+                # Loop over folders (models) in dataset
                 for subfolder in os.listdir(os.path.join(self.path, folder)):
                     # If directory
                     if os.path.isdir(os.path.join(self.path, folder, subfolder)):
-                        # Loop over subdirs with videos inside them
-                        for img_folder in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            # Loop over videos
-                            for video in os.listdir(os.path.join(self.path, folder, subfolder)):
+                        # Loop over videos
+                        for video in os.listdir(os.path.join(self.path, folder, subfolder)):
                                 if video.split('.')[-1].lower() in ['mp4', 'mov']:
                                     n += 1
         return n
+
+    @property
+    def label_mapping(self):
+        mapping = {}
+        # Loop over folders (authenticity class) in dataset
+        for folder in os.listdir(self.path):
+            # If directory
+            if os.path.isdir(os.path.join(self.path, folder)):
+                # Loop over folders (models) in dataset
+                for subfolder in os.listdir(os.path.join(self.path, folder)):
+                    # If directory
+                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
+                        # Loop over videos
+                        for video in os.listdir(os.path.join(self.path, folder, subfolder)):
+                            mapping[subfolder] = folder
+        return mapping
 
     def __iter__(self) -> Iterable[VideoInstance]:
         # Loop over folders (authenticity class) in dataset
@@ -63,7 +77,6 @@ class FileVideoDataset(Dataset):
                         for video in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if video.split('.')[-1].lower() in ['mp4', 'mov']:
                                 yield VideoInstance(os.path.join(self.path, folder, subfolder),
-                                                    subfolder,
-                                                    folder)
+                                                    subfolder)
                             else:
                                 raise print("Found file that is not a mp4 or mov file: {}".format(video))

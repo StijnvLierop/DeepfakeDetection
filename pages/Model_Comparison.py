@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import streamlit as st
 
-from deepfake_detection.evaluation.metrics import accuracy
+from deepfake_detection.evaluation.metrics import roc_auc, accuracy
 from deepfake_detection.utils.configuration import parse_dataset_config
 from deepfake_detection.utils.io import read_predictions_from_file
 
@@ -16,10 +16,10 @@ for predictions_file in os.listdir("./results"):
     predictions = read_predictions_from_file(os.path.join("./results", predictions_file))
     dataset = datasets[dataset_name]
 
-    results.append([dataset_name, model_name, accuracy(dataset,
-                                                       predictions,
-                                                       label_type='authenticity_label',
-                                                       positive_label='fake')])
+    acc = accuracy(dataset, predictions, label_mapping=dataset.label_mapping)
+    auc = roc_auc(dataset, predictions, label_mapping=dataset.label_mapping)
 
-results_df = pd.DataFrame(results, columns=['dataset_name', 'model_name', 'accuracy (fake)'])
+    results.append([dataset_name, model_name, acc, auc])
+
+results_df = pd.DataFrame(results, columns=['dataset_name', 'model_name', 'accuracy', 'AUC'])
 st.write(results_df)

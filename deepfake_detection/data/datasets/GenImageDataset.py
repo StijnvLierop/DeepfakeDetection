@@ -64,6 +64,23 @@ class GenImageDataset(Dataset):
                                         n += 1
         return n
 
+    @property
+    def label_mapping(self):
+        mapping = {}
+        # Loop over generators
+        for generator in os.listdir(self.path):
+            # If directory
+            if os.path.isdir(os.path.join(self.path, generator)):
+                for split in self.split:
+                    # If directory
+                    if os.path.isdir(os.path.join(self.path, generator, split)):
+                        # Loop over folders (label)
+                        for binary_label in os.listdir(os.path.join(self.path, generator, split)):
+                            # If directory
+                            if os.path.isdir(os.path.join(self.path, generator, split, binary_label)):
+                                mapping[generator] = binary_label
+        return mapping
+
     def __iter__(self) -> Iterable[ImageInstance]:
         # Loop over generators
         for generator in os.listdir(self.path):
@@ -81,8 +98,7 @@ class GenImageDataset(Dataset):
                                     if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
                                         yield ImageInstance(
                                             os.path.join(self.path, generator, split, binary_label, img),
-                                            class_label=generator if binary_label == 'ai' else 'real',
-                                            authenticity_label='fake' if binary_label == 'ai' else 'real',
+                                            label=generator,
                                         )
                                     else:
                                         print("Found file that is not a jpg, jpeg or png file: {}".format(img))

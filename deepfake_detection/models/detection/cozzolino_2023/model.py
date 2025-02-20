@@ -59,6 +59,7 @@ class Cozzolino2023Model(Model):
         features = features.cpu().detach().numpy()
 
         # Transform output
-        return Prediction(classification={'camera1': float(out[0, 0])<=0,
+        return Prediction(classification={'real': float(out[0, 0])<=0,
                                           'fake': float(out[0, 0])>0},
-                          embedding=list(features[0].astype(float)))
+                          embedding=list(features[0].astype(float)),
+                          meta={'output': out[0, 0]})

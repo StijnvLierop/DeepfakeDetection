@@ -24,7 +24,7 @@ def run_tsne(dataset: Dataset, predictions: Sequence[Prediction]) -> pd.DataFram
     """
     # Get feature representations
     features = [p.embedding for p in predictions]
-    labels = [i.class_label for i in dataset]
+    labels = [i.label for i in dataset]
     filepaths = [i.path for i in dataset]
 
     # Run T-SNE on features

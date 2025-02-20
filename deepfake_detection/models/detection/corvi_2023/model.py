@@ -7,6 +7,7 @@ from .resnet_mod import resnet50
 
 from deepfake_detection.data.datasets.instance import ImageInstance
 from deepfake_detection.models.model import Model
+from ...prediction import Prediction
 
 
 class Corvi2023Model(Model):
@@ -33,7 +34,7 @@ class Corvi2023Model(Model):
         model.load_state_dict(dat['model'])
         self.model = model.to(self.device).eval()
 
-    def predict(self, instance: ImageInstance):
+    def predict(self, instance: ImageInstance) -> Prediction:
         # Load model if not yet loaded
         if self.model is None:
             self.load_model()
@@ -48,4 +49,4 @@ class Corvi2023Model(Model):
                               .clone().to(self.device)).cpu().detach().numpy()
 
         # Transform output
-        return out_tens[0, 0]
+        return Prediction(classification={'score':out_tens[0, 0]})

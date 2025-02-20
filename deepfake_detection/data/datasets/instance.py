@@ -9,10 +9,9 @@ import cv2
 
 class Instance(ABC):
 
-    def __init__(self, path: str, class_label: str, authenticity_label: str):
+    def __init__(self, path: str, label: str):
         self.path = path
-        self.class_label = class_label
-        self.authenticity_label = authenticity_label
+        self.label = label
 
 class ImageInstance(Instance):
 
@@ -24,7 +23,7 @@ class ImageSequenceInstance(Instance):
 
     @cached_property
     def data(self) -> List[ImageInstance]:
-        return [ImageInstance(os.path.join(self.path, img), self.class_label, self.authenticity_label)
+        return [ImageInstance(os.path.join(self.path, img), self.label)
                 for img in os.listdir(self.path)]
 
     def __len__(self):

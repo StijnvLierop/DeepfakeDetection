@@ -73,5 +73,4 @@ class FileImageSequenceDataset(Dataset):
                             # if folder
                             if os.path.isdir(os.path.join(self.path, folder, subfolder, img_folder)):
                                 yield ImageSequenceInstance(os.path.join(self.path, folder, subfolder, img_folder),
-                                                            subfolder,
-                                                            folder)
+                                                            subfolder)

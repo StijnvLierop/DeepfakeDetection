@@ -85,7 +85,7 @@ class DIFModel(Model):
             distances[generator] = 1 - float(distance[0, 1])
             real_distances.append(1 - float(distance[0, 0]))
 
-        distances['camera1'] = min(real_distances)
+        distances['real'] = min(real_distances)
 
         return Prediction(classification=distances)
 

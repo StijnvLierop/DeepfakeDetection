@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 from typing import Iterable
 
 from deepfake_detection.data.datasets.dataset import Dataset
@@ -31,6 +32,19 @@ class FileImageDataset(Dataset):
         super(FileImageDataset, self).__init__(name=name)
         self.path = path
 
+    @cached_property
+    def label_mapping(self):
+        mapping = {}
+        # Loop over folders (authenticity class) in dataset
+        for folder in os.listdir(self.path):
+            # If directory
+            if os.path.isdir(os.path.join(self.path, folder)):
+                for subfolder in os.listdir(os.path.join(self.path, folder)):
+                    # If directory
+                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
+                        mapping[subfolder] = folder
+        return mapping
+
     def __len__(self):
         """
         Returns the length of the dataset.
@@ -60,8 +74,10 @@ class FileImageDataset(Dataset):
                         # Loop over images
                         for img in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
+                                self.label_mapping[subfolder] = folder
                                 yield ImageInstance(os.path.join(self.path, folder, subfolder, img),
-                                                    subfolder,
-                                                    folder)
+                                                    subfolder)
                             else:
                                 print("Found file that is not a jpg, jpeg or png file: {}".format(img))
+
+
