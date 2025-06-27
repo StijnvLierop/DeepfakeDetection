@@ -5,3 +5,5 @@ models:
     weights_dir: '/home/stijn/repositories/DeepfakeDetection/deepfake_detection/models/detection/corvi_2023/weights'
   - name: DIF
     model_dir: '/home/stijn/repositories/DeepfakeDetection/deepfake_detection/models/detection/DIF_2020'
+  - name: ResNet50
+    weights_path: '/home/stijn/repositories/DeepfakeDetection/weights/ResNet50_Cozzolino-test.pth'

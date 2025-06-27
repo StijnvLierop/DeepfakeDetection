@@ -28,9 +28,10 @@ class FileImageDataset(Dataset):
     :param name: The name of the dataset.
     """
 
-    def __init__(self, path : str, name : str):
+    def __init__(self, path : str, name : str, return_binary: bool=False):
         super(FileImageDataset, self).__init__(name=name)
         self.path = path
+        self.return_binary = return_binary
 
     @cached_property
     def label_mapping(self):
@@ -45,7 +46,7 @@ class FileImageDataset(Dataset):
                         mapping[subfolder] = folder
         return mapping
 
-    def __len__(self):
+    def __len__(self) -> int:
         """
         Returns the length of the dataset.
         """
@@ -75,9 +76,11 @@ class FileImageDataset(Dataset):
                         for img in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
                                 self.label_mapping[subfolder] = folder
-                                yield ImageInstance(os.path.join(self.path, folder, subfolder, img),
-                                                    subfolder)
+                                # If return binary labels
+                                if self.return_binary:
+                                    yield ImageInstance(os.path.join(self.path, folder, subfolder, img), folder)
+                                else:
+                                    yield ImageInstance(os.path.join(self.path, folder, subfolder, img), subfolder)
+
                             else:
                                 print("Found file that is not a jpg, jpeg or png file: {}".format(img))
-
-

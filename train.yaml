@@ -1,0 +1,15 @@
+train_config:
+  train_data:
+    - name: Cozzolino-test
+      type: FileImageDataset
+      path: '/mnt/extern/DeepFake/Datasets/Cozzolino_ea_2023/test_set'
+      return_binary: True
+  model_name: "ResNet50"
+  val_data: ""
+  weights_dir: "./weights"
+
+  n_epochs: 5
+  batch_size: 128
+  learning_rate: 0.001
+  use_cuda: true
+  num_workers: 4
