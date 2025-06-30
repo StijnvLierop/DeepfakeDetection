@@ -2,15 +2,19 @@ import torch
 import torchvision
 from torchvision.transforms import transforms
 
-from deepfake_detection.models.model import Model
+from deepfake_detection.models.model import Model, TrainableModel
 from deepfake_detection.models.prediction import Prediction
 
 
-class ResNet50(Model):
+class ResNet50(TrainableModel):
     """
     Naive detector model that uses a ResNet50 backbone pretrained on ImageNet where the
     last classification layer is replaced and finetuned on the deepfake detection task.
     """
+
+    @property
+    def trainable_model(self):
+        return self.model
 
     def __init__(self, weights_path: str=None, device: str='cuda:0'):
         super(ResNet50, self).__init__(name='ResNet50')
