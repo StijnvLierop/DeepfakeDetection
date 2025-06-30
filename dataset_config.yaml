@@ -18,3 +18,7 @@ datasets:
     type: GenImageDataset
     path: '/mnt/extern/DeepFake/Datasets/GenImage/GenImage'
     split: val
+  - name: FaceForensics++
+    type: FaceForensicsDataset
+    modality: images
+    path: '/mnt/extern/DeepFake/Datasets/FaceForensics++/FaceForensics++'
