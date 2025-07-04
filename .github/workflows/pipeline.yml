@@ -40,5 +40,5 @@ jobs:
       - name: Flake8 Annotator
         uses: rbialon/flake8-annotations@v1
 
-      - name: Run tests
-        run: pytest
+      - name: Run unit tests
+        run: python -m pytest --import-mode=append tests/
