@@ -20,5 +20,5 @@ datasets:
     split: val
   - name: FaceForensics++
     type: FaceForensicsDataset
-    modality: images
+    modality: videos
     path: '/mnt/extern/DeepFake/Datasets/FaceForensics++/FaceForensics++'

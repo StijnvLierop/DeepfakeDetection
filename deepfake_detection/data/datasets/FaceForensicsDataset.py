@@ -37,9 +37,11 @@ class FaceForensicsDataset(Dataset):
     :param modality: The modality to return. Can be one of 'images' or 'videos' (default).
                      When 'images' is selected, the dataset returns a series of ImageSequenceInstance. When 'videos'
                      is selected, the dataset returns a series of VideoInstance.
+    :param c_level: The compression level to return. Should be one of: 'c23', 'c40' or 'raw'. If none (default),
+                    instances from all compression levels are returned.
     """
 
-    def __init__(self, name: str, path: str, modality: str = 'videos'):
+    def __init__(self, name: str, path: str, modality: str = 'videos', c_level : str = None):
         super().__init__(name)
         self.path = path
 
@@ -48,6 +50,14 @@ class FaceForensicsDataset(Dataset):
             raise ValueError(f'Invalid modality: {modality}. Must be one of "images" or "videos".')
         else:
             self.modality = modality
+
+        # Ensure that a valid value is passed for c_level
+        if c_level not in ['c23', 'c40', 'raw', None]:
+            raise ValueError(f'Invalid c_level: {c_level}. Must be one of "c23", "c40", "raw" or None.')
+        if c_level is None:
+            self.c_levels = ['c23', 'c40', 'raw']
+        else:
+            self.c_levels = [c_level]
 
     def __len__(self):
         """
@@ -59,7 +69,7 @@ class FaceForensicsDataset(Dataset):
             # Loop over folders (models) in dataset
             for subfolder in os.listdir(os.path.join(self.path, folder)):
                 # Loop over qualities (compression levels) in dataset
-                    for c_level in ['raw', 'c23', 'c40']:
+                    for c_level in self.c_levels:
                         # Loop over instances
                         for _ in os.listdir(os.path.join(self.path, folder, subfolder, c_level, self.modality)):
                             n += 1
@@ -84,7 +94,7 @@ class FaceForensicsDataset(Dataset):
             # Loop over folders (models) in dataset
             for subfolder in os.listdir(os.path.join(self.path, folder)):
                 # Loop over qualities (compression levels) in dataset
-                for c_level in ['raw', 'c23', 'c40']:
+                for c_level in self.c_levels:
                     # Loop over instances
                     for instance in os.listdir(os.path.join(self.path, folder, subfolder, c_level, self.modality)):
                         if self.modality == 'images':
