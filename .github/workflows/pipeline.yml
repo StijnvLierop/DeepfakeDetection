@@ -38,7 +38,7 @@ jobs:
           # dependency list
           deps_list: requirements.txt
           # path of git repo relative to GITHUB_WORKSPACE(no trailing slash)
-          path: ./deepfake_detection
+          path: .
           # directory of test scripts
           test_dir: .
           # pattern of the test script name
