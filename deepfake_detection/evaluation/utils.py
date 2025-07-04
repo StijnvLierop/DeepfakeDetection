@@ -3,7 +3,7 @@ from typing import Sequence, Tuple, Mapping
 
 import numpy as np
 
-from deepfake_detection.data.datasets.instance import Instance
+from deepfake_detection.data.instance import Instance
 from deepfake_detection.models.prediction import Prediction
 
 

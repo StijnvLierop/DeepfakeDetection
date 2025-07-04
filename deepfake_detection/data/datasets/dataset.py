@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterable, Sized
 
-from deepfake_detection.data.datasets.instance import Instance
+from deepfake_detection.data.instance import Instance
 
 
 class Dataset(ABC, Iterable[Instance], Sized):

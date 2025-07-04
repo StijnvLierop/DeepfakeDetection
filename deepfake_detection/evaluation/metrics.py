@@ -4,7 +4,7 @@ from typing import Sequence, Mapping
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score
 
-from deepfake_detection.data.datasets.instance import Instance
+from deepfake_detection.data.instance import Instance
 from deepfake_detection.evaluation.utils import get_labels, to_arrays, apply_label_mapping
 from deepfake_detection.models.prediction import Prediction
 

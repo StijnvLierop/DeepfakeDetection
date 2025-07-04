@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 import torch
 
 from .openclipnet import OpenClipLinear
-from deepfake_detection.data.datasets.instance import ImageInstance
+from deepfake_detection.data.instance import ImageInstance
 from deepfake_detection.models.model import Model
 from ...prediction import Prediction
 

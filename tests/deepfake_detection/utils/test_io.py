@@ -4,7 +4,7 @@ import tempfile
 import numpy as np
 import pytest
 
-from deepfake_detection.data.datasets.FileImageDataset import FileImageDataset
+from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
 from deepfake_detection.models.prediction import Prediction
 from deepfake_detection.utils.io import write_predictions_to_file, read_predictions_from_file, jsonify, \
     encode_prediction, decode_prediction

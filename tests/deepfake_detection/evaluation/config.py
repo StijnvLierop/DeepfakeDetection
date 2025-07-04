@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from deepfake_detection.data.datasets.instance import Instance
+from deepfake_detection.data.instance import Instance
 from deepfake_detection.models.prediction import Prediction
 
 

@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from deepfake_detection.data.datasets.dataset import Dataset
-from deepfake_detection.data.datasets.instance import Instance
+from deepfake_detection.data.instance import Instance
 
 
 class ListDataset(Dataset):

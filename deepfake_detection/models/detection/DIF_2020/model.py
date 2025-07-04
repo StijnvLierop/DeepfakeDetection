@@ -2,9 +2,8 @@ import os
 
 import numpy as np
 import torch
-from PIL.Image import Image
 
-from deepfake_detection.data.datasets.instance import ImageInstance
+from deepfake_detection.data.instance import ImageInstance
 from deepfake_detection.models.detection.DIF_2020.DCNN import DnCNN
 from deepfake_detection.models.model import Model
 from deepfake_detection.models.prediction import Prediction

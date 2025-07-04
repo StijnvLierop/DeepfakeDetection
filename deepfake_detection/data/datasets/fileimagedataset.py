@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import Iterable
 
 from deepfake_detection.data.datasets.dataset import Dataset
-from deepfake_detection.data.datasets.instance import ImageInstance
+from deepfake_detection.data.instance import ImageInstance
 
 
 class FileImageDataset(Dataset):

@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 from matplotlib import pyplot as plt
 
-from deepfake_detection.data.datasets.FileImageDataset import FileImageDataset
+from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
 from skimage.restoration import denoise_wavelet
 
 

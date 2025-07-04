@@ -2,7 +2,7 @@ import os
 from typing import Iterable
 
 from deepfake_detection.data.datasets.dataset import Dataset
-from deepfake_detection.data.datasets.instance import VideoInstance
+from deepfake_detection.data.instance import VideoInstance
 
 
 class FileVideoDataset(Dataset):

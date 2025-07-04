@@ -2,10 +2,10 @@ from typing import List
 
 import pytest
 
-from deepfake_detection.data.datasets.FileImageDataset import FileImageDataset
-from deepfake_detection.data.datasets.FileVideoDataset import FileVideoDataset
-from deepfake_detection.data.datasets.FileImageSequenceDataset import FileImageSequenceDataset
-from deepfake_detection.data.datasets.instance import Instance
+from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
+from deepfake_detection.data.datasets.filevideodataset import FileVideoDataset
+from deepfake_detection.data.datasets.fileimagesequencedataset import FileImageSequenceDataset
+from deepfake_detection.data.instance import Instance
 from deepfake_detection.models.prediction import Prediction
 from tests.deepfake_detection.paths import RESOURCES_DIR
 

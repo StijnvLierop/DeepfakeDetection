@@ -5,7 +5,7 @@ from torch import load
 from torchvision.transforms import transforms, Compose
 from .resnet_mod import resnet50
 
-from deepfake_detection.data.datasets.instance import ImageInstance
+from deepfake_detection.data.instance import ImageInstance
 from deepfake_detection.models.model import Model
 from ...prediction import Prediction
 
