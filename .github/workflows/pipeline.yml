@@ -35,10 +35,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
+          pip install -r test-requirements.txt
 
       - name: Flake8 Annotator
-        # You may pin to the exact commit or the version.
-        # uses: rbialon/flake8-annotations@48819b39d57c621b5a64a1cdce40a5caa6a43b89
         uses: rbialon/flake8-annotations@v1
 
       - name: Run tests
