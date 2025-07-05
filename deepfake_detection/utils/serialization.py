@@ -1,4 +1,3 @@
-import json
 from json import JSONEncoder, JSONDecoder
 
 from deepfake_detection.data import Instance, ImageInstance, ImageSequenceInstance, VideoInstance

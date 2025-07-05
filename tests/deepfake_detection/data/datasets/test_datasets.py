@@ -2,13 +2,13 @@ from typing import List
 
 import pytest
 
+from deepfake_detection.data.datasets import ListDataset
 from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
 from deepfake_detection.data.datasets.filevideodataset import FileVideoDataset
 from deepfake_detection.data.datasets.fileimagesequencedataset import FileImageSequenceDataset
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.models.prediction import Prediction
-from tests.deepfake_detection.paths import RESOURCES_DIR
-
+from tests.deepfake_detection.fixtures import image_dataset_path, image_sequence_dataset_path, video_dataset_path
 
 @pytest.fixture
 def instances() -> List[Instance]:
@@ -41,21 +41,6 @@ def predictions() -> List[List[Prediction]]:
     ]
 
 
-@pytest.fixture
-def image_dataset_path():
-    return RESOURCES_DIR / "data" / "test_image_dataset"
-
-
-@pytest.fixture
-def image_sequence_dataset_path():
-    return RESOURCES_DIR / "data" / "test_image_sequence_dataset"
-
-
-@pytest.fixture
-def video_dataset_path():
-    return RESOURCES_DIR / "data" / "test_video_dataset"
-
-
 def test_load_file_image_dataset(image_dataset_path):
     dataset = FileImageDataset(name='test', path=image_dataset_path)
     instances = list(dataset)
@@ -80,13 +65,15 @@ def test_load_video_dataset(video_dataset_path):
     assert len(dataset) == len(instances)
 
 
-def test_hash_dataset_same_name_equal(image_dataset_path):
-    dataset = FileImageDataset(name='test', path=image_dataset_path)
-    dataset2 = FileImageDataset(name='test', path=image_dataset_path)
-    assert hash(dataset) == hash(dataset2)
-
-
-def test_hash_dataset_different_name_different(image_dataset_path):
+def test_dataset_same_instances_equal(image_dataset_path):
     dataset = FileImageDataset(name='test', path=image_dataset_path)
     dataset2 = FileImageDataset(name='test2', path=image_dataset_path)
-    assert hash(dataset) != hash(dataset2)
+    assert dataset == dataset2
+    dataset3 = ListDataset(name='test3', instances=list(dataset))
+    assert dataset == dataset3
+
+
+def test_dataset_different_instances_different(image_dataset_path):
+    dataset = FileImageDataset(name='test', path=image_dataset_path)
+    dataset2 = ListDataset(name='test3', instances=list(dataset)[:-1])
+    assert dataset != dataset2

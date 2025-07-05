@@ -25,6 +25,9 @@ class Dataset(ABC, Iterable[Instance], Sized):
     def __len__(self):
         raise NotImplementedError
 
+    def __eq__(self, other):
+        return set(self.__iter__()) == set(other.__iter__())
+
     def save(self, path: Path) -> None:
         """
         Serialize this dataset to JSON and save it to the specified path.

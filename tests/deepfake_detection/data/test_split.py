@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from deepfake_detection.data import Instance, Dataset
@@ -7,7 +8,7 @@ from deepfake_detection.data import split_dataset
 
 @pytest.fixture
 def dataset() -> Dataset:
-    return ListDataset(instances=[Instance("", labels) for labels in (
+    return ListDataset(instances=[Instance(str(idx), labels) for idx, labels in zip(range(8), (
         {"A"},
         {"A"},
         {"A", "B", "C"},
@@ -16,7 +17,7 @@ def dataset() -> Dataset:
         {"B", "C"},
         {"B", "C"},
         {"C"}
-    )])
+    ))])
 
 def test_split_dataset_size(dataset: Dataset):
     train_set, test_set = split_dataset(dataset, test_size=0.2, random_state=42)
@@ -32,8 +33,8 @@ def test_split_dataset_size(dataset: Dataset):
 def test_split_dataset_random_state(dataset: Dataset):
     train_set1, test_set1 = split_dataset(dataset, test_size=0.2, random_state=42)
     train_set2, test_set2 = split_dataset(dataset, test_size=0.2, random_state=42)
-    assert set(list(train_set1)) == set(list(train_set2))
-    assert set(list(test_set1)) == set(list(test_set2))
+    assert train_set1 == train_set2
+    assert test_set1 == test_set2
 
 def test_split_dataset_leakage(dataset: Dataset):
     train_set, test_set = split_dataset(dataset, test_size=0.2, random_state=42)
@@ -44,4 +45,4 @@ def test_split_dataset_leakage(dataset: Dataset):
 
 def test_split_dataset_data_unaltered(dataset: Dataset):
     train_set, test_set = split_dataset(dataset, test_size=0.2, random_state=42)
-    assert set(train_set.instances + test_set.instances) == set(dataset.instances)
+    assert set(train_set.instances + test_set.instances) == set(dataset)

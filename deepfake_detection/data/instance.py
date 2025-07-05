@@ -8,10 +8,26 @@ import cv2
 
 
 class Instance(ABC):
+    """
+    A single dataset instance. Instances are identified by their path. Additionally, each instance has a label.
 
+    :param path: The path to the instance.
+    :param label: The label of the instance.
+    """
     def __init__(self, path: str, label: str):
         self.path = path
         self.label = label
+
+    def __eq__(self, other):
+        if not isinstance(other, Instance):
+            return ValueError("Other object is not of type Instance.")
+        return self.__hash__() == other.__hash__()
+
+    def __hash__(self):
+        """
+        Because data are retrieved dynamically, dataset instances are identified only by path.
+        """
+        return hash(self.path)
 
 class ImageInstance(Instance):
 
