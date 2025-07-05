@@ -1,6 +1,6 @@
 import confidence
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.utils.parameters import DATASETS, MODELS
 
 
@@ -15,11 +15,11 @@ def parse_dataset_config(config_path: str):
     datasets = {}
 
     for dataset_config in config.datasets:
-        datasets[dataset_config.name] = init_dataset(dataset_config)
+        datasets[dataset_config.name] = load_dataset(dataset_config)
 
     return datasets
 
-def init_dataset(config: confidence.Configuration) -> Dataset:
+def load_dataset(config: confidence.Configuration) -> Dataset:
     """
     This function initializes a dataset from a provided configuration mapping.
 

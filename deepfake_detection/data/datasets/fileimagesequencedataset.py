@@ -1,7 +1,7 @@
 import os
 from typing import Iterable
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import ImageSequenceInstance
 
 
@@ -35,7 +35,7 @@ class FileImageSequenceDataset(Dataset):
     :param name: The name of the dataset.
     """
 
-    def __init__(self, name: str, path: str):
+    def __init__(self, path: str, name: str = None):
         super().__init__(name)
         self.path = path
 

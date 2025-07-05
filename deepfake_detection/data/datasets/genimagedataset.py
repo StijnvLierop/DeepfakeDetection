@@ -1,7 +1,7 @@
 import os
 from typing import Iterable
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import ImageInstance
 
 
@@ -32,8 +32,8 @@ class GenImageDataset(Dataset):
     :param split: The split of the dataset to load. 'train', 'val', or None to retrieve all data.
     """
 
-    def __init__(self, path : str, name : str, split: str = None):
-        super(GenImageDataset, self).__init__(name=name)
+    def __init__(self, path : str, split: str = None, name: str = None):
+        super(GenImageDataset, self).__init__(name)
         self.path = path
         if split == 'train':
             self.split = ['train']

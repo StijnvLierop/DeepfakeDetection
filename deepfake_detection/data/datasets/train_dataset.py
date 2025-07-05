@@ -1,7 +1,7 @@
 import torch
 from PIL import Image
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.utils.labels import encode_label
 
 

@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.manifold import TSNE
 import streamlit as st
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
 from deepfake_detection.utils.parameters import DATASETS
 

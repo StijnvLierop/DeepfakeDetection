@@ -1,13 +1,16 @@
 import json
 import os
 import warnings
+from json import JSONDecoder
 from typing import Sequence, Mapping, Collection, Any, Optional, Tuple, Dict
 
 import numpy as np
 import streamlit as st
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.datasets import ListDataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
+from deepfake_detection.utils.serialization import InstanceDecoder
 
 
 def write_predictions_to_file(results_dir: str,
@@ -159,3 +162,18 @@ def jsonify(obj: Any) -> Any:
     except TypeError as e:
         message = f"Can't jsonify object of type {type(obj).__name__}: {e}"
         raise TypeError(message) from e
+
+
+def load_dataset_from_file(dataset_path: str) -> ListDataset:
+    """
+    This function loads a dataset from a .JSON file.
+
+    :param dataset_path: The path to the .JSON file containing the instances.
+    """
+    # Read from file
+    with open(dataset_path, 'r') as infile:
+
+        # Decode instances
+        instances = json.load(infile, cls=InstanceDecoder)
+
+    return ListDataset(instances=instances)

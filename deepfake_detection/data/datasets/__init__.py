@@ -1,4 +1,3 @@
-from deepfake_detection.data.datasets.dataset import Dataset
 from deepfake_detection.data.datasets.faceforensics import FaceForensicsDataset
 from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
 from deepfake_detection.data.datasets.fileimagesequencedataset import FileImageSequenceDataset

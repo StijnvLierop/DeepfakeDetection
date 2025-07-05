@@ -2,7 +2,7 @@ import os
 from functools import cached_property
 from typing import Iterable
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import ImageInstance
 
 
@@ -28,8 +28,8 @@ class FileImageDataset(Dataset):
     :param name: The name of the dataset.
     """
 
-    def __init__(self, path : str, name : str, return_binary: bool=False):
-        super(FileImageDataset, self).__init__(name=name)
+    def __init__(self, path : str, name : str = None, return_binary: bool=False):
+        super(FileImageDataset, self).__init__(name)
         self.path = path
         self.return_binary = return_binary
 

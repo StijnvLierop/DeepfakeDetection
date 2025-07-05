@@ -1,7 +1,7 @@
 import os
 from typing import Iterable
 
-from deepfake_detection.data.datasets.dataset import Dataset
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import VideoInstance, ImageSequenceInstance
 
 
@@ -41,7 +41,7 @@ class FaceForensicsDataset(Dataset):
                     instances from all compression levels are returned.
     """
 
-    def __init__(self, name: str, path: str, modality: str = 'videos', c_level : str = None):
+    def __init__(self, path: str, name: str = None, modality: str = 'videos', c_level : str = None):
         super().__init__(name)
         self.path = path
 
