@@ -7,7 +7,9 @@ from deepfake_detection.data.datasets import ListDataset
 from deepfake_detection.data.dataset import Dataset
 
 
-def split_dataset(dataset: Dataset, test_size : int = 0.2, random_state : int = 42) -> Tuple[ListDataset, ListDataset]:
+def split_dataset(dataset: Dataset,
+                  test_size : float = None,
+                  random_state : int = None) -> Tuple[ListDataset, ListDataset]:
     """
     Splits a dataset into training and test sets.
 
