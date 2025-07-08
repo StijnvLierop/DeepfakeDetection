@@ -16,13 +16,13 @@ def dataset() -> Dataset:
 
 def test_split_dataset_size(dataset: Dataset):
     train_set, test_set = split_dataset(dataset, test_size=0.2, random_state=42)
-    assert len(train_set) == 6
-    assert len(test_set) == 2
+    assert len(train_set) == 12
+    assert len(test_set) == 3
     assert len(train_set) + len(test_set) == len(dataset)
 
     train_set, test_set = split_dataset(dataset, test_size=0.5, random_state=42)
-    assert len(train_set) == 4
-    assert len(test_set) == 4
+    assert len(train_set) == 7
+    assert len(test_set) == 8
     assert len(train_set) + len(test_set) == len(dataset)
 
 def test_split_dataset_random_state(dataset: Dataset):
