@@ -24,7 +24,7 @@ commit_parser = "conventional"
 logging_use_named_masks = false
 major_on_zero = true
 allow_zero_version = false
-repo_dir = "/home/stijn/repositories/DeepfakeDetection"
+repo_dir = "./DeepfakeDetection"
 no_git_verify = false
 tag_format = "v{version}"
 
@@ -33,7 +33,7 @@ match = "(main|master)"
 prerelease_token = "rc"
 prerelease = false
 
-[tool.semantic_release.changelog]
+[changelog.default_templates]
 changelog_file = ""
 exclude_commit_patterns = []
 mode = "update"
