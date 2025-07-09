@@ -3,7 +3,6 @@ requires = ["setuptools >= 62.6"]
 
 [project]
 name = "deepfake_detection"
-version = "0.0.2"
 description = "A library for deepfake detection research."
 readme = "README.md"
 requires-python = ">=3.10"
