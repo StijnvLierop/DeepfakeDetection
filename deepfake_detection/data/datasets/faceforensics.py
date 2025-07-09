@@ -1,5 +1,6 @@
+import json
 import os
-from typing import Iterable
+from typing import Iterable, Union
 
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import VideoInstance, ImageSequenceInstance
@@ -39,9 +40,17 @@ class FaceForensicsDataset(Dataset):
                      is selected, the dataset returns a series of VideoInstance.
     :param c_level: The compression level to return. Should be one of: 'c23', 'c40' or 'raw'. If none (default),
                     instances from all compression levels are returned.
+    :param split: The split to return. Can be one of 'train', 'test' or 'validation'. If none (default), all instances
+                  are returned.
+    :param split_dict_path: A path to a JSON file containing a dictionary mapping of filename indices to splits.
     """
 
-    def __init__(self, path: str, name: str = None, modality: str = 'videos', c_level : str = None):
+    def __init__(self, path: str,
+                 name: str = None,
+                 modality: str = 'videos',
+                 c_level : str = None,
+                 split : str = None,
+                 split_dict_path : str = None):
         super().__init__(name)
         self.path = path
 
@@ -59,6 +68,25 @@ class FaceForensicsDataset(Dataset):
         else:
             self.c_levels = [c_level]
 
+        # Ensure that a valid value is passed for split
+        if split not in ['train', 'test', 'validation', None]:
+            raise ValueError(f'Invalid split: {split}. Must be one of "train", "test", "validation" or None.')
+        else:
+            # Set correct split
+            self.split = split
+
+        # Ensure that valid split mapping file is provided
+        if split and split_dict_path is None:
+            raise ValueError(f'Invalid split dict path: {split_dict_path}. Please provide a valid path to a '
+                             f'.JSON file with a dictionary mapping of filename indices to splits.')
+
+        # Load split dict file if provided
+        if split_dict_path:
+            with open(split_dict_path, 'r') as f:
+                self.split_dict = json.load(f)
+        else:
+            self.split_dict = None
+
     def __len__(self):
         """
         Returns the length of the dataset.
@@ -71,14 +99,15 @@ class FaceForensicsDataset(Dataset):
                 # Loop over qualities (compression levels) in dataset
                     for c_level in self.c_levels:
                         # Loop over instances
-                        for _ in os.listdir(os.path.join(self.path, folder, subfolder, c_level, self.modality)):
-                            n += 1
+                        for instance in os.listdir(os.path.join(self.path, folder, subfolder, c_level, self.modality)):
+                            # If instance in split
+                            if self._instance_in_split(instance):
+                                n += 1
         return n
 
     @property
     def label_mapping(self):
         mapping = {}
-        # Loop over folders (authenticity class) in dataset
         # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
             # Loop over folders (models) in dataset
@@ -88,7 +117,7 @@ class FaceForensicsDataset(Dataset):
 
         return mapping
 
-    def __iter__(self) -> Iterable[VideoInstance]:
+    def __iter__(self) -> Iterable[Union[ImageSequenceInstance, VideoInstance]]:
         # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
             # Loop over folders (models) in dataset
@@ -97,11 +126,33 @@ class FaceForensicsDataset(Dataset):
                 for c_level in self.c_levels:
                     # Loop over instances
                     for instance in os.listdir(os.path.join(self.path, folder, subfolder, c_level, self.modality)):
-                        if self.modality == 'images':
-                            yield ImageSequenceInstance(
-                                os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
-                                subfolder)
-                        else:
-                            yield VideoInstance(
-                                os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
-                                subfolder)
+                        # If instance in split
+                        if self._instance_in_split(instance):
+                            if self.modality == 'images':
+                                yield ImageSequenceInstance(
+                                    os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
+                                    subfolder)
+                            else:
+                                yield VideoInstance(
+                                    os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
+                                    subfolder)
+
+    def _instance_in_split(self, instance_path: str) -> bool:
+        """
+        This functions returns true if the current instance is in the selected split. If no split is selected or no
+        split mapping is provided it will always return true.
+
+        :param instance_path: The path to the instance.
+        """
+        # If no split dict is set or split is set to None return true
+        if self.split is None or self.split_dict is None:
+            return True
+
+        # Extract filename index
+        filename_index = instance_path.split('.')[0]
+
+        # Check if instance is in current split
+        if filename_index in self.split_dict.keys() and self.split_dict[filename_index] == self.split:
+            return True
+        else:
+            return False
