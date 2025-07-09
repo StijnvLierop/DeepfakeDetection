@@ -76,7 +76,7 @@ class FileVideoDataset(Dataset):
                         # Loop over videos
                         for video in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if video.split('.')[-1].lower() in ['mp4', 'mov']:
-                                yield VideoInstance(os.path.join(self.path, folder, subfolder),
+                                yield VideoInstance(os.path.join(self.path, folder, subfolder, video),
                                                     subfolder)
                             else:
                                 raise print("Found file that is not a mp4 or mov file: {}".format(video))
