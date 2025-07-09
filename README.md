@@ -8,5 +8,4 @@ All dependencies can then be installed by running the commands below. After star
 ```
 pip install --upgrade pip
 pip install -r requirements.txt
-pip install -r test-requirements.txt
 ```
