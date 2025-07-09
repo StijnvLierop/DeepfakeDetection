@@ -40,8 +40,11 @@ jobs:
         with:
           fetch-depth: 0  # Needed for full commit history
 
-      - name: Python Semantic Release
-        uses: python-semantic-release/python-semantic-release@v9.21.0
-        with:
-          github_token: ${{ secrets.VERSION_BUMP_TOKEN }}
+      - name: Install Python Semantic Release
+        run: pip install python-semantic-release
 
+      # Minor/major versions are bumped manually for now
+      - name: Patch Version Bump Release
+        env:
+          github_token: ${{ secrets.VERSION_BUMP_TOKEN }}
+        run: semantic-release publish --patch
