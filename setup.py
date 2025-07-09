@@ -15,7 +15,7 @@ if __name__ == '__main__':
         )
     setup(
         name="deepfake_detection",
-        version="0.0.0",
+        version="0.0.1",
         description="A library for deepfake detection research.",
         long_description=readme,
         author="Stijn van Lierop",

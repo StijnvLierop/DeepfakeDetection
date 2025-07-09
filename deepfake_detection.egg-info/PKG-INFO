@@ -1,0 +1,49 @@
+Metadata-Version: 2.4
+Name: deepfake_detection
+Version: 0.0.0
+Summary: A library for deepfake detection research.
+Home-page: https://github.com/StijnvLierop/DeepfakeDetection
+Author: Stijn van Lierop
+Author-email: s.van.lierop@nfi.nl
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.10
+Requires-Dist: torch==2.5.1
+Requires-Dist: torchvision==0.20.1
+Requires-Dist: pillow==11.1.0
+Requires-Dist: matplotlib==3.10.0
+Requires-Dist: open_clip_torch==2.30.0
+Requires-Dist: scikit-learn==1.6.0
+Requires-Dist: streamlit==1.41.1
+Requires-Dist: stqdm==0.0.5
+Requires-Dist: confidence==0.15
+Requires-Dist: seaborn==0.13.2
+Requires-Dist: scikit-image==0.25.1
+Requires-Dist: PyWavelets==1.8.0
+Requires-Dist: opencv-python==4.11.0.86
+Requires-Dist: streamlit-elements==0.1.0
+Requires-Dist: numpy>=1.26.4
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: home-page
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+## Requirements
+
+Python >= 3.10
+
+## Installing Dependencies
+All dependencies can then be installed by running the commands below. After starting your virtual environment:
+
+```
+pip install --upgrade pip
+pip install -r requirements.txt
+pip install -r test-requirements.txt
+```

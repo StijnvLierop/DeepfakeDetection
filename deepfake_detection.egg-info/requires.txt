@@ -13,3 +13,7 @@ PyWavelets==1.8.0
 opencv-python==4.11.0.86
 streamlit-elements==0.1.0
 numpy>=1.26.4
+
+[dev]
+pytest
+flake8
