@@ -30,7 +30,9 @@ dependencies = [
 ]
 
 [dependency-groups]
-test = ["pytest"]
+test = [
+    "pytest>=8.4.1",
+]
 
 [tool.setuptools]
 py-modules = ["deepfake_detection"]
@@ -56,6 +58,7 @@ version_toml = ["pyproject.toml:project.version"]
 match = "(main|master)"
 prerelease_token = "rc"
 prerelease = false
+
 
 
 [tool.pdm]
