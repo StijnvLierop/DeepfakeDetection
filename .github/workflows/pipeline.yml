@@ -28,7 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
           pdm install
           pdm install -dG test
 
