@@ -21,9 +21,8 @@ class Dataset(ABC, Iterable[Instance], Sized):
     def __iter__(self):
         raise NotImplementedError
 
-    @abstractmethod
     def __len__(self):
-        raise NotImplementedError
+        return len(list(self.__iter__()))
 
     def __eq__(self, other):
         return set(self.__iter__()) == set(other.__iter__())

@@ -46,24 +46,6 @@ class FileImageDataset(Dataset):
                         mapping[subfolder] = folder
         return mapping
 
-    def __len__(self) -> int:
-        """
-        Returns the length of the dataset.
-        """
-        n = 0
-        # Loop over folders (authenticity class) in dataset
-        for folder in os.listdir(self.path):
-            # If directory
-            if os.path.isdir(os.path.join(self.path, folder)):
-                for subfolder in os.listdir(os.path.join(self.path, folder)):
-                    # If directory
-                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
-                        # Loop over images
-                        for img in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                n += 1
-        return n
-
     def __iter__(self) -> Iterable[ImageInstance]:
         # Loop over folders (labels) in dataset
         for folder in os.listdir(self.path):

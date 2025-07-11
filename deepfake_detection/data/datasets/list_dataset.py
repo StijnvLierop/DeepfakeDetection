@@ -15,6 +15,3 @@ class ListDataset(Dataset):
 
     def __iter__(self):
         return iter(self.instances)
-
-    def __len__(self):
-        return len(self.instances)

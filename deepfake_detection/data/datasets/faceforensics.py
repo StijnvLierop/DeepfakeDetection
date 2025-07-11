@@ -87,24 +87,6 @@ class FaceForensicsDataset(Dataset):
         else:
             self.split_dict = None
 
-    def __len__(self):
-        """
-        Returns the length of the dataset.
-        """
-        n = 0
-        # Loop over folders (authenticity class) in dataset
-        for folder in os.listdir(self.path):
-            # Loop over folders (models) in dataset
-            for subfolder in os.listdir(os.path.join(self.path, folder)):
-                # Loop over qualities (compression levels) in dataset
-                    for c_level in self.c_levels:
-                        # Loop over instances
-                        for instance in os.listdir(os.path.join(self.path, folder, subfolder, c_level, self.modality)):
-                            # If instance in split
-                            if self._instance_in_split(instance):
-                                n += 1
-        return n
-
     @property
     def label_mapping(self):
         mapping = {}
