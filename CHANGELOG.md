@@ -14,6 +14,9 @@
 - Pipeline tests now run in pdm environment
   ([`0920342`](https://github.com/StijnvLierop/DeepfakeDetection/commit/09203427549a08062c340f8dc23f42e0de401dc7))
 
+- Reset version to 0.1.0
+  ([`a0a51d3`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a0a51d3b84234b8ebfd7f52634d52932fab04311))
+
 - Run release only when on main branch to prevent detached HEAD error
   ([`9f23d25`](https://github.com/StijnvLierop/DeepfakeDetection/commit/9f23d25833bf5ca7367ccd5107f90219107b2361))
 
