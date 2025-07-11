@@ -3,3 +3,6 @@ results
 **/__pycache__/
 weights
 .coverage
+.pdm-python
+.python-version
+.venv

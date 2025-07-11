@@ -1,13 +1,38 @@
 [build-system]
-requires = ["setuptools >= 62.6"]
+requires = ["pdm-backend >= 2.4.0"]
+build-backend = "pdm.backend"
 
 [project]
 name = "deepfake_detection"
-version = "1.0.0"
+version = "0.1.0"
 description = "A library for deepfake detection research."
 readme = "README.md"
-requires-python = ">=3.10"
-dynamic = ["dependencies", "optional-dependencies"]
+requires-python = "==3.10.12"
+authors = [
+    {name = "Stijn van Lierop", email = "s.van.lierop@nfi.nl"},
+]
+dependencies = [
+    "torch==2.5.1",
+    "torchvision>=0.20.1",
+    "pillow>=11.3.0",
+    "matplotlib==3.10.0",
+    "open-clip-torch==2.30.0",
+    "scikit-learn==1.6.0",
+    "streamlit==1.41.1",
+    "stqdm==0.0.5",
+    "confidence==0.15",
+    "seaborn==0.13.2",
+    "scikit-image==0.25.1",
+    "PyWavelets==1.8.0",
+    "opencv-python==4.11.0.86",
+    "streamlit-elements==0.1.0",
+    "numpy>=2.2.6",
+]
+
+[dependency-groups]
+test = [
+    "pytest>=8.4.1",
+]
 
 [tool.setuptools]
 py-modules = ["deepfake_detection"]
@@ -34,6 +59,10 @@ match = "(main|master)"
 prerelease_token = "rc"
 prerelease = false
 
+
+
+[tool.pdm]
+distribution = true
 [changelog.default_templates]
 changelog_file = ""
 exclude_commit_patterns = []
