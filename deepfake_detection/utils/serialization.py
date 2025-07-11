@@ -12,7 +12,7 @@ class InstanceEncoder(JSONEncoder):
     Only metadata is encoded, but data itself is not serialized.
     """
     def default(self, instance: Instance):
-        return {'path': instance.path,
+        return {'path': str(instance.path),
                 'label': instance.label,
                 'instance_type': INSTANCE2KEY[instance.__class__]}
 
