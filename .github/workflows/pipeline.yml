@@ -1,4 +1,4 @@
-name: CI
+name: CICD
 on:
   # Triggers for any branch
   push:
@@ -36,6 +36,9 @@ jobs:
 
   # Bump version
   release:
+    # Only run on main branch
+    if: github.ref == 'refs/heads/main'
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
