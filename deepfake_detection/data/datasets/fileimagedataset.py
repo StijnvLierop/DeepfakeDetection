@@ -26,12 +26,21 @@ class FileImageDataset(Dataset):
 
     :param path: The path to the root folder of the dataset.
     :param name: The name of the dataset.
+    :param return_binary: If True, the binary label is returned (real/fake) instead of the model name.
+    :param split_file: The path to a file containing the filenames of the images that should be returned.
     """
 
-    def __init__(self, path : str, name : str = None, return_binary: bool=False):
+    def __init__(self, path : str, name : str = None, split_file: str = None, return_binary: bool=False):
         super(FileImageDataset, self).__init__(name)
         self.path = path
         self.return_binary = return_binary
+
+        # If split file provided store the filenames of included instances in a list
+        if split_file:
+            with open(split_file, 'r') as f:
+                self.included_instances = f.read().splitlines()
+        else:
+            self.included_instances = None
 
     @cached_property
     def label_mapping(self):
@@ -58,11 +67,11 @@ class FileImageDataset(Dataset):
                         for img in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
                                 self.label_mapping[subfolder] = folder
-                                # If return binary labels
-                                if self.return_binary:
-                                    yield ImageInstance(os.path.join(self.path, folder, subfolder, img), folder)
-                                else:
-                                    yield ImageInstance(os.path.join(self.path, folder, subfolder, img), subfolder)
-
+                                if self.included_instances is None or img in self.included_instances:
+                                    # If return binary labels
+                                    if self.return_binary:
+                                        yield ImageInstance(os.path.join(self.path, folder, subfolder, img), folder)
+                                    else:
+                                        yield ImageInstance(os.path.join(self.path, folder, subfolder, img), subfolder)
                             else:
                                 print("Found file that is not a jpg, jpeg or png file: {}".format(img))
