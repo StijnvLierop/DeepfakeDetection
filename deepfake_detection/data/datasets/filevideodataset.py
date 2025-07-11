@@ -29,25 +29,6 @@ class FileVideoDataset(Dataset):
         super().__init__(name)
         self.path = path
 
-    def __len__(self):
-        """
-        Returns the length of the dataset.
-        """
-        n = 0
-        # Loop over folders (authenticity class) in dataset
-        for folder in os.listdir(self.path):
-            # If directory
-            if os.path.isdir(os.path.join(self.path, folder)):
-                # Loop over folders (models) in dataset
-                for subfolder in os.listdir(os.path.join(self.path, folder)):
-                    # If directory
-                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
-                        # Loop over videos
-                        for video in os.listdir(os.path.join(self.path, folder, subfolder)):
-                                if video.split('.')[-1].lower() in ['mp4', 'mov']:
-                                    n += 1
-        return n
-
     @property
     def label_mapping(self):
         mapping = {}
