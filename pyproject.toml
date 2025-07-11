@@ -4,7 +4,7 @@ build-backend = "pdm.backend"
 
 [project]
 name = "deepfake_detection"
-version = "1.0.0"
+version = "0.1.0"
 description = "A library for deepfake detection research."
 readme = "README.md"
 requires-python = "==3.10.12"
@@ -59,8 +59,6 @@ match = "(main|master)"
 prerelease_token = "rc"
 prerelease = false
 
-
-
 [tool.pdm]
 distribution = true
 [changelog.default_templates]
@@ -95,7 +93,7 @@ default = "semantic-release <semantic-release>"
 
 [tool.semantic_release.commit_parser_options]
 minor_tags = ["feat"]
-patch_tags = ["fix", "perf"]
+patch_tags = ["fix", "perf", "chore"]
 other_allowed_tags = ["build", "chore", "ci", "docs", "style", "refactor", "test"]
 allowed_tags = ["feat", "fix", "perf", "build", "chore", "ci", "docs", "style", "refactor", "test"]
 default_bump_level = 0
