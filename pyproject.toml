@@ -61,6 +61,7 @@ prerelease = false
 
 [tool.pdm]
 distribution = true
+
 [changelog.default_templates]
 changelog_file = ""
 exclude_commit_patterns = []
@@ -93,12 +94,20 @@ default = "semantic-release <semantic-release>"
 
 [tool.semantic_release.commit_parser_options]
 minor_tags = ["feat"]
-patch_tags = ["fix", "perf", "chore"]
+patch_tags = ["fix", "perf"]
 other_allowed_tags = ["build", "chore", "ci", "docs", "style", "refactor", "test"]
 allowed_tags = ["feat", "fix", "perf", "build", "chore", "ci", "docs", "style", "refactor", "test"]
 default_bump_level = 0
 parse_squash_commits = true
 ignore_merge_commits = true
+
+[tool.semantic_release.commit_parser_options]
+release_rules = [
+  {type = "feat", release = "minor"},
+  {type = "fix", release = "patch"},
+  {type = "chore", release = "patch"},
+  {breaking = true, release = false}
+]
 
 [tool.semantic_release.remote]
 name = "origin"
