@@ -12,20 +12,20 @@ class FileImageSequenceDataset(Dataset):
 
     <root dataset dir>
         real
-            <label 1>
-                - <image sequence 1>
-                    - frame 1
+            <label 1_1fake>
+                - <image sequence 1_1fake>
+                    - frame 1_1fake
                     - frame 2
                 - <image sequence 2>
-                    - frame 1
+                    - frame 1_1fake
                     - frame 2
         fake
             <label 2>
-                - <image sequence 1>
-                    - frame 1
+                - <image sequence 1_1fake>
+                    - frame 1_1fake
                     - frame 2
                 - <image sequence 2>
-                    - frame 1
+                    - frame 1_1fake
                     - frame 2
         ...
 

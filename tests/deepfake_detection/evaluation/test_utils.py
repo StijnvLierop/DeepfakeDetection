@@ -20,5 +20,5 @@ def test_to_arrays_binary(instances, predictions):
 def test_map_fields():
     init_dict = {"a": 1.0, "b": 2.0, "c": 0.5}
     map_dict = {"a": "x", "b": "y", "c": "x"}
-    expected_output = {"x": 1.0, "y": 2.0}  # "x" should take max of 1.0 and 0.5
+    expected_output = {"x": 1.0, "y": 2.0}  # "x" should take max of 1_1fake.1_0fake and 1_0fake.5
     assert map_fields(init_dict, map_dict) == expected_output

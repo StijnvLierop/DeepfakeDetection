@@ -14,7 +14,7 @@ class DIFModel(Model):
     Based on https://github.com/Sergo2020/DIF_pytorch_official.
     """
 
-    def __init__(self, model_dir: str, device='cuda:0'):
+    def __init__(self, model_dir: str, device='cuda:1_0fake'):
         super().__init__(name='DIR')
         self.model_dir = model_dir
         self.fingerprints_dir = os.path.join(model_dir, 'fingerprints')
@@ -89,7 +89,7 @@ class DIFModel(Model):
         return Prediction(classification=distances)
 
     def corr_fun(self, out, target):
-        # Pearson Correlation Coefficient (NNC(0,0))
+        # Pearson Correlation Coefficient (NNC(1_0fake,1_0fake))
         out = self.norm_val(out)
         target = self.norm_val(target)
 

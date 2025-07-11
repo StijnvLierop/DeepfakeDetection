@@ -11,7 +11,7 @@ class FileVideoDataset(Dataset):
 
     <root dataset dir>
         real
-            <label 1>
+            <label 1_1fake>
                 - video1
         fake
             <label 2>

@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 import pytest
@@ -9,6 +10,7 @@ from deepfake_detection.data.datasets.fileimagesequencedataset import FileImageS
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.models.prediction import Prediction
 from tests.deepfake_detection.fixtures import image_dataset_path, image_sequence_dataset_path, video_dataset_path
+from tests.deepfake_detection.paths import RESOURCES_DIR
 
 @pytest.fixture
 def instances() -> List[Instance]:
@@ -40,12 +42,34 @@ def predictions() -> List[List[Prediction]]:
         ]
     ]
 
+@pytest.fixture
+def image_split_file_path():
+    return os.path.join(RESOURCES_DIR, "data", "test_image_dataset", "split_file.txt")
+
+
+@pytest.fixture
+def image_sequence_split_file_path():
+    return os.path.join(RESOURCES_DIR, "data", "test_image_sequence_dataset", "split_file.txt")
+
+
+@pytest.fixture
+def video_split_file_path():
+    return os.path.join(RESOURCES_DIR, "data", "test_video_dataset", "split_file.txt")
+
 
 def test_load_file_image_dataset(image_dataset_path):
     dataset = FileImageDataset(name='test', path=image_dataset_path)
     instances = list(dataset)
 
     assert len(dataset) == 3
+    assert len(dataset) == len(instances)
+
+
+def test_load_file_image_dataset_split(image_dataset_path, image_split_file_path):
+    dataset = FileImageDataset(name='test', path=image_dataset_path, split_file=image_split_file_path)
+    instances = list(dataset)
+
+    assert len(dataset) == 1
     assert len(dataset) == len(instances)
 
 
@@ -57,11 +81,29 @@ def test_load_file_image_sequence_dataset(image_sequence_dataset_path):
     assert len(dataset) == len(instances)
 
 
+def test_load_file_image_sequence_dataset_split(image_sequence_dataset_path, image_sequence_split_file_path):
+    dataset = FileImageSequenceDataset(name='test',
+                                       path=image_sequence_dataset_path,
+                                       split_file=image_sequence_split_file_path)
+    instances = list(dataset)
+
+    assert len(dataset) == 1
+    assert len(dataset) == len(instances)
+
+
 def test_load_video_dataset(video_dataset_path):
     dataset = FileVideoDataset(name='test', path=video_dataset_path)
     instances = list(dataset)
 
     assert len(dataset) == 3
+    assert len(dataset) == len(instances)
+
+
+def test_load_file_image_video_dataset_split(video_dataset_path, video_split_file_path):
+    dataset = FileVideoDataset(name='test', path=video_dataset_path, split_file=video_split_file_path)
+    instances = list(dataset)
+
+    assert len(dataset) == 1
     assert len(dataset) == len(instances)
 
 

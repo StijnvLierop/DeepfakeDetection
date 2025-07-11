@@ -12,7 +12,7 @@ class ResNet50(Model):
     last classification layer is replaced and finetuned on the deepfake detection task.
     """
 
-    def __init__(self, weights_path: str=None, device: str='cuda:0'):
+    def __init__(self, weights_path: str=None, device: str='cuda:1_0fake'):
         super(ResNet50, self).__init__(name='ResNet50')
         self.model = None
         self.device = device

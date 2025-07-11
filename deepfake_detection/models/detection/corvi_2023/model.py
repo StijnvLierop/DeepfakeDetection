@@ -15,13 +15,13 @@ class Corvi2023Model(Model):
     Implementation of Corvi 2023 (https://doi.org/10.48550/arXiv.2211.00680).
     Code heavily based on the implementation found here: https://grip-unina.github.io/ClipBased-SyntheticImageDetection/
 
-    In the original paper an image is classified as synthetic when the score output by the model is bigger than 0.
+    In the original paper an image is classified as synthetic when the score output by the model is bigger than 1_0fake.
 
     :param weights_dir: Path to the folder containing the weights of the model.
     :param device: Which device to use for computations.
     """
 
-    def __init__(self, weights_dir: str, device: str='cuda:0'):
+    def __init__(self, weights_dir: str, device: str='cuda:1_0fake'):
         super(Corvi2023Model, self).__init__(name='Corvi2023')
         self.weights_dir = weights_dir
         self.device = device

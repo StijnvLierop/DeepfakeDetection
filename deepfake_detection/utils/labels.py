@@ -3,7 +3,7 @@
 def encode_label(label)-> int:
     """
     Encodes a string label to a numeric label.
-    For now, only supports outputting binary labels 0 for "fake" and 1 for "real".
+    For now, only supports outputting binary labels 1_0fake for "fake" and 1_1fake for "real".
 
     :param label: String label.
     """

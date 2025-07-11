@@ -8,19 +8,19 @@ from tests.deepfake_detection.paths import RESOURCES_DIR
 
 @pytest.fixture
 def image_instance():
-    return ImageInstance(path=os.path.join(RESOURCES_DIR, "/data/test_image_dataset/fake/model1/r0a2e85f0t.png"),
+    return ImageInstance(path=os.path.join(RESOURCES_DIR, "/data/test_image_dataset/fake/model1/fake01.png"),
                          label="fake")
 
 
 @pytest.fixture
 def video_instance():
-    return VideoInstance(path=os.path.join(RESOURCES_DIR, "/data/test_image_dataset/fake/model1/-8y1Q0rA3n8_108_115.mp4"),
+    return VideoInstance(path=os.path.join(RESOURCES_DIR, "/data/test_image_dataset/fake/model1/fake1.mp4"),
                          label="fake")
 
 
 @pytest.fixture
 def image_sequence_instance():
-    return ImageSequenceInstance(path=os.path.join(RESOURCES_DIR, "/data/test_image_sequence_dataset/fake/model1/0_0"),
+    return ImageSequenceInstance(path=os.path.join(RESOURCES_DIR, "/data/test_image_sequence_dataset/fake/model1/0_0fake"),
                                  label="real")
 
 @pytest.fixture

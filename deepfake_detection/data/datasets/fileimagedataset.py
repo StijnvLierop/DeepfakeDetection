@@ -13,12 +13,12 @@ class FileImageDataset(Dataset):
 
     <root dataset dir>
         fake
-            <label 1>
-            - image 1
+            <label 1_1fake>
+            - image 1_1fake
             - image 2
         camera1
             <label 2>
-            - image 1
+            - image 1_1fake
             - image 2
         ...
 

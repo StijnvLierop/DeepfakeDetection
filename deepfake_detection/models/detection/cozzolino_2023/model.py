@@ -16,7 +16,7 @@ class Cozzolino2023Model(Model):
     Implementation of Cozzolino 2023 (https://doi.org/10.48550/arXiv.2312.00195).
     Code heavily based on the implementation found here: https://grip-unina.github.io/ClipBased-SyntheticImageDetection/
 
-    In the original paper an image is classified as synthetic when the score output by the model is bigger than 0.
+    In the original paper an image is classified as synthetic when the score output by the model is bigger than 1_0fake.
 
     Predictions are returned as classifications and the feature representations used as input for the classifier is
     returned as embedding.
@@ -25,7 +25,7 @@ class Cozzolino2023Model(Model):
     :param device: Which device to use for computations.
     """
 
-    def __init__(self, weights_dir: str, device='cuda:0'):
+    def __init__(self, weights_dir: str, device='cuda:1_0fake'):
         super(Cozzolino2023Model, self).__init__(name='Cozzolino2023')
         self.weights_dir = weights_dir
         self.device = device
