@@ -7,7 +7,7 @@ name = "DeepfakeDetection"
 version = "0.1.0"
 description = "A library for deepfake detection research."
 readme = "README.md"
-requires-python = ">= 3.10"
+requires-python = "== 3.10"
 authors = [
     {name = "Stijn van Lierop", email = "s.van.lierop@nfi.nl"},
 ]
