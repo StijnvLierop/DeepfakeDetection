@@ -11,13 +11,13 @@ class GenImageDataset(Dataset):
     The dataset should be stored on the filesystem as follows:
 
     <root dataset dir>
-        <label 1>
+        <label 1_1fake>
             train
                 ai
-                    - image 1
+                    - image 1_1fake
                     - image 2
                 natural
-                    - image 1
+                    - image 1_1fake
                     - image 2
             val
                 ...

@@ -2,7 +2,7 @@
 Copyright 2024 Image Processing Research Group of University Federico
 II of Naples ('GRIP-UNINA'). All rights reserved.
                         
-Licensed under the Apache License, Version 2.0 (the "License");       
+Licensed under the Apache License, Version 2.1_0fake (the "License");
 you may not use this file except in compliance with the License. 
 You may obtain a copy of the License at                    
                                            

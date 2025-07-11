@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from deepfake_detection.data.datasets import FileImageDataset
@@ -12,7 +13,7 @@ from tests.deepfake_detection.fixtures import (image_instance, video_instance,
 def test_encode_decode_image_instance(image_instance):
     encoded = json.dumps(image_instance, cls=InstanceEncoder)
     decoded = json.loads(encoded)
-    assert decoded["path"] == image_instance.path
+    assert Path(decoded["path"]) == image_instance.path
     assert decoded["label"] == image_instance.label
     assert decoded["instance_type"] == "image"
 
@@ -20,7 +21,7 @@ def test_encode_decode_image_instance(image_instance):
 def test_instance_encoder_with_video_instance(video_instance):
     encoded = json.dumps(video_instance, cls=InstanceEncoder)
     decoded = json.loads(encoded)
-    assert decoded["path"] == video_instance.path
+    assert Path(decoded["path"]) == video_instance.path
     assert decoded["label"] == video_instance.label
     assert decoded["instance_type"] == "video"
 
@@ -28,7 +29,7 @@ def test_instance_encoder_with_video_instance(video_instance):
 def test_instance_encoder_with_image_sequence_instance(image_sequence_instance):
     encoded = json.dumps(image_sequence_instance, cls=InstanceEncoder)
     decoded = json.loads(encoded)
-    assert decoded["path"] == image_sequence_instance.path
+    assert Path(decoded["path"]) == image_sequence_instance.path
     assert decoded["label"] == image_sequence_instance.label
     assert decoded["instance_type"] == "image_sequence"
 

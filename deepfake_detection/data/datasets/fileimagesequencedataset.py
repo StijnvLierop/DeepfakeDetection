@@ -12,20 +12,20 @@ class FileImageSequenceDataset(Dataset):
 
     <root dataset dir>
         real
-            <label 1>
-                - <image sequence 1>
-                    - frame 1
+            <label 1_1fake>
+                - <image sequence 1_1fake>
+                    - frame 1_1fake
                     - frame 2
                 - <image sequence 2>
-                    - frame 1
+                    - frame 1_1fake
                     - frame 2
         fake
             <label 2>
-                - <image sequence 1>
-                    - frame 1
+                - <image sequence 1_1fake>
+                    - frame 1_1fake
                     - frame 2
                 - <image sequence 2>
-                    - frame 1
+                    - frame 1_1fake
                     - frame 2
         ...
 
@@ -33,11 +33,19 @@ class FileImageSequenceDataset(Dataset):
 
     :param path: The path to the root folder of the dataset.
     :param name: The name of the dataset.
+    :param split_file: The path to a file containing the directory names of the image sequences that should be returned.
     """
 
-    def __init__(self, path: str, name: str = None):
+    def __init__(self, path: str, name: str = None, split_file: str = None):
         super().__init__(name)
         self.path = path
+
+        # If split file provided store the filenames of included instances in a list
+        if split_file:
+            with open(split_file, 'r') as f:
+                self.included_instances = f.read().splitlines()
+        else:
+            self.included_instances = None
 
     def __iter__(self) -> Iterable[ImageSequenceInstance]:
         # Loop over folders (models) in dataset
@@ -52,5 +60,6 @@ class FileImageSequenceDataset(Dataset):
                         for img_folder in os.listdir(os.path.join(self.path, folder, subfolder)):
                             # if folder
                             if os.path.isdir(os.path.join(self.path, folder, subfolder, img_folder)):
-                                yield ImageSequenceInstance(os.path.join(self.path, folder, subfolder, img_folder),
-                                                            subfolder)
+                                if self.included_instances is None or img_folder in self.included_instances:
+                                    yield ImageSequenceInstance(os.path.join(self.path, folder, subfolder, img_folder),
+                                                                subfolder)

@@ -1,6 +1,7 @@
 import os
 from abc import ABC
 from functools import cached_property
+from pathlib import Path
 from typing import List
 
 from PIL import Image
@@ -15,7 +16,7 @@ class Instance(ABC):
     :param label: The label of the instance.
     """
     def __init__(self, path: str, label: str):
-        self.path = path
+        self.path = Path(path)
         self.label = label
 
     def __eq__(self, other):
