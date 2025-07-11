@@ -42,28 +42,6 @@ class GenImageDataset(Dataset):
         else:
             self.split = ['train', 'val']
 
-    def __len__(self):
-        """
-        Returns the length of the dataset.
-        """
-        n = 0
-        # Loop over generators
-        for generator in os.listdir(self.path):
-            # If directory
-            if os.path.isdir(os.path.join(self.path, generator)):
-                for split in self.split:
-                    # If directory
-                    if os.path.isdir(os.path.join(self.path, generator, split)):
-                        # Loop over folders (label)
-                        for binary_label in os.listdir(os.path.join(self.path, generator, split)):
-                            # If directory
-                            if os.path.isdir(os.path.join(self.path, generator, split, binary_label)):
-                                # Loop over images
-                                for img in os.listdir(os.path.join(self.path, generator, split, binary_label)):
-                                    if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                        n += 1
-        return n
-
     @property
     def label_mapping(self):
         mapping = {}
