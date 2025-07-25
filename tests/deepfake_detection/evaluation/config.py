@@ -1,14 +1,16 @@
 from typing import List
 
+import numpy as np
 import pytest
+from PIL import Image
 
-from deepfake_detection.data.instance import Instance
+from deepfake_detection.data.instance import Instance, ImageInstance
 from deepfake_detection.models.prediction import Prediction
 
 
 @pytest.fixture
 def instances() -> List[Instance]:
-    return [Instance("", label=c_label.upper())
+    return [ImageInstance(data=Image.fromarray(np.zeros(10)), label=c_label.upper())
             for (a_label, c_label) in zip("rrrrffff", "aaaabbcc")]
 
 

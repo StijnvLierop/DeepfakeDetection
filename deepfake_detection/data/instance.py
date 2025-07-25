@@ -1,10 +1,13 @@
 import os
-from abc import ABC
+from abc import ABC, abstractmethod
 from functools import cached_property
 from pathlib import Path
 
 from PIL import Image
 import cv2
+import hashlib
+
+from deepfake_detection.utils.hashing import hash_image_to_int
 
 
 class Instance(ABC):
@@ -21,6 +24,10 @@ class Instance(ABC):
             return ValueError("Other object is not of type Instance.")
         return self.__hash__() == other.__hash__()
 
+    @abstractmethod
+    def __hash__(self):
+        raise NotImplementedError
+
 class ImageInstance(Instance):
     """
     A default image instance is initialized with only image data and an optional label.
@@ -32,6 +39,9 @@ class ImageInstance(Instance):
     def __init__(self, data: Image, label: str = None):
         super().__init__(label)
         self.data = data
+
+    def __hash__(self):
+        return hash_image_to_int(self.data)
 
 class FileImageInstance(Instance):
     """
@@ -45,6 +55,9 @@ class FileImageInstance(Instance):
     @cached_property
     def data(self):
         return Image.open(self.path).convert('RGB')
+
+    def __hash__(self):
+        return hash(self.path)
 
 class FileImageSequenceInstance(Instance):
     """
@@ -66,6 +79,9 @@ class FileImageSequenceInstance(Instance):
     def __len__(self):
         return len(self.data)
 
+    def __hash__(self):
+        return hash(self.path)
+
 class FileVideoInstance(Instance):
     """
     An instance that is created from a video stored on disk.
@@ -81,3 +97,6 @@ class FileVideoInstance(Instance):
     @cached_property
     def data(self):
         return cv2.VideoCapture(str(self.path))
+
+    def __hash__(self):
+        return hash(self.path)

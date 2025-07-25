@@ -1,8 +1,11 @@
 import collections
+import itertools
 
+import numpy as np
 import pytest
+from PIL import Image
 
-from deepfake_detection.data import Instance, Dataset
+from deepfake_detection.data import Dataset, ImageInstance
 from deepfake_detection.data import split_dataset
 from deepfake_detection.data.datasets import ListDataset
 
@@ -10,9 +13,11 @@ from deepfake_detection.data.datasets import ListDataset
 @pytest.fixture
 def dataset() -> Dataset:
     return ListDataset(
-        instances=[Instance(str(idx), labels) for idx, labels in
-                            zip(range(15), ["A", "A", "B", "C", "C", "C", "B", "C", "C", "A", "A", "B", "C", "A", "B"])]
-                       )
+        instances=[ImageInstance(data=Image.fromarray(np.zeros(100+d)), label=l) for (d, l) in
+                    zip(range(15),
+                        ["A", "A", "B", "C", "C", "C", "B", "C", "C", "A", "A", "B", "C", "A", "B"])
+                   ]
+    )
 
 def test_split_dataset_size(dataset: Dataset):
     train_set, test_set = split_dataset(dataset, test_size=0.2, random_state=42)
@@ -33,10 +38,8 @@ def test_split_dataset_random_state(dataset: Dataset):
 
 def test_split_dataset_leakage(dataset: Dataset):
     train_set, test_set = split_dataset(dataset, test_size=0.2, random_state=42)
-    for i in train_set:
-        assert i not in test_set
-    for i in test_set:
-        assert i not in train_set
+    overlap = [i for i in train_set if i in test_set]
+    assert len(overlap) == 0
 
 def test_split_dataset_data_unaltered(dataset: Dataset):
     train_set, test_set = split_dataset(dataset, test_size=0.2, random_state=42)

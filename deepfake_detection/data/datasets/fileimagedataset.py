@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import Iterable
 
 from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.instance import ImageInstance
+from deepfake_detection.data.instance import FileImageInstance
 
 
 class FileImageDataset(Dataset):
@@ -55,7 +55,7 @@ class FileImageDataset(Dataset):
                         mapping[subfolder] = folder
         return mapping
 
-    def __iter__(self) -> Iterable[ImageInstance]:
+    def __iter__(self) -> Iterable[FileImageInstance]:
         # Loop over folders (labels) in dataset
         for folder in os.listdir(self.path):
             # If directory
@@ -70,8 +70,10 @@ class FileImageDataset(Dataset):
                                 if self.included_instances is None or img in self.included_instances:
                                     # If return binary labels
                                     if self.return_binary:
-                                        yield ImageInstance(os.path.join(self.path, folder, subfolder, img), folder)
+                                        yield FileImageInstance(os.path.join(self.path, folder, subfolder, img),
+                                                                folder)
                                     else:
-                                        yield ImageInstance(os.path.join(self.path, folder, subfolder, img), subfolder)
+                                        yield FileImageInstance(os.path.join(self.path, folder, subfolder, img),
+                                                                subfolder)
                             else:
                                 print("Found file that is not a jpg, jpeg or png file: {}".format(img))

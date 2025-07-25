@@ -10,7 +10,6 @@ import streamlit as st
 from deepfake_detection.data.datasets import ListDataset
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
-from deepfake_detection.utils.serialization import InstanceDecoder
 
 
 def write_predictions_to_file(results_dir: str,
@@ -164,16 +163,17 @@ def jsonify(obj: Any) -> Any:
         raise TypeError(message) from e
 
 
-def load_dataset_from_file(dataset_path: str) -> ListDataset:
+def load_dataset_from_file(dataset_path: str, decoder: JSONDecoder = None) -> ListDataset:
     """
     This function loads a dataset from a .JSON file.
 
     :param dataset_path: The path to the .JSON file containing the instances.
+    :param decoder: The decoder to use for decoding the instances.
     """
     # Read from file
     with open(dataset_path, 'r') as infile:
 
         # Decode instances
-        instances = json.load(infile, cls=InstanceDecoder)
+        instances = json.load(infile, cls=decoder)
 
     return ListDataset(instances=instances)
