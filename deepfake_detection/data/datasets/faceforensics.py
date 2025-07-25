@@ -3,7 +3,7 @@ import os
 from typing import Iterable, Union
 
 from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.instance import VideoInstance, ImageSequenceInstance
+from deepfake_detection.data.instance import FileVideoInstance, FileImageSequenceInstance
 
 
 class FaceForensicsDataset(Dataset):
@@ -99,7 +99,7 @@ class FaceForensicsDataset(Dataset):
 
         return mapping
 
-    def __iter__(self) -> Iterable[Union[ImageSequenceInstance, VideoInstance]]:
+    def __iter__(self) -> Iterable[Union[FileImageSequenceInstance, FileVideoInstance]]:
         # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
             # Loop over folders (models) in dataset
@@ -111,11 +111,11 @@ class FaceForensicsDataset(Dataset):
                         # If instance in split
                         if self._instance_in_split(instance):
                             if self.modality == 'images':
-                                yield ImageSequenceInstance(
+                                yield FileImageSequenceInstance(
                                     os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
                                     subfolder)
                             else:
-                                yield VideoInstance(
+                                yield FileVideoInstance(
                                     os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
                                     subfolder)
 
