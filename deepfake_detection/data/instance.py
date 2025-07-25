@@ -2,7 +2,6 @@ import os
 from abc import ABC
 from functools import cached_property
 from pathlib import Path
-from typing import List
 
 from PIL import Image
 import cv2
@@ -10,13 +9,11 @@ import cv2
 
 class Instance(ABC):
     """
-    A single dataset instance. Instances are identified by their path. Additionally, each instance has a label.
+    A single dataset instance. Each instance has an optional label.
 
-    :param path: The path to the instance.
-    :param label: The label of the instance.
+    :param label: An optional instance label.
     """
-    def __init__(self, path: str, label: str):
-        self.path = Path(path)
+    def __init__(self, label: str = None):
         self.label = label
 
     def __eq__(self, other):
@@ -24,30 +21,63 @@ class Instance(ABC):
             return ValueError("Other object is not of type Instance.")
         return self.__hash__() == other.__hash__()
 
-    def __hash__(self):
-        """
-        Because data are retrieved dynamically, dataset instances are identified only by path.
-        """
-        return hash(self.path)
-
 class ImageInstance(Instance):
+    """
+    A default image instance is initialized with only image data and an optional label.
+
+    :param data: The image data in the form of a PIL Image.
+    :param label: An optional instance label.
+    """
+
+    def __init__(self, data: Image, label: str = None):
+        super().__init__(label)
+        self.data = data
+
+class FileImageInstance(Instance):
+    """
+    An image instance that is created from an image file stored on disk.
+    """
+
+    def __init__(self, path: str, label: str = None):
+        super().__init__(label)
+        self.path = Path(path)
 
     @cached_property
     def data(self):
         return Image.open(self.path).convert('RGB')
 
-class ImageSequenceInstance(Instance):
+class FileImageSequenceInstance(Instance):
+    """
+    An instance that is created from a sequence of images stored on disk.
+
+    :param path: The path to the image sequence directory.
+    :param label: An optional instance label.
+    """
+
+    def __init__(self, path: str, label: str = None):
+        super().__init__(label)
+        self.path = Path(path)
 
     @cached_property
-    def data(self) -> List[ImageInstance]:
-        return [ImageInstance(os.path.join(self.path, img), self.label)
+    def data(self) -> list[FileImageInstance]:
+        return [FileImageInstance(os.path.join(self.path, img), self.label)
                 for img in os.listdir(self.path)]
 
     def __len__(self):
         return len(self.data)
 
-class VideoInstance(Instance):
+class FileVideoInstance(Instance):
+    """
+    An instance that is created from a video stored on disk.
+
+    :param path: The path to the video file.
+    :param label: An optional instance label.
+    """
+
+    def __init__(self, path: str, label: str = None):
+        super().__init__(label)
+        self.path = Path(path)
 
     @cached_property
     def data(self):
-        return cv2.VideoCapture(self.path)
+        return cv2.VideoCapture(str(self.path))

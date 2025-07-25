@@ -1,10 +1,10 @@
 from json import JSONEncoder, JSONDecoder
 
-from deepfake_detection.data import Instance, ImageInstance, ImageSequenceInstance, VideoInstance
+from deepfake_detection.data import Instance, ImageInstance, FileImageSequenceInstance, FileVideoInstance
 
 
-KEY2INSTANCE = {'image': ImageInstance, 'image_sequence': ImageSequenceInstance, 'video': VideoInstance}
-INSTANCE2KEY = {ImageInstance : 'image', ImageSequenceInstance: 'image_sequence', VideoInstance: 'video'}
+KEY2INSTANCE = {'image': ImageInstance, 'image_sequence': FileImageSequenceInstance, 'video': FileVideoInstance}
+INSTANCE2KEY = {ImageInstance : 'image', FileImageSequenceInstance: 'image_sequence', FileVideoInstance: 'video'}
 
 class InstanceEncoder(JSONEncoder):
     """

@@ -2,7 +2,7 @@ import os
 from typing import Iterable
 
 from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.instance import VideoInstance
+from deepfake_detection.data.instance import FileVideoInstance
 
 class FileVideoDataset(Dataset):
     """
@@ -52,7 +52,7 @@ class FileVideoDataset(Dataset):
                             mapping[subfolder] = folder
         return mapping
 
-    def __iter__(self) -> Iterable[VideoInstance]:
+    def __iter__(self) -> Iterable[FileVideoInstance]:
         # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
             # If directory
@@ -65,7 +65,7 @@ class FileVideoDataset(Dataset):
                         for video in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if video.split('.')[-1].lower() in ['mp4', 'mov']:
                                 if self.included_instances is None or video in self.included_instances:
-                                    yield VideoInstance(os.path.join(self.path, folder, subfolder, video),
-                                                        subfolder)
+                                    yield FileVideoInstance(os.path.join(self.path, folder, subfolder, video),
+                                                            subfolder)
                             else:
                                 raise print("Found file that is not a mp4 or mov file: {}".format(video))
