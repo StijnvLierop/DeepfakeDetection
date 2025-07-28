@@ -1,9 +1,12 @@
 import os
 
+import numpy as np
 import pytest
 from PIL import Image
 
-from deepfake_detection.data import FileImageInstance, FileVideoInstance, FileImageSequenceInstance, ImageInstance
+from deepfake_detection.data import FileImageInstance, FileVideoInstance, FileImageSequenceInstance, ImageInstance, \
+    Dataset
+from deepfake_detection.data.datasets import ListDataset
 from tests.deepfake_detection.paths import RESOURCES_DIR
 
 @pytest.fixture
@@ -43,3 +46,13 @@ def image_sequence_dataset_path():
 @pytest.fixture
 def video_dataset_path():
     return RESOURCES_DIR / "data" / "test_video_dataset"
+
+
+@pytest.fixture
+def dummy_dataset() -> Dataset:
+    return ListDataset(
+        instances=[ImageInstance(data=Image.fromarray(np.zeros(100+d)), label=l) for (d, l) in
+                    zip(range(15),
+                        ["A", "A", "B", "C", "C", "C", "B", "C", "C", "A", "A", "B", "C", "A", "B"])
+                   ]
+    )

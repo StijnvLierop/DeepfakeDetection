@@ -18,6 +18,6 @@ class FilteredDataset(Dataset):
         self.indices = indices
 
     def __iter__(self):
-        for i in self.dataset:
-            if i in self.indices:
-                yield i
+        for idx, instance in enumerate(self.dataset):
+            if idx in self.indices:
+                yield instance

@@ -17,6 +17,10 @@ def sample_n_per_class(dataset: Dataset, n: int, random_seed: Union[int, None] =
     :return: A filtered dataset containing the sampled instances.
     """
 
+    # Return ValueError if n is invalid
+    if n <= 0:
+        raise ValueError("n must be a positive integer.")
+
     # Set numpy random state
     if random_seed:
         np.random.seed(random_seed)
@@ -32,7 +36,7 @@ def sample_n_per_class(dataset: Dataset, n: int, random_seed: Union[int, None] =
     # Sample n indices from each list
     indices = []
     for label in label_to_indices.keys():
-        indices.extend(np.random.choice(label_to_indices[label], n, replace=False))
+        indices.extend(np.random.choice(label_to_indices[label], min(n, len(label_to_indices[label])), replace=False))
 
     # Return an iterable that contains n indices
     return FilteredDataset(dataset, indices)
