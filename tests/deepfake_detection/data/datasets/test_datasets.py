@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 import pytest
 
@@ -7,40 +6,11 @@ from deepfake_detection.data.datasets import ListDataset
 from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
 from deepfake_detection.data.datasets.filevideodataset import FileVideoDataset
 from deepfake_detection.data.datasets.fileimagesequencedataset import FileImageSequenceDataset
-from deepfake_detection.data.instance import Instance
-from deepfake_detection.models.prediction import Prediction
-from tests.deepfake_detection.fixtures import image_dataset_path, image_sequence_dataset_path, video_dataset_path
+from deepfake_detection.data.datasets.filtered_dataset import FilteredDataset
+from tests.deepfake_detection.fixtures import (image_dataset_path, image_sequence_dataset_path,
+                                               video_dataset_path, dummy_dataset)
 from tests.deepfake_detection.paths import RESOURCES_DIR
 
-@pytest.fixture
-def instances() -> List[Instance]:
-    return [Instance("", labels) for labels in (
-        {"A"},
-        {"A"},
-        {"A", "B", "C"},
-        {"A", "C"},
-        {"B", "C"},
-        {"B", "C"},
-        {"B", "C"},
-        {"C"}
-    )]
-
-
-@pytest.fixture
-def predictions() -> List[List[Prediction]]:
-    return [
-        [Prediction(classification=classification)]
-        for classification in [
-            {"A": 1.0, "B": 0.0, "C": 0.1},  # Ground truth: "A"
-            {"A": 0.5, "B": 0.4, "C": 0.3},  # Ground truth: "A"
-            {"A": 1.0, "B": 0.9, "C": 0.0},  # Ground truth: "ABC"
-            {"A": 1.0, "B": 0.6, "C": 0.5},  # Ground truth: "AC"
-            {"A": 0.0, "B": 0.7, "C": 0.5},  # Ground truth: "BC"
-            {"A": 0.0, "B": 1.0, "C": 0.9},  # Ground truth: "BC"
-            {"A": 0.1, "B": 0.7, "C": 0.4},  # Ground truth: "BC"
-            {"A": 0.7, "B": 0.5, "C": 0.6},  # Ground truth: "C"
-        ]
-    ]
 
 @pytest.fixture
 def image_split_file_path():
@@ -119,3 +89,25 @@ def test_dataset_different_instances_different(image_dataset_path):
     dataset = FileImageDataset(name='test', path=image_dataset_path)
     dataset2 = ListDataset(name='test3', instances=list(dataset)[:-1])
     assert dataset != dataset2
+
+
+def test_filtered_dataset_iteration(dummy_dataset):
+    indices = [2, 4]
+    filtered_dataset = FilteredDataset(dummy_dataset, indices)
+    result = list(filtered_dataset)
+    answer = [list(dummy_dataset)[2], list(dummy_dataset)[4]]
+    assert result == answer
+
+
+def test_filtered_dataset_empty_indices(dummy_dataset):
+    indices = []
+    filtered_dataset = FilteredDataset(dummy_dataset, indices)
+    result = list(filtered_dataset)
+    assert result == []
+
+
+def test_filtered_dataset_length(dummy_dataset):
+    indices = [1, 5]
+    filtered_dataset = FilteredDataset(dummy_dataset, indices)
+    assert len(filtered_dataset) == len(list(filtered_dataset))
+    assert len(indices) == len(filtered_dataset)
