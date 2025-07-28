@@ -2,7 +2,7 @@ import os
 from typing import Iterable
 
 from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.instance import ImageInstance
+from deepfake_detection.data.instance import FileImageInstance
 
 
 class GenImageDataset(Dataset):
@@ -59,7 +59,7 @@ class GenImageDataset(Dataset):
                                 mapping[generator] = binary_label
         return mapping
 
-    def __iter__(self) -> Iterable[ImageInstance]:
+    def __iter__(self) -> Iterable[FileImageInstance]:
         # Loop over generators
         for generator in os.listdir(self.path):
             # If directory
@@ -74,7 +74,7 @@ class GenImageDataset(Dataset):
                                 # Loop over images
                                 for img in os.listdir(os.path.join(self.path, generator, split, binary_label)):
                                     if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                        yield ImageInstance(
+                                        yield FileImageInstance(
                                             os.path.join(self.path, generator, split, binary_label, img),
                                             label=generator,
                                         )

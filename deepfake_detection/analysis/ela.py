@@ -5,7 +5,7 @@ from PIL import Image, ImageChops, ImageEnhance
 
 def ela(path: str) -> Image:
     """
-    Computes an Error Level Analysis (ELA) image.
+    Computes the Error Level Analysis (ELA) image of a given image instance.
     """
 
     # Temporary save filename for compressed image

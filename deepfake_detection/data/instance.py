@@ -5,7 +5,6 @@ from pathlib import Path
 
 from PIL import Image
 import cv2
-import hashlib
 
 from deepfake_detection.utils.hashing import hash_image_to_int
 
