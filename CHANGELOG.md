@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.4.0 (2025-07-28)
+
+### Features
+
+- Add function to sample n instances per class and FilteredDataset that samples dataset given a list
+  of indices
+  ([`3808a69`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3808a69c70d32629ed5806d2b8787c8071b82329))
+
+### Testing
+
+- Add tests for FilteredDataset and sample_n_per_class function
+  ([`80d7001`](https://github.com/StijnvLierop/DeepfakeDetection/commit/80d7001c834019b6cf2912dd1cb2dba23993a1e0))
+
+
 ## v0.3.0 (2025-07-28)
 
 
