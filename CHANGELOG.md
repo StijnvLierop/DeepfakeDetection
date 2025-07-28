@@ -1,12 +1,19 @@
 # CHANGELOG
 
 
+## v0.4.2 (2025-07-28)
+
+
 ## v0.4.1 (2025-07-28)
 
 ### Bug Fixes
 
 - Account for condition where dataset name is none
   ([`43adb55`](https://github.com/StijnvLierop/DeepfakeDetection/commit/43adb55383cc46a5a82af2fdd43fb71b70780695))
+
+- Problem in GenImage dataset where label of nature images was never output, removed label mapping
+  since there is only one real label
+  ([`e5849fb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/e5849fb2328164bd00c64e12c477d451285e3890))
 
 ### Chores
 
