@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## v0.3.0 (2025-07-28)
+
+
 ## v0.2.0 (2025-07-25)
 
 ### Bug Fixes
@@ -9,6 +12,9 @@
   ([`ce92559`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ce92559bc5f49e859ce0a80c5f24de971a433d8e))
 
 ### Features
+
+- Add noise residual filter and fft filter
+  ([`747f6f4`](https://github.com/StijnvLierop/DeepfakeDetection/commit/747f6f4db7a2e20bfdb20b7974a3b02b0bb374f0))
 
 - Make label and path in instance optional and introduce new file-based instances
   ([`957190a`](https://github.com/StijnvLierop/DeepfakeDetection/commit/957190a659898db83af8261a6faa486ba2dfd8a5))
