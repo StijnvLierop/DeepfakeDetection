@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.4.1 (2025-07-28)
+
+### Bug Fixes
+
+- Account for condition where dataset name is none
+  ([`43adb55`](https://github.com/StijnvLierop/DeepfakeDetection/commit/43adb55383cc46a5a82af2fdd43fb71b70780695))
+
+### Chores
+
+- Add split name in dataset name after splitting
+  ([`5628b89`](https://github.com/StijnvLierop/DeepfakeDetection/commit/5628b897a9f3729c40265623116679b149d7eaaa))
+
+
 ## v0.4.0 (2025-07-28)
 
 ### Features
