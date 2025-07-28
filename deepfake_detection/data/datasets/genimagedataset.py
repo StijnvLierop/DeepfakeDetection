@@ -29,7 +29,7 @@ class GenImageDataset(Dataset):
 
     :param path: The path to the root folder of the dataset.
     :param name: The name of the dataset.
-    :param split: The split of the dataset to load. 'train', 'val', or None to retrieve all data.
+    :param split: The split of the dataset to load. 'Train', 'val', or None to retrieve all data.
     """
 
     def __init__(self, path : str, split: str = None, name: str = None):
@@ -41,23 +41,6 @@ class GenImageDataset(Dataset):
             self.split = ['val']
         else:
             self.split = ['train', 'val']
-
-    @property
-    def label_mapping(self):
-        mapping = {}
-        # Loop over generators
-        for generator in os.listdir(self.path):
-            # If directory
-            if os.path.isdir(os.path.join(self.path, generator)):
-                for split in self.split:
-                    # If directory
-                    if os.path.isdir(os.path.join(self.path, generator, split)):
-                        # Loop over folders (label)
-                        for binary_label in os.listdir(os.path.join(self.path, generator, split)):
-                            # If directory
-                            if os.path.isdir(os.path.join(self.path, generator, split, binary_label)):
-                                mapping[generator] = binary_label
-        return mapping
 
     def __iter__(self) -> Iterable[FileImageInstance]:
         # Loop over generators
@@ -76,7 +59,7 @@ class GenImageDataset(Dataset):
                                     if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
                                         yield FileImageInstance(
                                             os.path.join(self.path, generator, split, binary_label, img),
-                                            label=generator,
+                                            label=generator if binary_label == 'ai' else 'nature',
                                         )
                                     else:
                                         print("Found file that is not a jpg, jpeg or png file: {}".format(img))
