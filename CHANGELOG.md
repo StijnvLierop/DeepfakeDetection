@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## v0.2.0 (2025-07-25)
+
+### Bug Fixes
+
+- Add missing pyproject.toml
+  ([`ce92559`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ce92559bc5f49e859ce0a80c5f24de971a433d8e))
+
+### Features
+
+- Make label and path in instance optional and introduce new file-based instances
+  ([`957190a`](https://github.com/StijnvLierop/DeepfakeDetection/commit/957190a659898db83af8261a6faa486ba2dfd8a5))
+
+### Testing
+
+- Adjusted unit tests with new instance changes
+  ([`26fe10c`](https://github.com/StijnvLierop/DeepfakeDetection/commit/26fe10c19460fe9de2bccbd8ab4793e57c2d24bc))
+
+
 ## v0.1.0 (2025-07-11)
 
 ### Features
