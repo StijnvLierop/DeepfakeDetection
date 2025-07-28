@@ -40,5 +40,5 @@ def split_dataset(dataset: Dataset,
     train_instances = [instance for (instance, idx) in zip(dataset, index_array) if idx in train_set]
     test_instances = [instance for (instance, idx) in zip(dataset, index_array) if idx in test_set]
 
-    return (ListDataset(name=dataset.name, instances=train_instances),
-            ListDataset(name=dataset.name, instances=test_instances))
+    return (ListDataset(name=dataset.name + "_split1", instances=train_instances),
+            ListDataset(name=dataset.name + "_split2", instances=test_instances))
