@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.5.0 (2025-07-31)
+
+### Chores
+
+- Moved image normalization to a separate utils function
+  ([`29436da`](https://github.com/StijnvLierop/DeepfakeDetection/commit/29436da6918b4b3a8935afb15bfcdfefd1ab481a))
+
+### Features
+
+- Add new functionality to compute PRNU pattern using 2nd order FSTV method
+  ([`0b56000`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0b56000bac0cdf5f607ec5e4941b75ccb8e134b3))
+
+
 ## v0.4.2 (2025-07-28)
 
 
