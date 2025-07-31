@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 
 from deepfake_detection.data import ImageInstance, FileImageInstance
+from deepfake_detection.analysis.utils import normalize_img
 
 
 def fft(instance: Union[ImageInstance, FileImageInstance],
@@ -54,9 +55,7 @@ def fft(instance: Union[ImageInstance, FileImageInstance],
 
     # Normalize the data to the range 0-255 (if enabled)
     if normalize:
-        magnitude_spectrum = 255 * (magnitude_spectrum - np.min(magnitude_spectrum)) / (
-                                    np.max(magnitude_spectrum) - np.min(magnitude_spectrum)
-        )
+        magnitude_spectrum = normalize_img(magnitude_spectrum)
 
     return ImageInstance(data=Image.fromarray(magnitude_spectrum.astype(np.uint8)),
                          label=instance.label)
