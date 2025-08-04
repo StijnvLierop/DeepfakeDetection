@@ -6,7 +6,7 @@ from deepfake_detection.data import FileImageInstance, ImageInstance
 
 
 def average_over_images(instances: Sequence[Union[ImageInstance, FileImageInstance]],
-                        func: Callable) -> np.ndarray:
+                        func: Callable[..., np.ndarray]) -> np.ndarray:
     """
     This function processes a sequence of image instances, applies a specified function on the image data, and computes
     the average result. It ensures that the images are cropped to the smallest dimensions (width and height) present in

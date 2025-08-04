@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from PIL import Image
-from deepfake_detection.analysis.prnu import prnu_from_images, prnu_fstv
+from deepfake_detection.analysis.prnu import prnu_fstv
 from deepfake_detection.data.instance import ImageInstance, FileImageInstance
 
 
@@ -41,26 +41,3 @@ def test_prnu_fstv_returns_array(mock_image_instance):
 def test_prnu_fstv_shape_equal_to_image_dimensions(mock_image_instance):
     result = prnu_fstv(mock_image_instance)
     assert result.shape == (100, 100)
-
-
-def test_prnu_from_images_with_imageinstances(mock_image_instances):
-    result = prnu_from_images(mock_image_instances)
-    assert isinstance(result, np.ndarray)
-    assert result.shape[:2] == (100, 100)
-
-
-def test_prnu_from_images_with_fileimageinstances(mock_file_image_instances):
-    result = prnu_from_images(mock_file_image_instances)
-    assert isinstance(result, np.ndarray)
-    assert result.shape[:2] == (80, 80)
-
-
-def test_prnu_from_images_with_empty_input():
-    with pytest.raises(IndexError):
-        prnu_from_images([])
-
-
-def test_prnu_from_images_consist(mock_image_instances):
-    result1 = prnu_from_images(mock_image_instances)
-    result2 = prnu_from_images(mock_image_instances)
-    np.testing.assert_array_equal(result1, result2)
