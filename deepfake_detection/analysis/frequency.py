@@ -59,3 +59,31 @@ def fft(instance: Union[ImageInstance, FileImageInstance],
 
     return ImageInstance(data=Image.fromarray(magnitude_spectrum.astype(np.uint8)),
                          label=instance.label)
+
+
+def fft_array(img: np.ndarray,
+              normalize: bool = False) -> np.ndarray:
+    """
+    Performs a Fast Fourier Transform (FFT) on an image and extracts the
+    magnitude spectrum for visualization. The resulting spectrum is normalized
+    to a pixel intensity range of 0-255.
+
+    :param img: An numpy array containing the image data to be transformed.
+    :param normalize: Whether to normalize the magnitude spectrum to the range 0-255 (mainly useful for visualization).
+                      If False, the spectrum is returned in the range 0-255.
+    :return: A numpy array containing the transformed image (magnitude spectrum).
+    """
+    # Fourier transform image
+    f_transform = np.fft.fft2(img)
+
+    # Shift spectrum so low frequencies are in the center
+    f_transform_shifted = np.fft.fftshift(f_transform)
+
+    # Extract magnitude spectrum only and apply some transformations for visualization
+    magnitude_spectrum = 20 * np.log(np.abs(f_transform_shifted))
+
+    # Normalize the data to the range 0-255 (if enabled)
+    if normalize:
+        magnitude_spectrum = normalize_img(magnitude_spectrum)
+
+    return magnitude_spectrum
