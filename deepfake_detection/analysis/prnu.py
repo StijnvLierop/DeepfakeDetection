@@ -1,6 +1,9 @@
+from typing import Union, Sequence
+
 import numpy as np
 
-from deepfake_detection.data import ImageInstance
+from deepfake_detection.analysis.utils import centercrop
+from deepfake_detection.data import ImageInstance, FileImageInstance
 
 
 def prnu_fstv(instance: ImageInstance) -> np.ndarray:
@@ -35,3 +38,25 @@ def prnu_fstv(instance: ImageInstance) -> np.ndarray:
     noise = -divergence
 
     return noise
+
+def prnu_from_images(instances: Sequence[Union[ImageInstance, FileImageInstance]]) -> np.ndarray:
+    """
+    Calculates the mean PRNU pattern from a series of image instances.
+    Currently, all individual PRNU images are centercropped to the width and height of the smallest image in the dataset.
+
+    :param instances: Iterable of instances of ImageInstance or FileImageInstance to calculate the mean PRNU from.
+    :return: numpy array containing the mean PRNU pattern.
+    """
+    # Make sure that length of sequence is at least one
+    if len(instances) == 0:
+        raise IndexError("Cannot calculate PRNU from empty sequence.")
+
+    # Get smallest width and height
+    min_width = np.min([i.data.width for i in instances])
+    min_height = np.min([i.data.height for i in instances])
+
+    # Extract PRNU from all instances and average
+    prnu_pattern = np.mean([centercrop(prnu_fstv(i), min_width=min_width, min_height=min_height) for i in instances],
+                           axis=0)
+
+    return prnu_pattern
