@@ -1,6 +1,35 @@
 # CHANGELOG
 
 
+## v0.6.0 (2025-08-04)
+
+### Chores
+
+- Fft function now works with numpy arrays instead of ImageInstances
+  ([`07b4522`](https://github.com/StijnvLierop/DeepfakeDetection/commit/07b4522a56ca036cc3c9dbd0959a8f67db9a78e5))
+
+- Set python version to be more flexible (>=3.10)
+  ([`e601a82`](https://github.com/StijnvLierop/DeepfakeDetection/commit/e601a820da37cf1cdeae4bfe3002c94d2cd044f5))
+
+### Documentation
+
+- Add documentation for the prnu_from_images function
+  ([`0076116`](https://github.com/StijnvLierop/DeepfakeDetection/commit/007611633d2d299a61bf022d5e7928bf4d7e0c7c))
+
+### Features
+
+- Add centercrop function
+  ([`ae5d586`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ae5d5865431f48f2555714dbcaddf3c06fbbcf7a))
+
+- Add function that calculates PRNU pattern from dataset of images
+  ([`5d6b61d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/5d6b61d59a05f5d5f360371bd1a8c9e74b71e29a))
+
+### Testing
+
+- Add prnu unit tests
+  ([`4d7d585`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4d7d585da139bbfb582fdb33944084ae0d67e856))
+
+
 ## v0.5.0 (2025-07-31)
 
 ### Chores
