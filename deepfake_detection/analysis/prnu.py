@@ -41,13 +41,18 @@ def prnu_fstv(instance: ImageInstance) -> np.ndarray:
 
 def prnu_from_images(instances: Iterable[Union[ImageInstance, FileImageInstance]]) -> np.ndarray:
     """
+    Calculates the mean PRNU pattern from a series of image instances.
+    Currently, all individual PRNU images are centercropped to the width and height of the smallest image in the dataset.
 
+    :param instances: Iterable of instances of ImageInstance or FileImageInstance to calculate the mean PRNU from.
+    :return: numpy array containing the mean PRNU pattern.
     """
     # Get smallest width and height
     min_width = np.min([i.data.width for i in instances])
     min_height = np.min([i.data.height for i in instances])
 
     # Extract PRNU from all instances and average
-    prnu_pattern = np.mean([centercrop(prnu_fstv(i), min_width=min_width, min_height=min_height) for i in instances], axis=0)
+    prnu_pattern = np.mean([centercrop(prnu_fstv(i), min_width=min_width, min_height=min_height) for i in instances],
+                           axis=0)
 
     return prnu_pattern
