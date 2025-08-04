@@ -1,6 +1,9 @@
+from typing import Iterable, Union
+
 import numpy as np
 
-from deepfake_detection.data import ImageInstance
+from deepfake_detection.analysis.utils import centercrop
+from deepfake_detection.data import ImageInstance, FileImageInstance
 
 
 def prnu_fstv(instance: ImageInstance) -> np.ndarray:
@@ -35,3 +38,16 @@ def prnu_fstv(instance: ImageInstance) -> np.ndarray:
     noise = -divergence
 
     return noise
+
+def prnu_from_images(instances: Iterable[Union[ImageInstance, FileImageInstance]]) -> np.ndarray:
+    """
+
+    """
+    # Get smallest width and height
+    min_width = np.min([i.data.width for i in instances])
+    min_height = np.min([i.data.height for i in instances])
+
+    # Extract PRNU from all instances and average
+    prnu_pattern = np.mean([centercrop(prnu_fstv(i), min_width=min_width, min_height=min_height) for i in instances], axis=0)
+
+    return prnu_pattern
