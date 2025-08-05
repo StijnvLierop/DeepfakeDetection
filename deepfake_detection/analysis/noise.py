@@ -30,13 +30,17 @@ def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
     return residual
 
 
-def channel_noise_imbalance_ratio(img: np.ndarray) -> float:
+def channel_noise_imbalance_ratio(img: np.ndarray,
+                                  image_filter: str='median') -> float:
     """
     This function calculates the channel noise imbalance ratio (CNIR) for a given image.
     The CNIR quantifies the balance between the noise in different image channels. This balance might deviate
     from real images for certain generative models and therefore could be a useful feature.
 
     :param img: An numpy array containing the image data of shape (height, width, channels).
+    :param image_filter: The filter to use for denoising the image. Must be one of:
+                         - 'median': applies a Median filter.
+                         - 'laplace': applies a Laplace filter.
     :return: The CNIR value for the given image.
     """
     # Ensure the image has a channel dimension
@@ -47,7 +51,7 @@ def channel_noise_imbalance_ratio(img: np.ndarray) -> float:
     # Calculate noise residual for each channel
     residuals = []
     for c in range(img.shape[2]):
-        residuals.append(noise_residual(img[:, :, c]))
+        residuals.append(noise_residual(img[:, :, c], image_filter=image_filter))
 
     # Calculate difference of all channel combinations
     pairs = itertools.combinations(residuals, 2)
