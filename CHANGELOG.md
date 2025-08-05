@@ -1,6 +1,36 @@
 # CHANGELOG
 
 
+## v0.7.0 (2025-08-05)
+
+### Documentation
+
+- **README**: Update python version
+  ([`1132e8f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1132e8f4380b5374d50c7eec41fe2b80fc165c14))
+
+### Features
+
+- Add function to compute autocorrelation of an image
+  ([`1026dff`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1026dff44987fb385631e02412a49373e5f85b3f))
+
+### Refactoring
+
+- Add function that takes a set of images and a function and return the mean result of the processed
+  images
+  ([`fcf71c6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/fcf71c6ab472b95411f9e738945700bdbe2d55a6))
+
+- Merge fft functions into a single function that operates on numpy arrays
+  ([`56149f2`](https://github.com/StijnvLierop/DeepfakeDetection/commit/56149f284d5e7181fe12a62fce883d09e89175e2))
+
+### Testing
+
+- Add tests for fft function
+  ([`9e58414`](https://github.com/StijnvLierop/DeepfakeDetection/commit/9e5841455211a0a0a57f387d65b7d52bb8f4503a))
+
+- Add unit tests for average_over_images function
+  ([`f4c3d5e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f4c3d5e5505c8331ba3f63fd20a177c1939c8fac))
+
+
 ## v0.6.0 (2025-08-04)
 
 ### Chores
