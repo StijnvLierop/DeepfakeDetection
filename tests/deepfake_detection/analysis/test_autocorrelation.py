@@ -3,14 +3,8 @@ import pytest
 from deepfake_detection.analysis.autocorrelation import autocorrelation
 
 
-def test_autocorrelation_valid_input():
+def test_autocorrelation_shape():
     img = np.array([[1, 2], [3, 4]], dtype=np.float64)
-    result = autocorrelation(img)
-    assert isinstance(result, np.ndarray)
-
-
-def test_autocorrelation_output_size():
-    img = np.array([[1, 1], [1, 1]], dtype=np.float64)
     result = autocorrelation(img)
     assert result.shape == (3, 3)
 
