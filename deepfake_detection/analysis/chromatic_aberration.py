@@ -29,29 +29,6 @@ def calc_vector_field(img: np.ndarray, x0: int, y0: int, alpha: float, step: int
     return x, y, xw, yw
 
 
-def shi_tomasi_corners(image_gray: np.ndarray,
-                       max_corners: int=1000,
-                       quality_level: float=0.01,
-                       min_distance: int=10) -> np.ndarray:
-    """
-    Computes the Shi-Tomasi corners for a given grayscale image, identifying features such as edges and corners based
-    on the Shi-Tomasi algorithm. It selects the strongest corners up to the specified maximum number and determines
-    those of sufficient quality and distance from one another.
-
-    :param image_gray: The grayscale image on which to detect corners. It is expected to be a 2D array.
-    :param max_corners: The maximum number of strongest corners to return. Defaults to 1000.
-    :param quality_level: The minimum quality level of corners to retain, expressed as a fraction of the strongest
-                          corner's quality. Defaults to 0.01.
-    :param min_distance: The minimum Euclidean distance between two returned corner points. This ensures that
-                         returned corners are not too close. Defaults to 10.
-
-    :return: A 2D array of shape (N, 2), where each row contains the (x, y) coordinates of a detected corner.
-             The total number of rows, N, is at most `max_corners`.
-    """
-    corners = cv2.goodFeaturesToTrack(image_gray, max_corners, quality_level, min_distance)
-    return corners.reshape(-1, 2).astype(int)
-
-
 def correlation_coefficient(block1: np.ndarray, block2: np.ndarray) -> float:
     """
     Compute the normalized cross-correlation between two image blocks.
@@ -111,7 +88,7 @@ def estimate_lateral_chromatic_aberration(img: np.ndarray)\
     """
     # Get keypoints with high gradient
     gray_img = np.array(Image.fromarray(img).convert('L'))
-    keypoints = shi_tomasi_corners(gray_img, max_corners=1000, min_distance=30)
+    keypoints = cv2.goodFeaturesToTrack(gray_img, 1000, 0.01, 30).reshape(-1, 2).astype(int)
 
     # Estimate local chromatic aberration displacement for each keypoint
     local_displacements_gr, local_displacements_gb = estimate_local_lca_displacements(img,
