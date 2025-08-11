@@ -1,6 +1,33 @@
 # CHANGELOG
 
 
+## v0.8.0 (2025-08-11)
+
+### Features
+
+- Add chromatic aberration estimation functions
+  ([`af1470f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/af1470f646732a1c9aca0371a70cae5c2f8ddb8f))
+
+- Replace chromatic aberration method with faster method
+  ([`303060d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/303060d497f1ab11459569160a0fc160547a214c))
+
+### Refactoring
+
+- Changed input and output of noise_residual functions to numpy array
+  ([`051b2d8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/051b2d83ec99009a131c7a0186cf63e3e97a22b9))
+
+- Make denoiser a parameter in channel_noise_imbalance_ratio function
+  ([`9b06c8c`](https://github.com/StijnvLierop/DeepfakeDetection/commit/9b06c8cc7dad1458fc93b8532a00198d8c4f3006))
+
+### Testing
+
+- Add unit tests for chromatic aberration estimation
+  ([`3383dd1`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3383dd1bf12f145c7ae2955013816f1261296548))
+
+- Add unit tests for noise estimation
+  ([`264f6ca`](https://github.com/StijnvLierop/DeepfakeDetection/commit/264f6ca07594b56066f4880926a0acda709a71ed))
+
+
 ## v0.7.0 (2025-08-05)
 
 ### Documentation
