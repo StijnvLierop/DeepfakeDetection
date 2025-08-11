@@ -1,6 +1,32 @@
 # CHANGELOG
 
 
+## v0.9.0 (2025-08-11)
+
+### Bug Fixes
+
+- Add results to gitignore
+  ([`21f34c4`](https://github.com/StijnvLierop/DeepfakeDetection/commit/21f34c487349a059fac9e5bb8e41ff290fa1caf6))
+
+### Chores
+
+- Revert chromatic_aberration.py back to version in main
+  ([`efc0f59`](https://github.com/StijnvLierop/DeepfakeDetection/commit/efc0f59ecdc7ef844b3a41bbc385b3581230c441))
+
+### Features
+
+- Add evaluate.py script to automate running evaluation
+  ([`27753bd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/27753bdcb60bbdc05eddd21bfa9e5274bb226a0d))
+
+- Add roc_auc to evaluation.py script
+  ([`3be5849`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3be584911a7b856685cb383f9b2bc109ef2df8f8))
+
+### Refactoring
+
+- Add model name to metrics output file
+  ([`02f6545`](https://github.com/StijnvLierop/DeepfakeDetection/commit/02f6545621a31cae5cb6a87ecf62f01eabd32bab))
+
+
 ## v0.8.0 (2025-08-11)
 
 ### Features
