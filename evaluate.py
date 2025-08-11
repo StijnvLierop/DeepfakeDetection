@@ -49,7 +49,7 @@ def evaluate(dataset_config: str,
         predictions = get_predictions(model, dataset, predictions_dir)
 
         # Calculate metrics / make plots and write to output dir
-        evaluate_model_on_dataset(dataset, predictions, output_dir)
+        evaluate_model_on_dataset(dataset, model, predictions, output_dir)
 
 
 def get_predictions(model: Model, dataset: Dataset, predictions_dir: str=None) -> Sequence[Prediction]:
@@ -60,7 +60,7 @@ def get_predictions(model: Model, dataset: Dataset, predictions_dir: str=None) -
     directory. If the predictions file already exists, it will load the predictions from the file.
     If no predictions directory is provided, this function will always make predictions without saving them.
 
-    :param model: The machine learning model to use for generating predictions.
+    :param model: The model to use for generating predictions.
     :param dataset: The dataset for which predictions are to be made.
     :param predictions_dir: The directory where predictions are stored or should be saved.
                             If not provided, this function will make predictions without saving them.
@@ -97,12 +97,16 @@ def get_predictions(model: Model, dataset: Dataset, predictions_dir: str=None) -
     return predictions
 
 
-def evaluate_model_on_dataset(dataset: Dataset, predictions: Sequence[Prediction], output_dir: str) -> None:
+def evaluate_model_on_dataset(dataset: Dataset,
+                              model: Model,
+                              predictions: Sequence[Prediction],
+                              output_dir: str) -> None:
     """
     Evaluates the performance of a prediction model on a given dataset by computing classification metrics,
     generating outputs, and saving the metrics to a file in the specified directory.
 
     :param dataset: The dataset object containing the ground truth data.
+    :param model: The model to evaluate.
     :param predictions: A sequence of prediction objects corresponding to the dataset.
     :param output_dir: The directory path where the evaluation metrics are to be saved.
     """
@@ -118,7 +122,7 @@ def evaluate_model_on_dataset(dataset: Dataset, predictions: Sequence[Prediction
     os.makedirs(output_dir, exist_ok=True)
 
     # Save metrics to file
-    with open(os.path.join(output_dir, f"{dataset.name}_metrics.txt"), 'w') as f:
+    with open(os.path.join(output_dir, f"{dataset.name}_{model.name}_metrics.txt"), 'w') as f:
         f.write(f"Accuracy: {acc}")
         f.write(f"AUC: {auc}")
 
