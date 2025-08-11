@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Iterable
 
@@ -68,4 +69,4 @@ class FileVideoDataset(Dataset):
                                     yield FileVideoInstance(os.path.join(self.path, folder, subfolder, video),
                                                             subfolder)
                             else:
-                                raise print("Found file that is not a mp4 or mov file: {}".format(video))
+                                raise logging.debug("Found file that is not a mp4 or mov file: {}".format(video))

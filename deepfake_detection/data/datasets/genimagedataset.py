@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Iterable
 
@@ -62,4 +63,4 @@ class GenImageDataset(Dataset):
                                             label=generator if binary_label == 'ai' else 'nature',
                                         )
                                     else:
-                                        print("Found file that is not a jpg, jpeg or png file: {}".format(img))
+                                        logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))
