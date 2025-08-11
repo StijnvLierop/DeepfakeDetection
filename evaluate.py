@@ -13,6 +13,10 @@ from deepfake_detection.utils.configuration import parse_dataset_config, load_mo
 from deepfake_detection.utils.io import read_predictions_from_file, write_predictions_to_file, get_predictions_filename
 
 
+# Set the logging level to INFO
+logging.basicConfig(level=logging.INFO)
+
+
 def evaluate(dataset_config: str,
              model_config: str,
              output_dir: str,
