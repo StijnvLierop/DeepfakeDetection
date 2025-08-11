@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os.path
 from typing import Sequence
 
@@ -10,6 +11,10 @@ from deepfake_detection.evaluation.metrics import accuracy, roc_auc
 from deepfake_detection.models import Model, Prediction
 from deepfake_detection.utils.configuration import parse_dataset_config, load_model
 from deepfake_detection.utils.io import read_predictions_from_file, write_predictions_to_file, get_predictions_filename
+
+
+# Set the logging level to INFO
+logging.basicConfig(level=logging.INFO)
 
 
 def evaluate(dataset_config: str,
@@ -34,8 +39,8 @@ def evaluate(dataset_config: str,
     # Load model
     model = load_model(confidence.loadf(model_config))
 
-    # Print evaluation information
-    print(f"Evaluating {model.name} model on {len(datasets)} datasets: {[d for d in datasets.keys()]}")
+    # Log evaluation information
+    logging.info(f"Evaluating {model.name} model on {len(datasets)} datasets: {[d for d in datasets.keys()]}")
 
     # Evaluate for each dataset
     for dataset in datasets:
@@ -43,7 +48,7 @@ def evaluate(dataset_config: str,
         # Get dataset object
         dataset = datasets[dataset]
 
-        print(f"Evaluating {dataset.name}...")
+        logging.info(f"Evaluating {dataset.name}...")
 
         # Make or retrieve cached predictions
         predictions = get_predictions(model, dataset, predictions_dir)
@@ -85,13 +90,13 @@ def get_predictions(model: Model, dataset: Dataset, predictions_dir: str=None) -
         # Write predictions to file (if predictions file specified)
         if predictions_file:
             write_predictions_to_file(predictions_dir, predictions, dataset, model.name)
-            print(f"Saved predictions to {predictions_file}")
+            logging.info(f"Saved predictions to {predictions_file}")
         else:
-            print("Skipping saving predictions to file because no predictions directory specified.")
+            logging.info("Skipping saving predictions to file because no predictions directory specified.")
 
     # Otherwise load predictions from file
     else:
-        print(f"Loading predictions from {predictions_file}")
+        logging.info(f"Loading predictions from {predictions_file}")
         predictions = read_predictions_from_file(predictions_file)
 
     return predictions
@@ -114,9 +119,9 @@ def evaluate_model_on_dataset(dataset: Dataset,
     acc = accuracy(dataset, predictions)
     auc = roc_auc(dataset, predictions)
 
-    print("Evaluation results for", dataset.name, ":")
-    print(f"Accuracy: {acc}")
-    print(f"AUC: {auc}")
+    logging.info("Evaluation results for", dataset.name, ":")
+    logging.info(f"Accuracy: {acc}")
+    logging.info(f"AUC: {auc}")
 
     # Make output directory
     os.makedirs(output_dir, exist_ok=True)

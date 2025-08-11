@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Mapping, Any
 
@@ -7,7 +8,7 @@ from torch import optim, nn
 from torch.utils.data import DataLoader
 
 from deepfake_detection.data.datasets.train_dataset import TrainDataset
-from deepfake_detection.utils.configuration import parse_model_config, init_dataset
+from deepfake_detection.utils.configuration import parse_model_config, load_dataset
 
 
 def train_model(config: Mapping[str, Any]) -> None:
@@ -20,7 +21,7 @@ def train_model(config: Mapping[str, Any]) -> None:
     model.prepare_for_training()
 
     # Initialize dataset
-    dataset = init_dataset(config['train_data'][0])
+    dataset = load_dataset(config['train_data'][0])
 
     # Initialize train dataset
     train_dataset = TrainDataset(base_dataset=dataset, transform=model.transform)
@@ -35,7 +36,7 @@ def train_model(config: Mapping[str, Any]) -> None:
     optimizer = optim.Adam(model.model.fc.parameters(), lr=config['learning_rate'])  # Only train new layers
 
     # Training loop
-    print("Training...")
+    logging.info("Training...")
     for epoch in range(config['n_epochs']):
         for inputs, labels in train_loader:
 
@@ -49,14 +50,14 @@ def train_model(config: Mapping[str, Any]) -> None:
             loss.backward()
             optimizer.step()
 
-        print(f'Epoch {epoch + 1}, Loss: {loss.item():.4f}')
+        logging.info(f'Epoch {epoch + 1}, Loss: {loss.item():.4f}')
 
     # Save model weights
     if not os.path.exists(config['weights_dir']):
         os.mkdir(config['weights_dir'])
     weights_path = os.path.join(config['weights_dir'], f"{config['model_name']}_{config['train_data'][0]['name']}.pth")
     torch.save(model.model.state_dict(), weights_path)
-    print(f"Weights saved in {weights_path}.")
+    logging.info(f"Weights saved in {weights_path}.")
 
 
 if __name__ == '__main__':

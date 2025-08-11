@@ -1,3 +1,4 @@
+import logging
 import os
 from functools import cached_property
 from typing import Iterable
@@ -76,4 +77,4 @@ class FileImageDataset(Dataset):
                                         yield FileImageInstance(os.path.join(self.path, folder, subfolder, img),
                                                                 subfolder)
                             else:
-                                print("Found file that is not a jpg, jpeg or png file: {}".format(img))
+                                logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))
