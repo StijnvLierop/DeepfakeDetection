@@ -36,7 +36,7 @@ def correlation_coefficient(block1: np.ndarray, block2: np.ndarray) -> float:
     This function calculates the correlation coefficient between two image blocks, taking into account their
     intensity variations. The input image blocks are converted to float32 for processing. It then centers the
     intensity values by subtracting the mean value of each block and computes the normalized cross-correlation.
-    If the computation predictions in a zero denominator during normalization, the function returns zero.
+    If the computation results in a zero denominator during normalization, the function returns zero.
 
     :param block1: The first image block of shape (H,W).
     :param block2: The second image block of shape (H,W).
@@ -225,7 +225,7 @@ def estimate_local_lca_displacements(image: np.ndarray,
         disp_gr = diamond_search(ref_block, red_search_area)
         disp_gb = diamond_search(ref_block, blue_search_area)
 
-        # Add predictions to array
+        # Add results to array
         local_displacements_gr.append(disp_gr)
         local_displacements_gb.append(disp_gb)
 
@@ -254,7 +254,7 @@ def estimate_global_lca_model(keypoints: np.ndarray, local_displacements: np.nda
     :param keypoints: 2D numpy array of keypoints (x,y) in the image of length N.
     :param local_displacements: 2D numpy array of length N containing local displacements (dx, dy).
     :return: best global model parameters (alpha, x0, y0). Alpha indicates the strength of the aberration.
-             A larger deviation from 1 predictions in a stronger aberration effect. x0 and y0 represent the coordinates of
+             A larger deviation from 1 results in a stronger aberration effect. x0 and y0 represent the coordinates of
              the optical center op the image.
     """
     # Take no aberration and geometric center of keypoints as intial guess of image center
@@ -391,7 +391,7 @@ def simulate_lateral_chromatic_aberration(image: np.ndarray, alpha: float, cente
 
     :param image: Input RGB image as np.ndarray (H x W x 3).
     :param alpha: quantifies how much the chromatic aberration displacement increases per pixel of distance from
-                  the optical center. Larger deviation from 1 predictions in a stronger aberration effect.
+                  the optical center. Larger deviation from 1 results in a stronger aberration effect.
     :param center: (x, y) center for radial shift. If None, uses image center.
     :return: Output RGB image with simulated chromatic aberration.
     """
