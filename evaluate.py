@@ -6,7 +6,7 @@ import confidence
 from datasets import tqdm
 
 from deepfake_detection.data import Dataset
-from deepfake_detection.evaluation.metrics import accuracy
+from deepfake_detection.evaluation.metrics import accuracy, roc_auc
 from deepfake_detection.models import Model, Prediction
 from deepfake_detection.utils.configuration import parse_dataset_config, load_model
 from deepfake_detection.utils.io import read_predictions_from_file, write_predictions_to_file, get_predictions_filename
@@ -107,9 +107,12 @@ def evaluate_model_on_dataset(dataset: Dataset, predictions: Sequence[Prediction
     :param output_dir: The directory path where the evaluation metrics are to be saved.
     """
     # Classification metrics
-    acc = accuracy(dataset, predictions, output_dir)
+    acc = accuracy(dataset, predictions)
+    auc = roc_auc(dataset, predictions)
 
+    print("Evaluation results for", dataset.name, ":")
     print(f"Accuracy: {acc}")
+    print(f"AUC: {auc}")
 
     # Make output directory
     os.makedirs(output_dir, exist_ok=True)
@@ -117,6 +120,7 @@ def evaluate_model_on_dataset(dataset: Dataset, predictions: Sequence[Prediction
     # Save metrics to file
     with open(os.path.join(output_dir, f"{dataset.name}_metrics.txt"), 'w') as f:
         f.write(f"Accuracy: {acc}")
+        f.write(f"AUC: {auc}")
 
 
 if __name__ == '__main__':
