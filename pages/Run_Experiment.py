@@ -25,8 +25,8 @@ dataset = datasets[selected_dataset]
 selected_model = st.selectbox("Model", models.keys())
 model = models[selected_model]
 
-# Check if prediction results already exist
-result_dir = os.path.join(os.getcwd(), 'results')
+# Check if prediction predictions already exist
+result_dir = os.path.join(os.getcwd(), 'predictions')
 if not os.path.isdir(result_dir):
     os.mkdir(result_dir)
 predictions_file = os.path.join(result_dir, get_predictions_filename(dataset.name, model.name))

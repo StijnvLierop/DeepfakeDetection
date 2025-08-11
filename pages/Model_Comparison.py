@@ -11,9 +11,9 @@ datasets = parse_dataset_config('dataset_config.yaml')
 
 results = []
 
-for predictions_file in os.listdir("./results"):
+for predictions_file in os.listdir("./predictions"):
     _, dataset_name, model_name = predictions_file.split('.')[0].split("_")
-    predictions = read_predictions_from_file(os.path.join("./results", predictions_file))
+    predictions = read_predictions_from_file(os.path.join("./predictions", predictions_file))
     dataset = datasets[dataset_name]
 
     acc = accuracy(dataset, predictions, label_mapping=dataset.label_mapping)

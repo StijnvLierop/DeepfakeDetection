@@ -1,15 +1,16 @@
 import warnings
-from typing import Sequence, Mapping
+from typing import Sequence, Mapping, Union
 
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score
 
+from deepfake_detection.data import Dataset
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.evaluation.utils import get_labels, to_arrays, apply_label_mapping
 from deepfake_detection.models.prediction import Prediction
 
 
-def accuracy(instances: Sequence[Instance],
+def accuracy(instances: Union[Sequence[Instance], Dataset],
              predictions: Sequence[Prediction],
              label: str = None,
              label_mapping: Mapping[str, str] = None) -> float:
@@ -54,7 +55,8 @@ def accuracy(instances: Sequence[Instance],
 
     return float(np.mean(scores))
 
-def roc_auc(instances: Sequence[Instance],
+
+def roc_auc(instances: Union[Sequence[Instance], Dataset],
             predictions: Sequence[Prediction],
             label: str = None,
             label_mapping: Mapping[str, str] = None) -> float:
