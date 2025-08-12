@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## v0.9.1 (2025-08-12)
+
+### Bug Fixes
+
+- **chromatic_aberration.py**: Remove img parameter when plot_keypoints_displacement is called
+  ([`ff2e6b6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ff2e6b6e17af4cea1ce4932dba97fbc7b270f080))
+
+### Chores
+
+- Set default logging level to INFO
+  ([`b870dbc`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b870dbcb7d99675055c409d26207a6ac6fb2d8f7))
+
+### Refactoring
+
+- Replace print statements with logging module calls
+  ([`dbd15fe`](https://github.com/StijnvLierop/DeepfakeDetection/commit/dbd15fee976dfb6dd172f7c0559998c46c68a6bd))
+
+
 ## v0.9.0 (2025-08-11)
 
 ### Bug Fixes
