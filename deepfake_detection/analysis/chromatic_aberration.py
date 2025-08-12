@@ -364,16 +364,14 @@ def visualize_estimated_chromatic_aberration(img: np.ndarray,
     axs[2].axis('off')
 
     # Plot estimated red/green global and local displacement for keypoints
-    plot_keypoints_displacement(img,
-                                keypoints,
+    plot_keypoints_displacement(keypoints,
                                 local_rg,
                                 global_rg,
                                 title='Red/Green displacement (scaled x10)',
                                 ax=axs[3])
 
     # Plot estimated blue/green global and local displacement for keypoints
-    plot_keypoints_displacement(img,
-                                keypoints,
+    plot_keypoints_displacement(keypoints,
                                 local_bg,
                                 global_bg,
                                 title='Blue/Green displacement (scaled x10)',
