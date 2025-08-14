@@ -6,7 +6,7 @@ train_config:
       return_binary: True
   model_name: "ResNet50"
   val_data: ""
-  weights_dir: "./weights"
+  weights_dir: "./dncnn"
 
   n_epochs: 5
   batch_size: 128

@@ -28,7 +28,7 @@ class ResNet50(Model):
         model.fc = torch.nn.Linear(model.fc.in_features, 2)
         model.to(self.device)
 
-        # If weights, load weights
+        # If dncnn, load dncnn
         if self.weights_path:
             model.load_state_dict(torch.load(self.weights_path, weights_only=True))
             self.model = model
@@ -40,7 +40,7 @@ class ResNet50(Model):
         if self.weights_path:
             self.load_model()
         else:
-            raise(ValueError, "No weights provided.")
+            raise(ValueError, "No dncnn provided.")
 
         # Make prediction
         input = self.transform(instance.data)

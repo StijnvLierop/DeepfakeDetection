@@ -21,7 +21,7 @@ class Cozzolino2023Model(Model):
     Predictions are returned as classifications and the feature representations used as input for the classifier is
     returned as embedding.
 
-    :param weights_dir: Path to the folder containing the weights of the model.
+    :param weights_dir: Path to the folder containing the dncnn of the model.
     :param device: Which device to use for computations.
     """
 
@@ -32,7 +32,7 @@ class Cozzolino2023Model(Model):
         self.model = None
 
     def load_model(self):
-        model_path = os.path.join(self.weights_dir, 'weights.pth')
+        model_path = os.path.join(self.weights_dir, 'dncnn.pth')
         model = OpenClipLinear(num_classes=1, pretrain='clipL14commonpool', normalize=True, next_to_last=True)
         dat = load(model_path, map_location='cpu', weights_only=True)
         model.load_state_dict(dat['model'])
