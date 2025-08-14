@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.10.0 (2025-08-14)
+
+### Bug Fixes
+
+- Remove plot function in denoise_dncnn function
+  ([`6718622`](https://github.com/StijnvLierop/DeepfakeDetection/commit/67186221d4e9c83bd12c65180276a20f737bfba0))
+
+### Features
+
+- Add denoiser from Zhang et al. 2017
+  ([`430d6d6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/430d6d6750461354700fbb88ea034b2b9651bc96))
+
+
 ## v0.9.1 (2025-08-12)
 
 ### Bug Fixes
