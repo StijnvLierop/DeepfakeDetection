@@ -52,7 +52,7 @@ def train_model(config: Mapping[str, Any]) -> None:
 
         logging.info(f'Epoch {epoch + 1}, Loss: {loss.item():.4f}')
 
-    # Save model weights
+    # Save model dncnn
     if not os.path.exists(config['weights_dir']):
         os.mkdir(config['weights_dir'])
     weights_path = os.path.join(config['weights_dir'], f"{config['model_name']}_{config['train_data'][0]['name']}.pth")

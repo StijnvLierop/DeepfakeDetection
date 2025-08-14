@@ -17,7 +17,7 @@ class Corvi2023Model(Model):
 
     In the original paper an image is classified as synthetic when the score output by the model is bigger than 1_0fake.
 
-    :param weights_dir: Path to the folder containing the weights of the model.
+    :param weights_dir: Path to the folder containing the dncnn of the model.
     :param device: Which device to use for computations.
     """
 
@@ -28,7 +28,7 @@ class Corvi2023Model(Model):
         self.model = None
 
     def load_model(self):
-        model_path = os.path.join(self.weights_dir, 'weights.pth')
+        model_path = os.path.join(self.weights_dir, 'dncnn.pth')
         model = resnet50(num_classes=1, stride0=1, dropout=0.5)
         dat = load(model_path, map_location='cpu', weights_only=True)
         model.load_state_dict(dat['model'])
