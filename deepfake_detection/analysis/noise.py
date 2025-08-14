@@ -78,11 +78,6 @@ def denoise_dncnn(img: np.ndarray) -> np.ndarray:
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = model.to(device)
 
-    import matplotlib.pyplot as plt
-
-    plt.imshow(img, cmap='gray' if n_channels == 1 else None)
-    plt.show()
-
     # Prepare tensor
     img_tensor = torch.from_numpy(img).float().permute((2, 0, 1)).unsqueeze(0).to(device) / 255
 
