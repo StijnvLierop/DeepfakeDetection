@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.11.0 (2025-08-14)
+
+### Features
+
+- **fft**: Add parameter to allow for optional filtering using hamming window
+  ([`b079417`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b0794178f54a188f0ae27b2df4368339ae1deeaa))
+
+
 ## v0.10.0 (2025-08-14)
 
 ### Bug Fixes
