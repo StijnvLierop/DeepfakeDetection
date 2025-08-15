@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.12.0 (2025-08-15)
+
+### Features
+
+- Add annotation class that includes labels at multiple levels
+  ([`6a17856`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6a178561a19daf96935a0ba3bafdedd51c8634de))
+
+- Make accuracy and roc-auc metrics compatible with labels on different levels
+  ([`6345cf8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6345cf80158c1e3b085b690820770ef60d79e0ea))
+
+
 ## v0.11.0 (2025-08-14)
 
 ### Features
