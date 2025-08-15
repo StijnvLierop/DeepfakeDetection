@@ -2,6 +2,7 @@ import json
 import os
 from typing import Iterable, Union
 
+from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import FileVideoInstance, FileImageSequenceInstance
 
@@ -87,18 +88,6 @@ class FaceForensicsDataset(Dataset):
         else:
             self.split_dict = None
 
-    @property
-    def label_mapping(self):
-        mapping = {}
-        # Loop over folders (authenticity class) in dataset
-        for folder in os.listdir(self.path):
-            # Loop over folders (models) in dataset
-            for subfolder in os.listdir(os.path.join(self.path, folder)):
-                # Loop over qualities (compression levels) in dataset
-                mapping[subfolder] = folder
-
-        return mapping
-
     def __iter__(self) -> Iterable[Union[FileImageSequenceInstance, FileVideoInstance]]:
         # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
@@ -113,16 +102,17 @@ class FaceForensicsDataset(Dataset):
                             if self.modality == 'images':
                                 yield FileImageSequenceInstance(
                                     os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
-                                    subfolder)
+                                    Annotation(authenticity_label=folder, source_label=subfolder))
                             else:
                                 yield FileVideoInstance(
                                     os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
-                                    subfolder)
+                                    Annotation(authenticity_label=folder, source_label=subfolder))
+
 
     def _instance_in_split(self, instance_path: str) -> bool:
         """
         This functions returns true if the current instance is in the selected split. If no split is selected or no
-        split mapping is provided it will always return true.
+        split mapping is provided, it will always return true.
 
         :param instance_path: The path to the instance.
         """

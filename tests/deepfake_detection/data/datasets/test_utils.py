@@ -9,7 +9,15 @@ from tests.deepfake_detection.fixtures import dummy_dataset
 def test_sample_n_per_class(dummy_dataset):
     filtered_dataset = sample_n_per_class(dummy_dataset, n=2)
     assert len(filtered_dataset) == 6
-    c = Counter([i.label for i in filtered_dataset])
+    c = Counter([i.annotation.source_label for i in filtered_dataset])
+    for e in c.keys():
+        assert c[e] == 2
+
+
+def test_sample_n_per_class_authenticity(dummy_dataset):
+    filtered_dataset = sample_n_per_class(dummy_dataset, n=2, label_type='authenticity_label')
+    assert len(filtered_dataset) == 4
+    c = Counter([i.annotation.authenticity_label for i in filtered_dataset])
     for e in c.keys():
         assert c[e] == 2
 

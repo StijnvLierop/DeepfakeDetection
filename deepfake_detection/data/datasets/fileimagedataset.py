@@ -1,8 +1,8 @@
 import logging
 import os
-from functools import cached_property
 from typing import Iterable
 
+from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import FileImageInstance
 
@@ -43,18 +43,6 @@ class FileImageDataset(Dataset):
         else:
             self.included_instances = None
 
-    @cached_property
-    def label_mapping(self):
-        mapping = {}
-        # Loop over folders (authenticity class) in dataset
-        for folder in os.listdir(self.path):
-            # If directory
-            if os.path.isdir(os.path.join(self.path, folder)):
-                for subfolder in os.listdir(os.path.join(self.path, folder)):
-                    # If directory
-                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
-                        mapping[subfolder] = folder
-        return mapping
 
     def __iter__(self) -> Iterable[FileImageInstance]:
         # Loop over folders (labels) in dataset
@@ -67,14 +55,17 @@ class FileImageDataset(Dataset):
                         # Loop over images
                         for img in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                self.label_mapping[subfolder] = folder
                                 if self.included_instances is None or img in self.included_instances:
                                     # If return binary labels
                                     if self.return_binary:
                                         yield FileImageInstance(os.path.join(self.path, folder, subfolder, img),
-                                                                folder)
+                                                                Annotation(authenticity_label=folder,
+                                                                           source_label=subfolder)
+                                                                )
                                     else:
                                         yield FileImageInstance(os.path.join(self.path, folder, subfolder, img),
-                                                                subfolder)
+                                                                Annotation(authenticity_label=folder,
+                                                                           source_label=subfolder)
+                                                                )
                             else:
                                 logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))

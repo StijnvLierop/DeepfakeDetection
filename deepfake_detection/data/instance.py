@@ -2,21 +2,23 @@ import os
 from abc import ABC, abstractmethod
 from functools import cached_property
 from pathlib import Path
+from typing import Optional
 
 from PIL import Image
 import cv2
 
+from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.utils.hashing import hash_image_to_int
 
 
 class Instance(ABC):
     """
-    A single dataset instance. Each instance has an optional label.
+    A single dataset instance. Each instance can have one or more optional labels.
 
-    :param label: An optional instance label.
+    :param annotation: An annotation for the instance.
     """
-    def __init__(self, label: str = None):
-        self.label = label
+    def __init__(self, annotation: Optional[Annotation]=None):
+        self.annotation = annotation
 
     def __eq__(self, other):
         if not isinstance(other, Instance):
@@ -32,11 +34,11 @@ class ImageInstance(Instance):
     A default image instance is initialized with only image data and an optional label.
 
     :param data: The image data in the form of a PIL Image.
-    :param label: An optional instance label.
+    :param annotation: An annotation for the instance.
     """
 
-    def __init__(self, data: Image, label: str = None):
-        super().__init__(label)
+    def __init__(self, data: Image, annotation: Optional[Annotation]=None):
+        super().__init__(annotation)
         self.data = data
 
     def __hash__(self):
@@ -45,10 +47,13 @@ class ImageInstance(Instance):
 class FileImageInstance(Instance):
     """
     An image instance that is created from an image file stored on disk.
+
+    :param path: The image path.
+    :param annotation: An annotation for the instance.
     """
 
-    def __init__(self, path: str, label: str = None):
-        super().__init__(label)
+    def __init__(self, path: str, annotation: Optional[Annotation]=None):
+        super().__init__(annotation)
         self.path = Path(path)
 
     @cached_property
@@ -63,16 +68,16 @@ class FileImageSequenceInstance(Instance):
     An instance that is created from a sequence of images stored on disk.
 
     :param path: The path to the image sequence directory.
-    :param label: An optional instance label.
+    :param annotation: An annotation for the instance.
     """
 
-    def __init__(self, path: str, label: str = None):
-        super().__init__(label)
+    def __init__(self, path: str, annotation: Optional[Annotation]=None):
+        super().__init__(annotation)
         self.path = Path(path)
 
     @cached_property
     def data(self) -> list[FileImageInstance]:
-        return [FileImageInstance(os.path.join(self.path, img), self.label)
+        return [FileImageInstance(os.path.join(self.path, img), self.annotation)
                 for img in os.listdir(self.path)]
 
     def __len__(self):
@@ -86,11 +91,11 @@ class FileVideoInstance(Instance):
     An instance that is created from a video stored on disk.
 
     :param path: The path to the video file.
-    :param label: An optional instance label.
+    :param annotation: An annotation for the instance.
     """
 
-    def __init__(self, path: str, label: str = None):
-        super().__init__(label)
+    def __init__(self, path: str, annotation: Optional[Annotation]=None):
+        super().__init__(annotation)
         self.path = Path(path)
 
     @cached_property

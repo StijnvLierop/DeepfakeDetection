@@ -4,18 +4,22 @@ import numpy as np
 import pytest
 from PIL import Image
 
+from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.instance import Instance, ImageInstance
 from deepfake_detection.models.prediction import Prediction
 
 
 @pytest.fixture
 def instances() -> List[Instance]:
-    return [ImageInstance(data=Image.fromarray(np.zeros(10)), label=c_label.upper())
-            for (a_label, c_label) in zip("rrrrffff", "aaaabbcc")]
+    return [ImageInstance(data=Image.fromarray(np.zeros(10)), annotation=Annotation(authenticity_label=a_label,
+                                                                                    source_label=c_label))
+            for (a_label, c_label) in zip(["real", "real", "real", "real", "fake", "fake", "fake", "fake"],
+                                          "AAAABBCC") # A is real, B and C are fake
+            ]
 
 
 @pytest.fixture
-def predictions() -> List[Prediction]:
+def source_predictions() -> List[Prediction]:
     return [
         Prediction(classification=classification)
         for classification in [
@@ -27,5 +31,22 @@ def predictions() -> List[Prediction]:
             {"A": 0.5, "B": 0.2, "C": 0.3},  # True = "B"
             {"A": 0.6, "B": 0.4, "C": 0.0},  # True = "C"
             {"A": 0.0, "B": 0.3, "C": 0.7},  # True = "C" hit
+        ]
+    ]
+
+
+@pytest.fixture
+def authenticity_predictions() -> List[Prediction]:
+    return [
+        Prediction(classification=classification)
+        for classification in [
+            {"real": 0.8, "fake": 0.2},  # True = "r" hit
+            {"real": 0.4, "fake": 0.6},  # True = "f"
+            {"real": 1.0, "fake": 0.0},  # True = "r" hit
+            {"real": 0.8, "fake": 0.2},  # True = "r" hit
+            {"real": 0.3, "fake": 0.7},  # True = "f" hit
+            {"real": 0.8, "fake": 0.2},  # True = "f"
+            {"real": 0.2, "fake": 0.8},  # True = "f" hit
+            {"real": 0.7, "fake": 0.3},  # True = "f"
         ]
     ]
