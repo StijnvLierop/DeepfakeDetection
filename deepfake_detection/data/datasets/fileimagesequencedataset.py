@@ -1,6 +1,7 @@
 import os
 from typing import Iterable
 
+from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import FileImageSequenceInstance
 
@@ -47,6 +48,7 @@ class FileImageSequenceDataset(Dataset):
         else:
             self.included_instances = None
 
+
     def __iter__(self) -> Iterable[FileImageSequenceInstance]:
         # Loop over folders (models) in dataset
         for folder in os.listdir(self.path):
@@ -63,5 +65,5 @@ class FileImageSequenceDataset(Dataset):
                                 if self.included_instances is None or img_folder in self.included_instances:
                                     yield FileImageSequenceInstance(
                                         os.path.join(self.path, folder, subfolder, img_folder),
-                                        subfolder
+                                        Annotation(authenticity_label=folder, source_label=subfolder)
                                     )

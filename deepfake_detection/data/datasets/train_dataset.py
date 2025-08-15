@@ -2,7 +2,6 @@ import torch
 from PIL import Image
 
 from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.utils.labels import encode_label
 
 
 class TrainDataset(torch.utils.data.Dataset):
@@ -23,17 +22,16 @@ class TrainDataset(torch.utils.data.Dataset):
         self.labels = None
 
         # Index all samples in dataset
-        self.samples = [(x.path, x.label) for x in base_dataset]
+        self.samples = [(x.path, x.annotation.binary_label) for x in base_dataset]
+
 
     def __len__(self) -> int:
         return len(self.base_dataset)
 
+
     def __getitem__(self, index):
         # Get path and label
         path, label = self.samples[index]
-
-        # Transform label to binary
-        label = encode_label(label)
 
         # Open data
         data = Image.open(path).convert('RGB')

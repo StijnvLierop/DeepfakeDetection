@@ -1,4 +1,4 @@
-from typing import Tuple, Iterable
+from typing import Tuple, Iterable, Optional
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -8,10 +8,11 @@ from deepfake_detection.data.dataset import Dataset
 
 
 def split_dataset(dataset: Dataset,
-                  test_size: float = None,
-                  random_state: int = None,
-                  shuffle: bool = True,
-                  stratify: bool = True) -> Tuple[ListDataset, ListDataset]:
+                  test_size: Optional[float] = None,
+                  random_state: Optional[int] = None,
+                  shuffle: Optional[bool] = True,
+                  stratify: Optional[bool] = True,
+                  label_type: Optional[str] = 'source_label') -> Tuple[ListDataset, ListDataset]:
     """
     Splits a dataset into training and test sets.
     
@@ -21,13 +22,15 @@ def split_dataset(dataset: Dataset,
     :param random_state: Integer specifying the random state for splitting the dataset.
     :param shuffle: Boolean specifying whether to shuffle the dataset before splitting.
                     If shuffle=False then stratify must be None.
-    :param stratify: If set to True, data is split in a stratified fashion using the class labels.
+    :param stratify: If set to True, data is split in a stratified fashion using the class labels type in 'label_type'.
+    :param label_type: If stratify=True, this specifies the type of labels to use for stratification.
+                       Can be one of: 'authenticity_label', 'binary_label' and 'source_label'.
     """
     # Create index array
     index_array = np.arange(0, len(dataset))
 
     # Get labels
-    labels = [i.label for i in dataset] if stratify else None
+    labels = [i.annotation.get_label(label_type) for i in dataset] if stratify else None
     
     # Create split
     train_set, test_set = train_test_split(index_array,

@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Iterable
 
+from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import FileImageInstance
 
@@ -43,6 +44,7 @@ class GenImageDataset(Dataset):
         else:
             self.split = ['train', 'val']
 
+
     def __iter__(self) -> Iterable[FileImageInstance]:
         # Loop over generators
         for generator in os.listdir(self.path):
@@ -60,7 +62,8 @@ class GenImageDataset(Dataset):
                                     if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
                                         yield FileImageInstance(
                                             os.path.join(self.path, generator, split, binary_label, img),
-                                            label=generator if binary_label == 'ai' else 'nature',
+                                            Annotation(authenticity_label="real" if generator == "nature" else "fake",
+                                                       source_label=generator),
                                         )
                                     else:
                                         logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))

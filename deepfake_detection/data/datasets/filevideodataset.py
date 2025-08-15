@@ -2,8 +2,10 @@ import logging
 import os
 from typing import Iterable
 
+from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import FileVideoInstance
+
 
 class FileVideoDataset(Dataset):
     """
@@ -37,21 +39,6 @@ class FileVideoDataset(Dataset):
         else:
             self.included_instances = None
 
-    @property
-    def label_mapping(self):
-        mapping = {}
-        # Loop over folders (authenticity class) in dataset
-        for folder in os.listdir(self.path):
-            # If directory
-            if os.path.isdir(os.path.join(self.path, folder)):
-                # Loop over folders (models) in dataset
-                for subfolder in os.listdir(os.path.join(self.path, folder)):
-                    # If directory
-                    if os.path.isdir(os.path.join(self.path, folder, subfolder)):
-                        # Loop over videos
-                        for video in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            mapping[subfolder] = folder
-        return mapping
 
     def __iter__(self) -> Iterable[FileVideoInstance]:
         # Loop over folders (authenticity class) in dataset
@@ -67,6 +54,8 @@ class FileVideoDataset(Dataset):
                             if video.split('.')[-1].lower() in ['mp4', 'mov']:
                                 if self.included_instances is None or video in self.included_instances:
                                     yield FileVideoInstance(os.path.join(self.path, folder, subfolder, video),
-                                                            subfolder)
+                                                            Annotation(authenticity_label=folder,
+                                                                       source_label=subfolder)
+                                                            )
                             else:
                                 raise logging.debug("Found file that is not a mp4 or mov file: {}".format(video))

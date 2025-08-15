@@ -1,5 +1,5 @@
 import logging
-from typing import Sequence, Tuple, Mapping
+from typing import Sequence, Tuple, Mapping, Optional, Union, Iterable
 
 import numpy as np
 
@@ -7,30 +7,34 @@ from deepfake_detection.data.instance import Instance
 from deepfake_detection.models.prediction import Prediction
 
 
-LOGGER = logging.getLogger(__name__)
-
 def get_labels(
         instances: Sequence[Instance],
         predictions: Sequence[Prediction],
+        label_type: str = 'authenticity_label'
 ) -> Sequence[str]:
     """
     Returns a set of unique labels among the ground-truth annotations
     in `instances` and the predicted labels in `predictions`
     (i.e. the keys in their `classification` attributes) combined.
 
-    :param instances: Instances with ground-truth labels
-    :param predictions: Model predictions with classification scores
-    :return: Unique labels among ground-truth annotations and model predictions
+    :param instances: Instances with ground-truth labels.
+    :param predictions: Model predictions with classification scores.
+    :param label_type: The label type in 'Annotation' to include. Can be 'source_label', 'authenticity_label'
+                       or 'binary_label'.
+    :return: Unique labels among ground-truth annotations and model predictions.
     """
-    a = {y.label for y in instances}
+    a = {y.annotation.get_label(label_type) for y in instances}
     b = {y for p in predictions for y in p.classification}
-    print(a, b)
+    if len(a & b) == 0:
+        logging.warn("No common labels found in instances and predictions.")
     return sorted(a | b)
+
 
 def to_arrays(instances: Sequence[Instance],
               predictions: Sequence[Prediction],
               label: str,
-              binary: bool = False) \
+              label_type: str,
+              binary: Optional[bool] = False) \
         -> Tuple[np.ndarray, np.ndarray]:
     """
     This function takes a series of predictions and instances and
@@ -39,6 +43,8 @@ def to_arrays(instances: Sequence[Instance],
     :param instances: Instances with ground-truth labels
     :param predictions: Model predictions with classification scores
     :param label: label that corresponds to `true` class.
+    :param label_type: The label type in 'Annotation' to use for computing the accuracy. Can be 'source_label',
+                       'authenticity_label' or 'binary_label'. Should correspond with the labels in 'predictions'.
     :param binary: If `True`, predictions are returned as one-hot encoded labels for the particular label
                    (true if the label has the highest confidence score).
                    If `False`, predictions are returned as the confidence score for the particular label.
@@ -48,8 +54,13 @@ def to_arrays(instances: Sequence[Instance],
         y_pred = np.array([max(p.classification, key=p.classification.get) == label for p in predictions])
     else:
         y_pred = np.array([p.classification[label] for p in predictions])
-    y_true = np.array([int(i.label == label) for i in instances])
+    y_true = np.array([int(label == i.annotation.get_label(label_type)) for i in instances])
+    if y_pred.sum() == 0:
+        logging.warn("No predictions for label %s.", label)
+    if y_true.sum() == 0:
+        logging.warn("No labels for label %s.", label)
     return y_true, y_pred
+
 
 def map_fields(init_dict: Mapping[str, float], map_dict: Mapping[str, str]) -> Mapping[str, float]:
     """
@@ -72,28 +83,25 @@ def map_fields(init_dict: Mapping[str, float], map_dict: Mapping[str, str]) -> M
         res_dict[k] = v
     return res_dict
 
-def apply_label_mapping(instances: Sequence[Instance],
-                        predictions: Sequence[Prediction],
-                        label_mapping: Mapping[str, str]) -> Tuple[Sequence[Instance], Sequence[Prediction]]:
-    """
-    This function applies a label mapping to a series of instances and a series of predictions and returns the same
-    predictions and instances, but with updated labels according to the label mapping.
 
-    :param instances: Instances with ground-truth labels
-    :param predictions: Model predictions with classification scores
-    :param label_mapping: Mapping from label to label.
-    :return: Tuple of (instances, predictions) with updated labels.
+def find_label_type_corresponding_with_label(instances: Iterable[Instance], label: Union[str, int]) -> str:
     """
-    # Update label mapping for predictions
-    new_predictions = []
-    for p in predictions:
-        p.classification = map_fields(p.classification, label_mapping)
-        new_predictions.append(p)
+    Determines the type of label corresponding to a given label within a list of instances.
 
-    # Update label mapping for instances
-    new_instances = []
+    :param instances: A list where each element is expected to have an 'annotation' attribute containing the label types.
+    :param label: The label whose type is being determined.
+    :return: The type of the label ('authenticity_label', 'source_label', 'binary_label') corresponding to
+             the provided label. Raises a ValueError if the label is not found in the instances.
+    """
+    # Loop over instances
     for i in instances:
-        i.label = label_mapping[i.label]
-        new_instances.append(i)
 
-    return new_instances, new_predictions
+        # Check in which label type label occurs, return label type if found
+        if i.annotation.authenticity_label == label:
+            return 'authenticity_label'
+        elif i.annotation.source_label == label:
+            return 'source_label'
+        elif i.annotation.binary_label == label:
+            return 'binary_label'
+
+    raise ValueError("Label not found in instances.")
