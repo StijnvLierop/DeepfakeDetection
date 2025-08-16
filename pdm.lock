@@ -5,7 +5,7 @@
 groups = ["default", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:db94e1dfac0a13e533c85860ecfa54ade880430794f43dcf13bb5cef495d1c05"
+content_hash = "sha256:43373e2548cdf7480a67e0808643704e6159e4aae9954fbffbf4ad56ec42ecc9"
 
 [[metadata.targets]]
 requires_python = "==3.10.18"
@@ -252,6 +252,21 @@ files = [
 ]
 
 [[package]]
+name = "cupy"
+version = "13.5.1"
+requires_python = ">=3.9"
+summary = "CuPy: NumPy & SciPy for GPU"
+groups = ["default"]
+marker = "python_full_version == \"3.10.18\""
+dependencies = [
+    "fastrlock>=0.5",
+    "numpy<2.6,>=1.22",
+]
+files = [
+    {file = "cupy-13.5.1.tar.gz", hash = "sha256:3dba2f30258463482d52deb420862fbbbaf2c446165a5e8d67377ac6cb5c0870"},
+]
+
+[[package]]
 name = "cycler"
 version = "0.12.1"
 requires_python = ">=3.8"
@@ -276,6 +291,24 @@ dependencies = [
 files = [
     {file = "exceptiongroup-1.3.0-py3-none-any.whl", hash = "sha256:4d111e6e0c13d0644cad6ddaa7ed0261a0b36971f6d23e7ec9b4b9097da78a10"},
     {file = "exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88"},
+]
+
+[[package]]
+name = "fastrlock"
+version = "0.8.3"
+summary = "Fast, re-entrant optimistic lock implemented in Cython"
+groups = ["default"]
+marker = "python_full_version == \"3.10.18\""
+files = [
+    {file = "fastrlock-0.8.3-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:cc5fa9166e05409f64a804d5b6d01af670979cdb12cd2594f555cb33cdc155bd"},
+    {file = "fastrlock-0.8.3-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:7a77ebb0a24535ef4f167da2c5ee35d9be1e96ae192137e9dc3ff75b8dfc08a5"},
+    {file = "fastrlock-0.8.3-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_24_i686.whl", hash = "sha256:d51f7fb0db8dab341b7f03a39a3031678cf4a98b18533b176c533c122bfce47d"},
+    {file = "fastrlock-0.8.3-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:767ec79b7f6ed9b9a00eb9ff62f2a51f56fdb221c5092ab2dadec34a9ccbfc6e"},
+    {file = "fastrlock-0.8.3-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:0d6a77b3f396f7d41094ef09606f65ae57feeb713f4285e8e417f4021617ca62"},
+    {file = "fastrlock-0.8.3-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:92577ff82ef4a94c5667d6d2841f017820932bc59f31ffd83e4a2c56c1738f90"},
+    {file = "fastrlock-0.8.3-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:3df8514086e16bb7c66169156a8066dc152f3be892c7817e85bf09a27fa2ada2"},
+    {file = "fastrlock-0.8.3-cp310-cp310-win_amd64.whl", hash = "sha256:001fd86bcac78c79658bac496e8a17472d64d558cd2227fdc768aa77f877fe40"},
+    {file = "fastrlock-0.8.3.tar.gz", hash = "sha256:4af6734d92eaa3ab4373e6c9a1dd0d5ad1304e172b1521733c6c3b3d73c8fa5d"},
 ]
 
 [[package]]

@@ -1,12 +1,15 @@
+import logging
 from typing import Sequence, Union, Callable
 
 import numpy as np
+from tqdm import tqdm
 
 from deepfake_detection.data import FileImageInstance, ImageInstance
 
 
 def average_over_images(instances: Sequence[Union[ImageInstance, FileImageInstance]],
-                        func: Callable[..., np.ndarray]) -> np.ndarray:
+                        func: Callable[..., np.ndarray],
+                        verbose: bool=False) -> np.ndarray:
     """
     This function processes a sequence of image instances, applies a specified function on the image data, and computes
     the average result. It ensures that the images are cropped to the smallest dimensions (width and height) present in
@@ -14,6 +17,7 @@ def average_over_images(instances: Sequence[Union[ImageInstance, FileImageInstan
 
     :param instances: A sequence of instances of ImageInstance or FileImageInstance to process.
     :param func: The function to apply to each image instance.
+    :param verbose: Whether to show a progress bar while processing the images. Defaults to False.
     :return: The average result of applying the function to the image data of each instance in the input sequence.
     """
     # Make sure that length of sequence is at least one
@@ -21,12 +25,17 @@ def average_over_images(instances: Sequence[Union[ImageInstance, FileImageInstan
         raise IndexError("Cannot calculate average from empty sequence.")
 
     # Get smallest width and height
+    if verbose:
+        logging.info("Calculating minimum width and height...")
     min_width = np.min([i.data.width for i in instances])
     min_height = np.min([i.data.height for i in instances])
 
     # Take the mean result of all processed instances
     result = np.mean(
-        [centercrop(func(np.array(i.data)), min_width=min_width, min_height=min_height) for i in instances],
+        [centercrop(func(np.array(i.data)),
+                    min_width=min_width,
+                    min_height=min_height) for i in
+         (tqdm(instances, desc="Processing images") if verbose else instances)],
         axis=0)
 
     return result
