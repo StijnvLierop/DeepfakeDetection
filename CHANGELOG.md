@@ -1,6 +1,32 @@
 # CHANGELOG
 
 
+## v0.13.0 (2025-08-20)
+
+### Bug Fixes
+
+- Remove msenv folder
+  ([`7cc1994`](https://github.com/StijnvLierop/DeepfakeDetection/commit/7cc19948acecebeb349fe0ace9ddb3da10469ffa))
+
+- **pipeline**: Setup cuda toolkit
+  ([`1b5e689`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1b5e68992d42dad7ed99ebf31cab7dcb36d8a30f))
+
+### Chores
+
+- Change cuda version in pipeline
+  ([`533b66b`](https://github.com/StijnvLierop/DeepfakeDetection/commit/533b66bdf0a542dcea1dcc696b213df480e1a2d8))
+
+### Features
+
+- Add simple fingerprint model
+  ([`1b5473a`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1b5473a7b12e306f910b33234c63acb88379605b))
+
+### Refactoring
+
+- Remove cupy from dependencies
+  ([`21d1111`](https://github.com/StijnvLierop/DeepfakeDetection/commit/21d1111a83aabfcbda7dcbd85390e371ac338ecd))
+
+
 ## v0.12.1 (2025-08-20)
 
 ### Bug Fixes
