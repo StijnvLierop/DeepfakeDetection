@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.12.1 (2025-08-20)
+
+### Bug Fixes
+
+- Make arrows in aberration visualization unit scale
+  ([`0d471b9`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0d471b9fc14a890e881199a9a12744a0078eedcd))
+
+
 ## v0.12.0 (2025-08-15)
 
 ### Features
