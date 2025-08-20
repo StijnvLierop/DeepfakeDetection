@@ -266,11 +266,19 @@ def estimate_global_lca_model(keypoints: np.ndarray, local_displacements: np.nda
     return optim.x
 
 
+def to_unit_scale(dx, dy) -> Tuple[np.ndarray, np.ndarray]:
+    mag = np.sqrt(dx ** 2 + dy ** 2)
+    dx_unit = np.divide(dx, mag, out=np.zeros_like(dx, dtype=float),
+                        where=mag != 0)
+    dy_unit = np.divide(dy, mag, out=np.zeros_like(dy, dtype=float),
+                        where=mag != 0)
+    return dx_unit, dy_unit
+
+
 def plot_keypoints_displacement(keypoints: np.ndarray,
                                 local_displacements: np.ndarray,
                                 global_params: np.ndarray,
                                 title: str,
-                                scale: float=0.1,
                                 ax=plt.axes) -> None:
     """
     Plots estimated displacement vectors for a given image at each given keypoint.
@@ -279,32 +287,32 @@ def plot_keypoints_displacement(keypoints: np.ndarray,
     :param local_displacements: 2D np.ndarray containing the local displacement vectors (x,y) for all keypoints.
     :param global_params: array of parameters (alpha, x0 and y0).
     :param title: Title of the plot.
-    :param scale: Scaling factor to scale arrows with.
     :param ax: Axes object to plot on.
     """
     # Plot local displacements
-    ax.quiver(keypoints[:, 0], keypoints[:, 1], local_displacements[:, 0], local_displacements[:, 1],
-              color='red', label='Local Displacement', scale=scale, scale_units='xy')
+    dx, dy = to_unit_scale(local_displacements[:, 0], local_displacements[:, 1])
+    ax.quiver(keypoints[:, 0], keypoints[:, 1], dx, dy,
+              color='red', label='Local Displacement', scale_units='xy')
 
     # Plot global diplacements
     alpha, x0, y0 = global_params
     global_v_map = alpha * (keypoints - np.array([x0, y0])) + np.array([x0, y0]) - keypoints
-    ax.quiver(keypoints[:, 0], keypoints[:, 1], global_v_map[:, 0], global_v_map[:, 1],
-              color='green', label='Global Displacement', scale=scale, scale_units='xy')
+    dx, dy = to_unit_scale(global_v_map[:, 0], global_v_map[:, 1])
+    ax.quiver(keypoints[:, 0], keypoints[:, 1], dx, dy,
+              color='green', label='Global Displacement', scale_units='xy')
 
     # Plot layout
     ax.set_title(title)
     ax.axis('off')
 
 
-def plot_vector_field(img: np.ndarray, params: np.ndarray, title: str, scale: float=0.1, ax=plt.axes) -> None:
+def plot_vector_field(img: np.ndarray, params: np.ndarray, title: str, ax=plt.axes) -> None:
     """
     Plots a vector field for a given image and set of parameters.
 
     :param img: 2D or 3D np.ndarray containing the image data.
     :param params: Array of parameters (alpha, x0 and y0).
     :param title: Title of the plot.
-    :param scale: Scaling factor to scale arrows with.
     :param ax: Axis to plot on.
     """
     # Get params
@@ -313,8 +321,11 @@ def plot_vector_field(img: np.ndarray, params: np.ndarray, title: str, scale: fl
     # Calculate params for global vector field
     x, y, xw, yw = calc_vector_field(img, x0, y0, alpha, 100)
 
+    # Convert to unit scale
+    dx, dy = to_unit_scale(xw, yw)
+
     # Plot vector field
-    ax.quiver(x, y, xw, yw, color='green', scale_units='xy', scale=scale)
+    ax.quiver(x, y, dx, dy, color='green', scale_units='xy')
 
     # Plot layout
     ax.set_title(title)
@@ -347,14 +358,12 @@ def visualize_estimated_chromatic_aberration(img: np.ndarray,
 
     # Plot global red/green displacement
     plot_vector_field(img, global_rg,
-                      title='Red/Green estimated global displacement (scaled x10)',
-                      scale=0.1,
+                      title='Red/Green estimated global displacement (unit scale)',
                       ax=axs[0])
 
     # Plot global blue/green displacement
     plot_vector_field(img, global_bg,
-                      title='Blue/Green estimated global displacement (scaled x10)',
-                      scale=0.1,
+                      title='Blue/Green estimated global displacement (unit scale)',
                       ax=axs[1])
 
     # Plot keypoints
@@ -367,14 +376,14 @@ def visualize_estimated_chromatic_aberration(img: np.ndarray,
     plot_keypoints_displacement(keypoints,
                                 local_rg,
                                 global_rg,
-                                title='Red/Green displacement (scaled x10)',
+                                title='Red/Green displacement (unit scale)',
                                 ax=axs[3])
 
     # Plot estimated blue/green global and local displacement for keypoints
     plot_keypoints_displacement(keypoints,
                                 local_bg,
                                 global_bg,
-                                title='Blue/Green displacement (scaled x10)',
+                                title='Blue/Green displacement (unit scale)',
                                 ax=axs[4])
 
     # Show figure
