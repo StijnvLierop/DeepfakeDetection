@@ -23,10 +23,6 @@ jobs:
           python-version: '3.10'
           cache: 'pip'
 
-      - uses: Jimver/cuda-toolkit@v0.2.24
-        with:
-          cuda: '12.2'
-
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v4
 

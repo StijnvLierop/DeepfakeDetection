@@ -2,7 +2,6 @@ import os
 from typing import Sequence, Union, Optional
 
 import numpy as np
-import cupy as cp
 
 from deepfake_detection.analysis.frequency import fft
 from deepfake_detection.analysis.noise import noise_residual
@@ -15,7 +14,6 @@ class ImageFingerprintModel(Model):
     """
     This model uses the average frequency spectrum of the noise residual of a set of images for detection.
     The model compares the normalized cross-correlation between an image and a library of fingerprints of known models.
-    This model has been implemented with cupy to use GPU acceleration for faster processing.
 
     :param fingerprint_dir: Directory to store fingerprints in / load fingerprints from.
     """
@@ -33,7 +31,7 @@ class ImageFingerprintModel(Model):
         for f in os.listdir(self.fingerprint_dir):
             f_name = f.split('.')[0].split('/')[-1]
             model = f_name.split("_")[0]
-            self.fingerprints[model] = cp.load(os.path.join(self.fingerprint_dir, f))
+            self.fingerprints[model] = np.load(os.path.join(self.fingerprint_dir, f))
 
 
     def extract_fingerprint(self,
@@ -76,7 +74,7 @@ class ImageFingerprintModel(Model):
         # Store in dictionary
         if self.fingerprints is None:
             self.fingerprints = {}
-        self.fingerprints[source] = cp.array(fingerprint)
+        self.fingerprints[source] = np.array(fingerprint)
 
         return fingerprint
 
@@ -100,13 +98,13 @@ class ImageFingerprintModel(Model):
             img_array = np.array(instance.data)
             img_array = centercrop(img_array, model_fingerprint.shape[0], model_fingerprint.shape[1])
             img_array = fft(noise_residual(img_array, image_filter='dncnn'), hamming_window=True)
-            results[model] = self.normalized_cross_correlation(model_fingerprint, cp.array(img_array))
+            results[model] = self.normalized_cross_correlation(model_fingerprint, np.array(img_array))
 
         # Return prediction
         return Prediction(classification=results)
 
 
-    def pce(self, model_fingerprint: cp.ndarray, img_fingerprint: cp.ndarray) -> float:
+    def pce(self, model_fingerprint: np.ndarray, img_fingerprint: np.ndarray) -> float:
         """
         Calculate peak to correlation energy (PCE) of two fingerprints of the same size.
 
@@ -116,21 +114,21 @@ class ImageFingerprintModel(Model):
         """
 
         # Compute cross-correlation using FFT
-        cross_power = cp.fft.fft2(model_fingerprint) * cp.fft.fft2(img_fingerprint).conj()
-        corr = cp.fft.ifft2(cross_power)
-        corr_abs = cp.abs(corr)
+        cross_power = np.fft.fft2(model_fingerprint) * np.fft.fft2(img_fingerprint).conj()
+        corr = np.fft.ifft2(cross_power)
+        corr_abs = np.abs(corr)
 
         # Find peak value
-        peak = cp.max(corr_abs)
+        peak = np.max(corr_abs)
         # Compute total correlation energy
-        energy = cp.sum(corr_abs ** 2)
+        energy = np.sum(corr_abs ** 2)
         # Compute PCE value
         pce = (peak ** 2) / (energy / corr.size)
 
         return float(pce)
 
 
-    def normalized_cross_correlation(self, a: cp.ndarray, b: cp.ndarray) -> float:
+    def normalized_cross_correlation(self, a: np.ndarray, b: np.ndarray) -> float:
         """
         Calculate normalized cross correlation between two arrays.
 
@@ -138,10 +136,8 @@ class ImageFingerprintModel(Model):
         :param b: Second array.
         :return: Normalized cross correlation between a and b.
         """
-        a = a - cp.mean(a)
-        b = b - cp.mean(b)
-        numerator = cp.sum(a * b)
-        denominator = cp.sqrt(cp.sum(a ** 2) * cp.sum(b ** 2))
+        a = a - np.mean(a)
+        b = b - np.mean(b)
+        numerator = np.sum(a * b)
+        denominator = np.sqrt(np.sum(a ** 2) * np.sum(b ** 2))
         return float(numerator / denominator) if denominator != 0 else 0.0
-
-
