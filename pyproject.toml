@@ -28,6 +28,7 @@ dependencies = [
     "streamlit-elements==0.1.0",
     "numpy>=2.2.6",
     "imagehash>=4.3.2",
+    "tqdm>=4.67.1",
 ]
 
 [dependency-groups]
