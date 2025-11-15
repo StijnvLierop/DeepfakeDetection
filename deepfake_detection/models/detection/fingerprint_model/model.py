@@ -3,8 +3,7 @@ from typing import Sequence, Union, Optional
 
 import numpy as np
 
-from deepfake_detection.analysis.frequency import fft
-from deepfake_detection.analysis.noise import noise_residual
+from analysis.prnu import prnu_fstv
 from deepfake_detection.analysis.utils import average_over_images, centercrop
 from deepfake_detection.data import FileImageInstance, ImageInstance
 from deepfake_detection.models import Model, Prediction
@@ -56,11 +55,10 @@ class ImageFingerprintModel(Model):
 
         # Estimate model fingerprint
         fingerprint = average_over_images(instances,
-                                          lambda x: fft(noise_residual(centercrop(x,
-                                                                                  self.fingerprint_size[0],
-                                                                                  self.fingerprint_size[1]),
-                                                                       image_filter='dncnn'),
-                                                        hamming_window=True),
+                                          lambda x: prnu_fstv(centercrop(x,
+                                                                          self.fingerprint_size[0],
+                                                                          self.fingerprint_size[1]),
+                                                             ),
                                           verbose=True)
 
         # Save fingerprint
@@ -95,9 +93,8 @@ class ImageFingerprintModel(Model):
         for model, model_fingerprint in self.fingerprints.items():
 
             # Calculate PCE of fingerprint with instance (resize image to match fingerprint)
-            img_array = np.array(instance.data)
+            img_array = prnu_fstv(np.array(instance.data))
             img_array = centercrop(img_array, model_fingerprint.shape[0], model_fingerprint.shape[1])
-            img_array = fft(noise_residual(img_array, image_filter='dncnn'), hamming_window=True)
             results[model] = self.normalized_cross_correlation(model_fingerprint, np.array(img_array))
 
         # Return prediction
