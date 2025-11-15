@@ -34,10 +34,10 @@ def mock_file_image_instances(tmp_path):
 
 
 def test_prnu_fstv_returns_array(mock_image_instance):
-    result = prnu_fstv(mock_image_instance)
+    result = prnu_fstv(np.array(mock_image_instance.data))
     assert isinstance(result, np.ndarray)
 
 
 def test_prnu_fstv_shape_equal_to_image_dimensions(mock_image_instance):
-    result = prnu_fstv(mock_image_instance)
+    result = prnu_fstv(np.array(mock_image_instance.data))
     assert result.shape == (100, 100)

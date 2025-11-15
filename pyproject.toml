@@ -1,15 +1,12 @@
-[build-system]
-requires = ["pdm-backend >= 2.4.0"]
-build-backend = "pdm.backend"
-
 [project]
-name = "deepfake_detection"
-version = "0.13.0"
-description = "A library for deepfake detection research."
+name = "DeepfakeDetection"
+version = "0.1.0"
+description = "Default template for PDM package"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = "==3.10.*"
 authors = [
     {name = "Stijn van Lierop", email = "s.van.lierop@nfi.nl"},
+    {name = "stijn", email = "s.van.lierop@nfi.nl"},
 ]
 dependencies = [
     "torch==2.5.1",
@@ -29,7 +26,9 @@ dependencies = [
     "numpy>=2.2.6",
     "imagehash>=4.3.2",
     "tqdm>=4.67.1",
+    "fiftyone>=1.10.0",
 ]
+license = {text = "MIT"}
 
 [dependency-groups]
 test = [
@@ -62,7 +61,7 @@ prerelease_token = "rc"
 prerelease = false
 
 [tool.pdm]
-distribution = true
+distribution = false
 
 [changelog.default_templates]
 changelog_file = ""

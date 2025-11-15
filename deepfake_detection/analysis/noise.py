@@ -9,7 +9,7 @@ import itertools
 from deepfake_detection.analysis.dncnn.network_dncnn import DnCNN
 
 
-def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
+def noise_residual(img: np.ndarray, image_filter: str='median') -> np.ndarray:
     """
     This function calculates the noise residual of a given image.
 
