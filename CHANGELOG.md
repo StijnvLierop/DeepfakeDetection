@@ -1,12 +1,28 @@
 # CHANGELOG
 
 
+## v0.15.0 (2025-11-30)
+
+### Bug Fixes
+
+- Cached samples are now loaded with file extension included in path
+  ([`145a61e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/145a61ea0d2caf2c982b743247a11a71a56e4691))
+
+### Chores
+
+- Update pdm lockfile after merge conflicts
+  ([`b0480aa`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b0480aaa4470d1ef57a91d54554b6eeaff3dca39))
+
+
 ## v0.14.0 (2025-11-30)
 
 ### Features
 
 - Add fiftyone conversion function
   ([`d79b3aa`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d79b3aa2c596ee97f9c29365ee409345578125fb))
+
+- Add hugginface dataset class
+  ([`760552f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/760552fe2ec1b85c5921cc767ffe18b329e36008))
 
 - Add predictions to fiftyone interface
   ([`4d5cb85`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4d5cb85a2882594bb3152ff3c029c410e99d0c6b))
