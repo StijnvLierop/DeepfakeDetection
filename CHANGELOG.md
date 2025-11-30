@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.14.0 (2025-11-30)
+
+### Features
+
+- Add fiftyone conversion function
+  ([`d79b3aa`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d79b3aa2c596ee97f9c29365ee409345578125fb))
+
+- Add predictions to fiftyone interface
+  ([`4d5cb85`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4d5cb85a2882594bb3152ff3c029c410e99d0c6b))
+
+### Refactoring
+
+- Fix python version in pipeline to be consistent with lockfile
+  ([`f5cf7bd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f5cf7bd4a02197430a7d7cb82e977eb22cbcb618))
+
+- Remove dashboard as a front-end will be developed in a different repository
+  ([`6f5b2cb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6f5b2cb816356c365684f8e09f467252243332e1))
+
+
 ## v0.13.0 (2025-08-20)
 
 ### Bug Fixes
