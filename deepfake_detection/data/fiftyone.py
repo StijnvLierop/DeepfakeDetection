@@ -11,6 +11,9 @@ from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction
 
 
+IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
+
+
 class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
     """
     Helper class that is used to load Dataset samples as FiftyOne samples.
@@ -71,9 +74,11 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
         # Loop over instances in the dataset
         for instance, prediction in zip(self.dataset, self.predictions):
 
-            # If an instance path is available, set path
-            if hasattr(instance, 'path'):
+            # If instance has an image path
+            if (hasattr(instance, 'path') and
+                    os.path.splitext(instance.path)[1].lower() in IMAGE_EXTS):
                 path = instance.path
+
             # Otherwise export the file to a temporary directory
             # and use that path
             else:
@@ -85,7 +90,7 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 
                 # Save instance to temporary directory
                 path = Path(os.path.join(self.cache_dir, str(instance.__hash__())))
-                instance.save(path)
+                path = instance.save(path)
 
             # Create sample
             sample = fo.Sample(filepath=path)
