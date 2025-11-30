@@ -29,6 +29,7 @@ dependencies = [
     "numpy>=2.2.6",
     "imagehash>=4.3.2",
     "tqdm>=4.67.1",
+    "datasets>=4.4.1",
 ]
 
 [dependency-groups]
