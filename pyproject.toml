@@ -30,6 +30,7 @@ dependencies = [
     "imagehash>=4.3.2",
     "tqdm>=4.67.1",
     "fiftyone>=1.10.0",
+    "datasets>=4.4.1",
 ]
 
 [dependency-groups]
