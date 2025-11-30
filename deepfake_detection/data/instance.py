@@ -29,6 +29,17 @@ class Instance(ABC):
     def __hash__(self):
         raise NotImplementedError
 
+    @abstractmethod
+    def save(self, path: Path) -> Path:
+        """
+        Saves an instance to disk.
+
+        :param path: The path to save the instance to.
+        :return: The path to the saved instance.
+        """
+        raise NotImplementedError
+
+
 class ImageInstance(Instance):
     """
     A default image instance is initialized with only image data and an optional label.
@@ -43,6 +54,15 @@ class ImageInstance(Instance):
 
     def __hash__(self):
         return hash_image_to_int(self.data)
+
+    def save(self, path: Path) -> Path:
+        if not isinstance(path, Path):
+            raise ValueError("Path must be of type Path.")
+        if '.' not in str(path):
+            path = path.with_suffix('.png')
+        self.data.save(path)
+        return path
+
 
 class FileImageInstance(Instance):
     """
@@ -62,6 +82,16 @@ class FileImageInstance(Instance):
 
     def __hash__(self):
         return hash(self.path)
+
+    def save(self, path: Path) -> Path:
+        if not isinstance(path, Path):
+            raise ValueError("Path must be of type Path.")
+        # Save as png by default when no suffix provided
+        if '.' not in str(path):
+            path = path.with_suffix('.png')
+        self.data.save(path)
+        return path
+
 
 class FileImageSequenceInstance(Instance):
     """
@@ -86,6 +116,15 @@ class FileImageSequenceInstance(Instance):
     def __hash__(self):
         return hash(self.path)
 
+    def save(self, path: Path) -> Path:
+        if not isinstance(path, Path):
+            raise ValueError("Path must be of type Path.")
+        path.mkdir(parents=True, exist_ok=True)
+        for img in self.data:
+            img.save(Path(os.path.join(path, img.path.name)))
+        return path
+
+
 class FileVideoInstance(Instance):
     """
     An instance that is created from a video stored on disk.
@@ -104,3 +143,7 @@ class FileVideoInstance(Instance):
 
     def __hash__(self):
         return hash(self.path)
+
+    def save(self, path: Path) -> Path:
+        # TODO: implement video saving in the future
+        raise NotImplementedError
