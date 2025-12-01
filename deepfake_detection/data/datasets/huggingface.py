@@ -1,5 +1,6 @@
-from typing import Optional, Mapping, Any
+from typing import Optional, Mapping, Any, Union
 
+import datasets
 from datasets import load_dataset
 from datasets.features import Image
 
@@ -13,29 +14,32 @@ class HuggingfaceDataset(Dataset):
     """
 
     def __init__(self,
-                 repo_id: str,
+                 dataset: Union[str, datasets.Dataset],
                  data_col: str,
                  source_label_col: Optional[str] = None,
                  authenticity_label_col: Optional[str] = None,
                  authenticity_label_mapping: Optional[Mapping[Any, str]] = None,
                  **kwargs):
         """
-        :param repo_id: Huggingface dataset ID.
+        :param dataset: Huggingface dataset object or ID of dataset.
         :param data_col: Name of the column containing the image data.
         :param source_label_col: Name of the column containing the source label.
         :param authenticity_label_col: Name of the column containing the authenticity label.
         :param authenticity_label_mapping: Mapping from labels to 'real', 'fake' or 'manipulated'.
         :param **kwargs: Additional arguments passed to datasets.load_dataset.
         """
-        super().__init__(name=repo_id)
-        self.repo_id = repo_id
+        super().__init__(name=dataset if isinstance(dataset, str) else dataset.config_name)
         self.data_col = data_col
         self.source_label_col = source_label_col
         self.authenticity_label_col = authenticity_label_col
         self.authenticity_label_mapping = authenticity_label_mapping
 
-        # Load dataset
-        self.dataset = load_dataset(repo_id, **kwargs)
+        # Load dataset if str provided
+        if isinstance(dataset, str):
+            self.dataset = load_dataset(repo_id, **kwargs)
+        # Otherwise assume dataset is already loaded
+        else:
+            self.dataset = dataset
 
         # Select the correct instance class
         data_type = self.dataset.features[self.data_col]
