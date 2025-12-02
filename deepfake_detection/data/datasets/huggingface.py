@@ -36,7 +36,7 @@ class HuggingfaceDataset(Dataset):
 
         # Load dataset if str provided
         if isinstance(dataset, str):
-            self.dataset = load_dataset(repo_id, **kwargs)
+            self.dataset = load_dataset(dataset, **kwargs)
         # Otherwise assume dataset is already loaded
         else:
             self.dataset = dataset
