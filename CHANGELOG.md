@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.15.1 (2025-12-05)
+
+### Bug Fixes
+
+- Refactor repo_id parameter
+  ([`6843488`](https://github.com/StijnvLierop/DeepfakeDetection/commit/68434881eb9a14bef81cd65c6989a76466cc28f5))
+
+### Refactoring
+
+- Huggingfacedataset now also allows initialization with datasets.Dataset object besides only
+  dataset id
+  ([`539d32e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/539d32eb721ebcc1e4958fff160c2b15b5c8e821))
+
+
 ## v0.15.0 (2025-11-30)
 
 ### Bug Fixes
