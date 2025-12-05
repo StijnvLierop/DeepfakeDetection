@@ -1,9 +1,0 @@
-models:
-  - name: Cozzolino2023
-    weights_dir: '/home/stijn/repositories/DeepfakeDetection/deepfake_detection/models/detection/cozzolino_2023/dncnn/clipdet_latent10k_plus'
-  - name: Corvi2023
-    weights_dir: '/home/stijn/repositories/DeepfakeDetection/deepfake_detection/models/detection/corvi_2023/dncnn'
-  - name: DIF
-    model_dir: '/home/stijn/repositories/DeepfakeDetection/deepfake_detection/models/detection/DIF_2020'
-  - name: ResNet50
-    weights_path: '/home/stijn/repositories/DeepfakeDetection/dncnn/ResNet50_Cozzolino-test.pth'
