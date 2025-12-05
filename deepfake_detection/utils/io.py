@@ -1,44 +1,35 @@
 import json
-import os
 import warnings
 from json import JSONDecoder
+from pathlib import Path
 from typing import Sequence, Mapping, Collection, Any, Optional, Tuple, Dict
 
 import numpy as np
 import streamlit as st
 
 from deepfake_detection.data.datasets import ListDataset
-from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
 
 
-def write_predictions_to_file(results_dir: str,
-                              predictions: Sequence[Prediction],
-                              dataset: Dataset,
-                              model_name: str) -> str:
+def write_predictions_to_file(predictions: Sequence[Prediction], filepath: Path) -> None:
     """
-    This function writes a set of predictions corresponding to a given dataset to a json file.
+    This function writes a set of predictions corresponding to a given dataset to a .json file.
 
-    :param results_dir: The path to the directory where the predictions will be written to.
     :param predictions: The predictions to write to a file.
-    :param dataset: The dataset corresponding to the predictions.
-    :param model_name: The name of the model that made the predictions.
-    :return: The path to the json file where the predictions are written.
+    :param filepath: The path to a .json file where the predictions should be saved.
     """
-
-    # Ensure that the length of prediction and dataset is the same
-    if len(predictions) != len(dataset):
-        raise ValueError("Predictions must have the same length as the dataset!")
 
     # Encode predictions
     encoded_predictions = [encode_prediction(p) for p in predictions]
 
-    # Write to file
-    filename = os.path.join(results_dir, get_predictions_filename(dataset.name, model_name))
-    with open(filename, 'w') as outfile:
+    # Create directory if it doesn't exist
+    if not filepath.parent.exists():
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write predictions to file
+    with open(filepath, 'w') as outfile:
         outfile.write(json.dumps(encoded_predictions))
 
-    return filename
 
 def encode_prediction(obj: Prediction) -> Dict[str, Any]:
     """
