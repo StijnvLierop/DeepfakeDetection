@@ -1,13 +1,11 @@
 import json
 import warnings
-from json import JSONDecoder
 from pathlib import Path
 from typing import Sequence, Mapping, Collection, Any, Optional, Tuple, Dict
 
 import numpy as np
 import streamlit as st
 
-from deepfake_detection.data.datasets import ListDataset
 from deepfake_detection.models.prediction import Prediction
 
 
@@ -97,16 +95,6 @@ def read_predictions_from_file(predictions_path: str) -> Sequence[Prediction]:
         return [decode_prediction(p) for p in json.load(infile)]
 
 
-def get_predictions_filename(dataset_name: str, model_name: str) -> str:
-    """
-    This function returns a filename for a new predictions file.
-
-    :param dataset_name: The dataset name corresponding to the predictions.
-    :param model_name: The name of the model that made the predictions.
-    """
-    return f'predictions_{dataset_name}_{model_name}.json'
-
-
 def jsonify(obj: Any) -> Any:
     """
     Recursively breaks down an `obj` into simpler data-types that can easily be
@@ -152,19 +140,3 @@ def jsonify(obj: Any) -> Any:
     except TypeError as e:
         message = f"Can't jsonify object of type {type(obj).__name__}: {e}"
         raise TypeError(message) from e
-
-
-def load_dataset_from_file(dataset_path: str, decoder: JSONDecoder = None) -> ListDataset:
-    """
-    This function loads a dataset from a .JSON file.
-
-    :param dataset_path: The path to the .JSON file containing the instances.
-    :param decoder: The decoder to use for decoding the instances.
-    """
-    # Read from file
-    with open(dataset_path, 'r') as infile:
-
-        # Decode instances
-        instances = json.load(infile, cls=decoder)
-
-    return ListDataset(instances=instances)
