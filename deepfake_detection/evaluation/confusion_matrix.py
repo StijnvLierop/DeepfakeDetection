@@ -1,3 +1,4 @@
+import warnings
 from typing import Sequence, Union
 
 import numpy as np
@@ -5,7 +6,7 @@ import sklearn
 from matplotlib import pyplot as plt
 
 from deepfake_detection.data import Instance, Dataset
-from deepfake_detection.evaluation.utils import get_labels, to_arrays, get_label_mapping
+from deepfake_detection.evaluation.utils import get_labels
 from deepfake_detection.models import Prediction
 
 
@@ -17,12 +18,9 @@ def confusion_matrix(instances: Union[Sequence[Instance], Dataset],
 
     :param instances: Data with ground truth labels.
     :param predictions: The corresponding model predictions.
-    :param label_type: The label type in 'Annotation' to use for computing the accuracy. The labels in the 'Prediction'
-                       instances should correspond with the labels in this 'label_type' in Annotation.
-                       - If 'predictions' contain labels for 'real', 'fake' and/or 'manipulated',
-                         should be set to 'authenticity_label'.
-                       - If 'predictions' contain labels for specific sources, should be set to 'source_label'.
-                       - If 'predictions' contain binary labels, this parameter should be set to 'binary_label'.
+    :param label_type: The label type in 'Annotation' to use for computing the confusion matrix.
+                       The labels in the 'Prediction' instances should correspond with the values
+                       of label_type in Annotation.
     :return: Confusion matrix.
     """
     # Get labels on level of given 'label_type'
@@ -35,6 +33,10 @@ def confusion_matrix(instances: Union[Sequence[Instance], Dataset],
     # Get y_pred and y_true
     y_pred = [max(p.classification, key=p.classification.get) for p in predictions]
     y_true = [i.annotation.get_label(label_type) for i in instances]
+
+    # Raise warning if there is no overlap between y_pred and y_true
+    if len(set(y_pred).intersection(set(y_true))) == 0:
+        warnings.warn("No common labels between y_pred and y_true.")
 
     # Calculate confusion matrix
     cm = sklearn.metrics.confusion_matrix(y_true, y_pred, labels=labels)
@@ -50,12 +52,9 @@ def plot_confusion_matrix(instances: Union[Sequence[Instance], Dataset],
 
     :param instances: Data with ground truth labels.
     :param predictions: The corresponding model predictions.
-    :param label_type: The label type in 'Annotation' to use for computing the accuracy. The labels in the 'Prediction'
-                       instances should correspond with the labels in this 'label_type' in Annotation.
-                       - If 'predictions' contain labels for 'real', 'fake' and/or 'manipulated',
-                         should be set to 'authenticity_label'.
-                       - If 'predictions' contain labels for specific sources, should be set to 'source_label'.
-                       - If 'predictions' contain binary labels, this parameter should be set to 'binary_label'.
+    :param label_type: The label type in 'Annotation' to use for computing the confusion matrix.
+                       The labels in the 'Prediction' instances should correspond with the values
+                       of label_type in Annotation.
     """
 
     # Get labels on level of given 'label_type'
