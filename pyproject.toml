@@ -12,20 +12,14 @@ authors = [
     {name = "Stijn van Lierop", email = "s.van.lierop@nfi.nl"},
 ]
 dependencies = [
-    "torch==2.5.1",
-    "torchvision>=0.20.1",
     "pillow>=11.3.0",
     "matplotlib==3.10.0",
-    "open-clip-torch==2.30.0",
     "scikit-learn==1.6.0",
-    "streamlit==1.41.1",
-    "stqdm==0.0.5",
     "confidence==0.15",
     "seaborn==0.13.2",
     "scikit-image==0.25.1",
     "PyWavelets==1.8.0",
     "opencv-python==4.11.0.86",
-    "streamlit-elements==0.1.0",
     "numpy>=2.2.6",
     "imagehash>=4.3.2",
     "tqdm>=4.67.1",
@@ -112,4 +106,3 @@ insecure = false
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
-
