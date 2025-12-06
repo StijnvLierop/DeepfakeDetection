@@ -1,6 +1,55 @@
 # CHANGELOG
 
 
+## v0.15.1 (2025-12-05)
+
+### Bug Fixes
+
+- Refactor repo_id parameter
+  ([`6843488`](https://github.com/StijnvLierop/DeepfakeDetection/commit/68434881eb9a14bef81cd65c6989a76466cc28f5))
+
+### Refactoring
+
+- Huggingfacedataset now also allows initialization with datasets.Dataset object besides only
+  dataset id
+  ([`539d32e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/539d32eb721ebcc1e4958fff160c2b15b5c8e821))
+
+
+## v0.15.0 (2025-11-30)
+
+### Bug Fixes
+
+- Cached samples are now loaded with file extension included in path
+  ([`145a61e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/145a61ea0d2caf2c982b743247a11a71a56e4691))
+
+### Chores
+
+- Update pdm lockfile after merge conflicts
+  ([`b0480aa`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b0480aaa4470d1ef57a91d54554b6eeaff3dca39))
+
+
+## v0.14.0 (2025-11-30)
+
+### Features
+
+- Add fiftyone conversion function
+  ([`d79b3aa`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d79b3aa2c596ee97f9c29365ee409345578125fb))
+
+- Add hugginface dataset class
+  ([`760552f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/760552fe2ec1b85c5921cc767ffe18b329e36008))
+
+- Add predictions to fiftyone interface
+  ([`4d5cb85`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4d5cb85a2882594bb3152ff3c029c410e99d0c6b))
+
+### Refactoring
+
+- Fix python version in pipeline to be consistent with lockfile
+  ([`f5cf7bd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f5cf7bd4a02197430a7d7cb82e977eb22cbcb618))
+
+- Remove dashboard as a front-end will be developed in a different repository
+  ([`6f5b2cb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6f5b2cb816356c365684f8e09f467252243332e1))
+
+
 ## v0.13.0 (2025-08-20)
 
 ### Bug Fixes
