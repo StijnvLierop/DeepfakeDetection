@@ -1,6 +1,33 @@
 # CHANGELOG
 
 
+## v0.16.0 (2025-12-07)
+
+### Bug Fixes
+
+- **test**: Add save method to MockInstance class
+  ([`1e7c504`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1e7c5048ce4fdcfdbe959dc9508356cff188ec81))
+
+### Refactoring
+
+- Remove dataset saving functionality
+  ([`d381be6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d381be68bd6f70906d5e4872392731b223f326ef))
+
+- Remove dnn-cnn denoising model
+  ([`8ba8042`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8ba804266522ef6abf7150100da6ee09650f2b31))
+
+- Remove specific models and configs
+  ([`2cfe027`](https://github.com/StijnvLierop/DeepfakeDetection/commit/2cfe0278bdd411347cbb7cf6d750d280ee447779))
+
+- Write_predictions_to_file function now only takes predictions and filepath as parameters
+  ([`86dc7dd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/86dc7dda8a2bb32c7a6011c172bf059849e7c1f7))
+
+### Testing
+
+- Remove tests that are not needed anymore
+  ([`fd6ea70`](https://github.com/StijnvLierop/DeepfakeDetection/commit/fd6ea704c6766ac9302c0e9a4ca5a1a2816aa757))
+
+
 ## v0.15.1 (2025-12-05)
 
 ### Bug Fixes
@@ -30,7 +57,23 @@
 
 ## v0.14.0 (2025-11-30)
 
+### Bug Fixes
+
+- Add fiftyone dependency
+  ([`3d03dfa`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3d03dfaad440f1a6e6d3f486aa597e0a19148389))
+
+- Add torch dependency and remove streamlit references
+  ([`e1b9f7b`](https://github.com/StijnvLierop/DeepfakeDetection/commit/e1b9f7bbacab34d7ea4c56a869dc3b7ecc81f97f))
+
+### Chores
+
+- Remove unneeded packages
+  ([`171a3ff`](https://github.com/StijnvLierop/DeepfakeDetection/commit/171a3ff4349d1624784b45cfd8a36af713c736b2))
+
 ### Features
+
+- Add confusion matrix to evaluation
+  ([`00ebc18`](https://github.com/StijnvLierop/DeepfakeDetection/commit/00ebc181906e49b04cefdfdd8f9fbd943bf62b1d))
 
 - Add fiftyone conversion function
   ([`d79b3aa`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d79b3aa2c596ee97f9c29365ee409345578125fb))
