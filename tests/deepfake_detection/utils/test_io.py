@@ -1,4 +1,5 @@
 import tempfile
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -41,19 +42,26 @@ def unserializable():
 
 def test_write_read_predictions_to_file(image_dataset, predictions):
     temp_dir = tempfile.gettempdir()
-    outfile_path = write_predictions_to_file(temp_dir, predictions, image_dataset, model_name="test_model")
-    read_predictions = read_predictions_from_file(outfile_path)
+    filepath = f"{temp_dir}/predictions.json"
+    write_predictions_to_file(predictions, Path(filepath))
+    read_predictions = read_predictions_from_file(filepath)
     assert read_predictions == predictions
 
 
-def test_write_predictions_to_file_wrong_length(image_dataset, predictions):
+def test_write_read_predictions_to_file_parent_dir_not_exists(image_dataset, predictions):
     temp_dir = tempfile.gettempdir()
-    pytest.raises(ValueError,
-                  write_predictions_to_file,
-                  temp_dir,
-                  predictions[:-2],
-                  image_dataset,
-                  model_name="test_model")
+    filepath = f"{temp_dir}/parent/predictions.json"
+    write_predictions_to_file(predictions, Path(filepath))
+    read_predictions = read_predictions_from_file(filepath)
+    assert read_predictions == predictions
+
+
+def test_write_read_predictions_to_file_parent_parent_dir_not_exists(image_dataset, predictions):
+    temp_dir = tempfile.gettempdir()
+    filepath = f"{temp_dir}/parent/predictions.json"
+    write_predictions_to_file(predictions, Path(filepath))
+    read_predictions = read_predictions_from_file(filepath)
+    assert read_predictions == predictions
 
 
 def get_predictions_filename():

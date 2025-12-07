@@ -1,12 +1,7 @@
-import os
-
 import numpy as np
 import scipy
-import torch
 from PIL import ImageFilter, Image
 import itertools
-
-from deepfake_detection.analysis.dncnn.network_dncnn import DnCNN
 
 
 def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
@@ -17,7 +12,6 @@ def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
     :param image_filter: The filter to use for denoising the image. Must be one of:
                          - 'median': applies a Median filter.
                          - 'laplace': applies a Laplace filter.
-                         - 'dncnn': applies the DnCNN denoising method proposed by Zhang et al. (2017).
     :return: A numpy array containing the noise residual.
     """
     # Apply filter to get denoised image
@@ -25,8 +19,6 @@ def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
         denoised_img = np.array(Image.fromarray(img).filter(ImageFilter.MedianFilter()), dtype=np.float32)
     elif image_filter == 'laplace':
         denoised_img = scipy.ndimage.filters.laplace(np.array(img, dtype=np.float32))
-    elif image_filter == 'dncnn':
-        denoised_img = denoise_dncnn(img)
     else:
         raise ValueError("Invalid filter. Must be one of: 'median', 'laplace' or 'dncnn'.")
 
@@ -34,62 +26,6 @@ def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
     residual = denoised_img - img
 
     return residual
-
-
-def denoise_dncnn(img: np.ndarray) -> np.ndarray:
-    """
-    Implements the denoising method proposed by Zhang et al. (2017).
-
-    Uses the implementation from https://github.com/cszn/DnCNN.git
-
-    @article{zhang2017beyond,
-             title={Beyond a {Gaussian} denoiser: Residual learning of deep {CNN} for image denoising},
-             author={Zhang, Kai and Zuo, Wangmeng and Chen, Yunjin and Meng, Deyu and Zhang, Lei},
-             journal={IEEE Transactions on Image Processing},
-             year={2017},
-             volume={26},
-             number={7},
-             pages={3142-3155},
-            }
-
-    :param img: A numpy array containing the image data to be denoised of
-                shape (height, width, channels) or (height, width).
-    :return: A numpy array containing the denoised image of the same shape as the input image.
-    """
-    # Set nr of image channels
-    n_channels = img.shape[2] if img.ndim == 3 else 1
-
-    # Define model based on n_channels
-    current_dir = os.path.dirname(__file__)
-    if n_channels == 1:
-        model_path = os.path.join(current_dir, 'dncnn/dncnn_gray_blind.pth')
-        img = np.expand_dims(img, axis=2)
-    else:
-        model_path = os.path.join(current_dir, 'dncnn/dncnn_color_blind.pth')
-
-    # Define and load model
-    model = DnCNN(in_nc=n_channels, out_nc=n_channels, nc=64, nb=20, act_mode='R')
-    model.load_state_dict(torch.load(model_path, weights_only=True), strict=True)
-    model.eval()
-    for k, v in model.named_parameters():
-        v.requires_grad = False
-
-    # Set device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = model.to(device)
-
-    # Prepare tensor
-    img_tensor = torch.from_numpy(img).float().permute((2, 0, 1)).unsqueeze(0).to(device) / 255
-
-    # Denoise image
-    denoised_img = model(img_tensor).squeeze(0).float().clamp_(0, 1).permute((1, 2, 0)).cpu().numpy() * 255
-    denoised_img = denoised_img.astype(np.uint8)
-
-    # If single channel image was provided, remove extra channel
-    if n_channels == 1:
-        denoised_img = denoised_img[:, :, 0]
-
-    return denoised_img
 
 
 def channel_noise_imbalance_ratio(img: np.ndarray,

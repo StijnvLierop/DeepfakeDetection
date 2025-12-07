@@ -1,43 +1,32 @@
 import json
-import os
 import warnings
-from json import JSONDecoder
+from pathlib import Path
 from typing import Sequence, Mapping, Collection, Any, Optional, Tuple, Dict
 
 import numpy as np
 
-from deepfake_detection.data.datasets import ListDataset
-from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models.prediction import Prediction
 
 
-def write_predictions_to_file(results_dir: str,
-                              predictions: Sequence[Prediction],
-                              dataset: Dataset,
-                              model_name: str) -> str:
+def write_predictions_to_file(predictions: Sequence[Prediction], filepath: Path) -> None:
     """
-    This function writes a set of predictions corresponding to a given dataset to a json file.
+    This function writes a set of predictions corresponding to a given dataset to a .json file.
 
-    :param results_dir: The path to the directory where the predictions will be written to.
     :param predictions: The predictions to write to a file.
-    :param dataset: The dataset corresponding to the predictions.
-    :param model_name: The name of the model that made the predictions.
-    :return: The path to the json file where the predictions are written.
+    :param filepath: The path to a .json file where the predictions should be saved.
     """
-
-    # Ensure that the length of prediction and dataset is the same
-    if len(predictions) != len(dataset):
-        raise ValueError("Predictions must have the same length as the dataset!")
 
     # Encode predictions
     encoded_predictions = [encode_prediction(p) for p in predictions]
 
-    # Write to file
-    filename = os.path.join(results_dir, get_predictions_filename(dataset.name, model_name))
-    with open(filename, 'w') as outfile:
+    # Create directory if it doesn't exist
+    if not filepath.parent.exists():
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write predictions to file
+    with open(filepath, 'w') as outfile:
         outfile.write(json.dumps(encoded_predictions))
 
-    return filename
 
 def encode_prediction(obj: Prediction) -> Dict[str, Any]:
     """
@@ -105,16 +94,6 @@ def read_predictions_from_file(predictions_path: str) -> Sequence[Prediction]:
         return [decode_prediction(p) for p in json.load(infile)]
 
 
-def get_predictions_filename(dataset_name: str, model_name: str) -> str:
-    """
-    This function returns a filename for a new predictions file.
-
-    :param dataset_name: The dataset name corresponding to the predictions.
-    :param model_name: The name of the model that made the predictions.
-    """
-    return f'predictions_{dataset_name}_{model_name}.json'
-
-
 def jsonify(obj: Any) -> Any:
     """
     Recursively breaks down an `obj` into simpler data-types that can easily be
@@ -160,19 +139,3 @@ def jsonify(obj: Any) -> Any:
     except TypeError as e:
         message = f"Can't jsonify object of type {type(obj).__name__}: {e}"
         raise TypeError(message) from e
-
-
-def load_dataset_from_file(dataset_path: str, decoder: JSONDecoder = None) -> ListDataset:
-    """
-    This function loads a dataset from a .JSON file.
-
-    :param dataset_path: The path to the .JSON file containing the instances.
-    :param decoder: The decoder to use for decoding the instances.
-    """
-    # Read from file
-    with open(dataset_path, 'r') as infile:
-
-        # Decode instances
-        instances = json.load(infile, cls=decoder)
-
-    return ListDataset(instances=instances)
