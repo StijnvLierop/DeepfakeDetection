@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
 from deepfake_detection.data.annotation import Annotation
@@ -7,6 +9,10 @@ from deepfake_detection.models.prediction import Prediction
 
 
 class MockInstance(Instance):
+
+    def save(self, path: Path) -> Path:
+        pass
+
     def __init__(self, annotation):
         super().__init__(annotation)
 
