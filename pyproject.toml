@@ -24,6 +24,7 @@ dependencies = [
     "imagehash>=4.3.2",
     "tqdm>=4.67.1",
     "torch>=2.7.1",
+    "fiftyone>=1.11.0",
 ]
 
 [dependency-groups]
