@@ -1,7 +1,4 @@
-import json
 from abc import ABC, abstractmethod
-from json import JSONEncoder
-from pathlib import Path
 from typing import Iterable, Sized
 
 from deepfake_detection.data.instance import Instance

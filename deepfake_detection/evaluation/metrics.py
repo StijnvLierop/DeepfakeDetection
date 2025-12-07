@@ -2,7 +2,7 @@ import warnings
 from typing import Sequence, Mapping, Union, Optional
 
 import numpy as np
-from sklearn.metrics import accuracy_score, roc_auc_score
+import sklearn
 
 from deepfake_detection.data import Dataset
 from deepfake_detection.data.instance import Instance
@@ -55,13 +55,13 @@ def accuracy(instances: Union[Sequence[Instance], Dataset],
 
         # Make classification based on label and
         y_true, y_pred = to_arrays(instances, predictions, label, label_type, binary=True)
-        return accuracy_score(y_true, y_pred)
+        return sklearn.metrics.accuracy_score(y_true, y_pred)
 
     # Otherwise, get labels and return average score for all labels in 'label_type'
     scores = []
     for label in labels:
         y_true, y_pred = to_arrays(instances, predictions, label, label_type, binary=True)
-        scores.append(accuracy_score(y_true, y_pred))
+        scores.append(sklearn.metrics.accuracy_score(y_true, y_pred))
 
     return float(np.mean(scores))
 
@@ -100,12 +100,12 @@ def roc_auc(instances: Union[Sequence[Instance], Dataset],
             raise ValueError(f"Label {label} not found in instances.")
 
         y_true, y_pred = to_arrays(instances, predictions, label, label_type)
-        return roc_auc_score(y_true, y_pred)
+        return sklearn.metrics.roc_auc_score(y_true, y_pred)
 
     # Otherwise, get labels and return average score for all labels
     scores = []
     for label in labels:
         y_true, y_pred = to_arrays(instances, predictions, label, label_type)
-        scores.append(roc_auc_score(y_true, y_pred))
+        scores.append(sklearn.metrics.roc_auc_score(y_true, y_pred))
 
     return float(np.mean(scores))

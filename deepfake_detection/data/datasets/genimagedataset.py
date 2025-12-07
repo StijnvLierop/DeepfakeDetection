@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from typing import Iterable
 
 from deepfake_detection.data.annotation import Annotation
@@ -63,7 +64,29 @@ class GenImageDataset(Dataset):
                                         yield FileImageInstance(
                                             os.path.join(self.path, generator, split, binary_label, img),
                                             Annotation(authenticity_label="real" if generator == "nature" else "fake",
-                                                       source_label=generator),
+                                                       source_label=self._format_label(generator)),
                                         )
                                     else:
                                         logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))
+
+
+    def _format_label(self, label: str) -> str:
+        """
+        Format the given label to a standard form so labels of different datasets can be compared.
+
+        :param label: The label to format.
+        :return: The formatted label.
+        """
+
+        # Convert to lowercase
+        label = label.lower()
+
+        # For stable diffusion labels, correctly format version number
+        print(label)
+        if label.startswith('stable diffusion'):
+            label = re.sub(r'v_(\d)_(\d)', r'v$1.$2', label)
+        print(label)
+        # Replace any underscores with spaces
+        label = label.replace('_', ' ')
+
+        return label

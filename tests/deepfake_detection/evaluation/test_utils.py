@@ -2,8 +2,18 @@ import numpy as np
 import pytest
 
 from deepfake_detection.evaluation.utils import get_labels, to_arrays, map_fields, \
-    find_label_type_corresponding_with_label
+    find_label_type_corresponding_with_label, get_label_mapping, transform_prediction
+from deepfake_detection.models import Prediction
 from tests.deepfake_detection.evaluation.config import instances, source_predictions
+
+
+@pytest.fixture
+def dummy_prediction():
+    classification = {
+        "class_1": 0.8,
+        "class_2": 0.2
+    }
+    return Prediction(classification=classification)
 
 
 def test_get_labels(instances, source_predictions):
@@ -49,3 +59,66 @@ def test_find_label_type_corresponding_with_label(instances):
 def test_find_label_type_corresponding_with_label_unknown_label(instances):
     with pytest.raises(ValueError):
         find_label_type_corresponding_with_label(instances, "unknown label")
+
+
+def test_label_mapping_source_to_source(instances):
+    mapping = get_label_mapping(instances, source_label='source_label', target_label='source_label')
+    assert mapping == {'A': 'A', 'B': 'B', 'C': 'C'}
+
+
+def test_label_mapping_source_to_authenticity(instances):
+    mapping = get_label_mapping(instances, source_label='source_label', target_label='authenticity_label')
+    assert mapping == {'A': 'real', 'B': 'fake', 'C': 'fake'}
+
+
+def test_label_mapping_source_to_binary(instances):
+    mapping = get_label_mapping(instances, source_label='source_label', target_label='binary_label')
+    assert mapping == {'A': 0, 'B': 1, 'C': 1}
+
+
+def test_label_mapping_invalid_labels(instances):
+    with pytest.raises(ValueError):
+        get_label_mapping(instances, source_label='test_label', target_label='source_label')
+    with pytest.raises(ValueError):
+        get_label_mapping(instances, source_label='source_label', target_label='test_label')
+
+
+def test_transform_prediction_updates_classification(dummy_prediction):
+    label_mapping = {
+        "class_1": "mapped_class_1",
+        "class_2": "mapped_class_1"
+    }
+    expected_classification = {
+        "mapped_class_1": 1.0
+    }
+    transformed = transform_prediction(dummy_prediction, label_mapping)
+    assert expected_classification == transformed.classification
+
+
+def test_transform_prediction_keeps_unmapped_labels(dummy_prediction):
+    label_mapping = {
+        "class_2": "mapped_class_2"
+    }
+    expected_classification = {
+        "class_1": 0.8,
+        "mapped_class_2": 0.2
+    }
+    transformed = transform_prediction(dummy_prediction, label_mapping)
+    assert expected_classification == transformed.classification
+
+
+def test_transform_prediction_no_labels_changed(dummy_prediction):
+    label_mapping = {}
+    expected_classification = dummy_prediction.classification
+    transformed = transform_prediction(dummy_prediction, label_mapping)
+    assert expected_classification == transformed.classification
+
+
+def test_transform_prediction_with_empty_classification():
+    empty_prediction = Prediction(classification={})
+    label_mapping = {
+        "class_1": "mapped_class_1"
+    }
+    expected_classification = {}
+    transformed = transform_prediction(empty_prediction, label_mapping)
+    assert expected_classification == transformed.classification

@@ -105,3 +105,48 @@ def find_label_type_corresponding_with_label(instances: Iterable[Instance], labe
             return 'binary_label'
 
     raise ValueError("Label not found in instances.")
+
+
+def get_label_mapping(instances: Iterable[Instance], source_label: str, target_label: str) -> Mapping[str, str]:
+    """
+    Returns a mapping from source labels to target labels based on the labels of the provided instances.
+    If source labels occur multiple times, a random target label will be chosen for each source label.
+
+    :param instances: A list of instances.
+    :param source_label: The label type to use as source for the mapping.
+                         Can be one of 'authenticity_label', 'source_label' or 'binary_label'.
+    :param target_label: The label type to use as source for the mapping.
+                         Can be one of 'authenticity_label', 'source_label' or 'binary_label'.
+    :return: A mapping from source labels to target labels.
+    """
+    # Ensure source and target label parameters are valid
+    if source_label not in ['authenticity_label', 'source_label', 'binary_label']:
+        raise ValueError("Invalid source label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'.")
+    if target_label not in ['authenticity_label', 'source_label', 'binary_label']:
+        raise ValueError("Invalid target label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'.")
+
+    # Create mapping
+    mapping = {}
+
+    # Loop over instances
+    for i in instances:
+        mapping[i.annotation.get_label(source_label)] = i.annotation.get_label(target_label)
+
+    return mapping
+
+
+def transform_prediction(prediction: Prediction, label_mapping: Mapping[str, str]) -> Prediction:
+    """
+    Transforms the classification attribute of prediction by replacing the source labels with the target labels.
+    The values of the target labels with multiple source labels will be summed.
+    If a label is not in the mapping, the original label is kept.
+
+    :param prediction: The prediction to transform.
+    :param label_mapping: A mapping from source labels to target labels.
+    """
+    new_dict = {}
+    for key, value in prediction.classification.items():
+        new_key = label_mapping.get(key, key)  # map key or keep original if no mapping
+        new_dict[new_key] = new_dict.get(new_key, 0) + value
+    prediction.classification = new_dict
+    return prediction
