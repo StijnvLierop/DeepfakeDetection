@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.18.0 (2025-12-08)
+
+### Features
+
+- Add univfd model
+  ([`5952267`](https://github.com/StijnvLierop/DeepfakeDetection/commit/59522672a60766cdd42ecbdf392c904e0881ff9f))
+
+
 ## v0.17.0 (2025-12-08)
 
 ### Features
