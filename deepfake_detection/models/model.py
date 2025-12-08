@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Union
 
-from data import Instance, Dataset
+from deepfake_detection.data import Instance, Dataset
 from deepfake_detection.models.prediction import Prediction
 
 

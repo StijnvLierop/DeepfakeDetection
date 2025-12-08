@@ -1,5 +1,4 @@
 import os
-
 import pytest
 
 from deepfake_detection.data.datasets import ListDataset
