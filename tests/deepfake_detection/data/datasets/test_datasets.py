@@ -1,5 +1,4 @@
 import os
-
 import pytest
 
 from deepfake_detection.data.datasets import ListDataset
@@ -111,3 +110,39 @@ def test_filtered_dataset_length(dummy_dataset):
     filtered_dataset = FilteredDataset(dummy_dataset, indices)
     assert len(filtered_dataset) == len(list(filtered_dataset))
     assert len(indices) == len(filtered_dataset)
+
+
+def test_iter_yields_batches_correctly(dummy_dataset):
+    batch_size = 3
+    batches = list(dummy_dataset.iter(batch_size))
+
+    # Check the number of batches
+    expected_num_batches = (len(dummy_dataset) + batch_size - 1) // batch_size
+    assert len(batches) == expected_num_batches
+
+    # Check individual batches
+    for i, batch in enumerate(batches):
+        if i == len(batches) - 1:
+            # The last batch might be smaller than the specified batch_size
+            assert len(batch) == len(dummy_dataset) % batch_size or batch_size
+        else:
+            assert len(batch) == batch_size
+
+    # Ensure all elements from the dataset are yielded
+    flattened_batches = [item for batch in batches for item in batch]
+    assert dummy_dataset == flattened_batches
+
+
+def test_iter_empty_dataset():
+    empty_dataset = ListDataset([])
+    batches = empty_dataset.iter(batch_size=5)
+    assert list(batches) == []
+
+
+def test_iter_with_large_batch_size(dummy_dataset):
+    batch_size = 40
+    batches = list(dummy_dataset.iter(batch_size))
+
+    # The entire dataset should be yielded as a single batch
+    assert len(batches) == 1
+    assert len(batches[0]) == len(dummy_dataset)

@@ -2,7 +2,8 @@ predictions
 results
 .idea
 **/__pycache__/
-weights
+deepfake_detection/models/weights/**
+!deepfake_detection/models/weights/README.md
 .coverage
 .pdm-python
 .python-version
