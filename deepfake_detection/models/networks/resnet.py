@@ -271,9 +271,10 @@ def _resnet(
         progress: bool,
         **kwargs: Any
 ) -> ResNet:
+    model_dir = kwargs.pop('model_dir', None)
     model = ResNet(block, layers, **kwargs)
     if pretrained:
-        state_dict = load_state_dict_from_url(model_urls[arch], progress=progress)
+        state_dict = load_state_dict_from_url(model_urls[arch], progress=progress, model_dir=model_dir)
         model.load_state_dict(state_dict)
     return model
 
