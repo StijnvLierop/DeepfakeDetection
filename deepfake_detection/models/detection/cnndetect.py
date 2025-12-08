@@ -10,31 +10,14 @@ from deepfake_detection.models.networks.resnet import resnet50
 from deepfake_detection.models import Prediction
 
 
-MEAN = {
-    "imagenet":[0.485, 0.456, 0.406],
-    "clip":[0.48145466, 0.4578275, 0.40821073]
-}
-
-STD = {
-    "imagenet":[0.229, 0.224, 0.225],
-    "clip":[0.26862954, 0.26130258, 0.27577711]
-}
-
-def process_input_cpu(instance: Union[ImageInstance, FileImageInstance]) -> torch.Tensor:
+def process_input(instance: Union[ImageInstance, FileImageInstance]) -> torch.Tensor:
     cpu_transforms = v2.Compose([
         v2.CenterCrop(224),
         v2.ToImage(),
-        v2.ToDtype(torch.float32, scale=True)
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
     return cpu_transforms(instance.data)
-
-
-def process_input_gpu(input: torch.Tensor) -> torch.Tensor:
-    transformations = [
-        v2.Normalize(mean=MEAN['imagenet'], std=STD['imagenet'])
-    ]
-    transform = v2.Compose(transformations)
-    return transform(input)
 
 
 class CNNDetect(Model):
@@ -76,8 +59,7 @@ class CNNDetect(Model):
             self.load_model()
 
         # Transform instance to tensor
-        model_inputs = process_input_cpu(instance).to(self.device).unsqueeze(0)
-        model_inputs = process_input_gpu(model_inputs)
+        model_inputs = process_input(instance).to(self.device).unsqueeze(0)
 
         # Run inference
         with torch.no_grad():
@@ -96,8 +78,7 @@ class CNNDetect(Model):
             self.load_model()
 
         # Transform instance to tensor
-        model_inputs = torch.stack([process_input_cpu(i) for i in instances], dim=0).to(self.device)
-        model_inputs = process_input_gpu(model_inputs)
+        model_inputs = torch.stack([process_input(i) for i in instances], dim=0).to(self.device)
 
         # Run inference
         with torch.no_grad():
