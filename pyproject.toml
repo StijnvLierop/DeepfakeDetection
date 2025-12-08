@@ -25,6 +25,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "torch>=2.7.1",
     "fiftyone>=1.11.0",
+    "transformers>=4.57.3",
 ]
 
 [dependency-groups]

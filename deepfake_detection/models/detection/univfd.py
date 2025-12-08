@@ -8,6 +8,7 @@ from deepfake_detection.data import Dataset
 from deepfake_detection.models import Model
 from deepfake_detection.models import Prediction
 from deepfake_detection.models.networks.clip import clip
+from deepfake_detection.models.model import lazy_loader
 
 
 def process_input(instance: Union[ImageInstance, FileImageInstance]) -> torch.Tensor:
@@ -51,11 +52,8 @@ class UnivFD(Model):
         return self.fc(features)
 
 
+    @lazy_loader
     def predict(self, instance: Union[ImageInstance, FileImageInstance]) -> Prediction:
-
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
 
         # Get model inputs
         model_inputs = process_input(instance).to(self.device).unsqueeze(0)
@@ -67,12 +65,9 @@ class UnivFD(Model):
             return Prediction(classification={'fake': out[0], 'real': 1 - out[0]})
 
 
+    @lazy_loader
     def predict_batch(self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset])\
             -> List[Prediction]:
-
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
 
         # Get model inputs
         model_inputs = torch.stack([process_input(i) for i in instances], dim=0).to(self.device)
