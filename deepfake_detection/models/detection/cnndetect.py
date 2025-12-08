@@ -1,9 +1,9 @@
-from typing import Union
+from typing import Union, List
 
 import torch
-from torchvision import transforms
+from torchvision.transforms import v2
 
-from data import FileImageInstance
+from data import FileImageInstance, Dataset
 from deepfake_detection.data import ImageInstance
 from deepfake_detection.models import Model
 from deepfake_detection.models.networks.resnet import resnet50
@@ -20,6 +20,22 @@ STD = {
     "clip":[0.26862954, 0.26130258, 0.27577711]
 }
 
+def process_input_cpu(instance: Union[ImageInstance, FileImageInstance]) -> torch.Tensor:
+    cpu_transforms = v2.Compose([
+        v2.CenterCrop(224),
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True)
+    ])
+    return cpu_transforms(instance.data)
+
+
+def process_input_gpu(input: torch.Tensor) -> torch.Tensor:
+    transformations = [
+        v2.Normalize(mean=MEAN['imagenet'], std=STD['imagenet'])
+    ]
+    transform = v2.Compose(transformations)
+    return transform(input)
+
 
 class CNNDetect(Model):
     """
@@ -28,18 +44,21 @@ class CNNDetect(Model):
     More info about the model can be found here: https://github.com/PeterWang512/CNNDetection/tree/master.
     """
 
-    def __init__(self, ckpt: str):
+    def __init__(self, ckpt: str, device: str = 'cuda'):
         """
-        param: ckpt: Path to the checkpoint file of the CNNDetect model.
+        :param: ckpt: Path to the checkpoint file of the CNNDetect model.
+        :param device: Device to use for inference.
         """
         super(CNNDetect, self).__init__(name='CNNDetect')
         self.model = None
         self.ckpt = ckpt
+        self.device = device
 
 
     def load_model(self):
-        self.model = resnet50(num_classes=1)
+        self.model = resnet50(num_classes=1).to(self.device)
         self.load_weights(self.ckpt)
+        self.model.eval()
 
 
     def load_weights(self, ckpt):
@@ -50,17 +69,6 @@ class CNNDetect(Model):
             self.model.load_state_dict(state_dict)
 
 
-    def process_input(self, instance: Union[ImageInstance, FileImageInstance]) -> torch.Tensor:
-        # Define preprocessing transformations
-        transformations = [
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=MEAN['imagenet'], std=STD['imagenet'])
-        ]
-        transform = transforms.Compose(transformations)
-        return transform(instance.data)
-
-
     def predict(self, instance: Union[ImageInstance, FileImageInstance]) -> Prediction:
 
         # If model not yet loaded, load model
@@ -68,12 +76,33 @@ class CNNDetect(Model):
             self.load_model()
 
         # Transform instance to tensor
-        model_input = self.process_input(instance).unsqueeze(0)
+        model_inputs = process_input_cpu(instance).to(self.device).unsqueeze(0)
+        model_inputs = process_input_gpu(model_inputs)
 
         # Run inference
         with torch.no_grad():
-            logits = self.model(model_input)["logits"]
+            logits = self.model(model_inputs)["logits"]
             out = logits.sigmoid().flatten().tolist()
 
         # Transform to Prediction
         return Prediction(classification={'fake': out[0], 'real': 1-out[0]})
+
+
+    def predict_batch(self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset])\
+            -> List[Prediction]:
+
+        # If model not yet loaded, load model
+        if self.model is None:
+            self.load_model()
+
+        # Transform instance to tensor
+        model_inputs = torch.stack([process_input_cpu(i) for i in instances], dim=0).to(self.device)
+        model_inputs = process_input_gpu(model_inputs)
+
+        # Run inference
+        with torch.no_grad():
+            logits = self.model(model_inputs)["logits"]
+            out = logits.sigmoid().flatten().tolist()
+
+        # Transform to Prediction
+        return [Prediction(classification={'fake': o, 'real': 1 - o}) for o in out]
