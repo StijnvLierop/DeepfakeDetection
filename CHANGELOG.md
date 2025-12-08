@@ -1,6 +1,25 @@
 # CHANGELOG
 
 
+## v0.17.0 (2025-12-08)
+
+### Features
+
+- Add CNNDetect model
+  ([`ab9ca2c`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ab9ca2c85245fc3c024e9a68e913a6ba1acb1b2f))
+
+- Add dataset batching and batched model predictions
+  ([`5807707`](https://github.com/StijnvLierop/DeepfakeDetection/commit/5807707aab4b1c3b8f555116a5c363f26e27b6b3))
+
+### Refactoring
+
+- Module imports
+  ([`3356500`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3356500dc56decc45ab9d54fc47ff8244eba58fb))
+
+- Remove weights from repo
+  ([`0e618bb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0e618bbf07d924bfea3960ff28273d56774d93b9))
+
+
 ## v0.16.0 (2025-12-07)
 
 ### Bug Fixes
