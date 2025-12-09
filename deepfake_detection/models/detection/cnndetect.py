@@ -3,7 +3,7 @@ from typing import Union, List
 import torch
 from torchvision.transforms import v2
 
-from data import FileImageInstance, Dataset
+from deepfake_detection.data import FileImageInstance, Dataset
 from deepfake_detection.data import ImageInstance
 from deepfake_detection.models import Model
 from deepfake_detection.models.networks.resnet import resnet50
