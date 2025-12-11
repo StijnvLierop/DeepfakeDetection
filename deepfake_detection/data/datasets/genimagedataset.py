@@ -82,10 +82,8 @@ class GenImageDataset(Dataset):
         label = label.lower()
 
         # For stable diffusion labels, correctly format version number
-        print(label)
         if label.startswith('stable diffusion'):
             label = re.sub(r'v_(\d)_(\d)', r'v$1.$2', label)
-        print(label)
         # Replace any underscores with spaces
         label = label.replace('_', ' ')
 
