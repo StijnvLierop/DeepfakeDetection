@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.19.0 (2025-12-11)
+
+### Features
+
+- Add first version of npr model
+  ([`92cc963`](https://github.com/StijnvLierop/DeepfakeDetection/commit/92cc963878b293a6460736fc3eeda486c89e268b))
+
+- Correctly load model weights
+  ([`d10b652`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d10b6525fc77374b4457ca2612c3d006fb6afc09))
+
+### Refactoring
+
+- Add missing dependency and fix module import
+  ([`ecd30d3`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ecd30d3cbffbbba7d7e76ff29785616e3d9ed52e))
+
+
 ## v0.18.0 (2025-12-08)
 
 ### Features
