@@ -20,6 +20,11 @@ def process_input(instance: Union[ImageInstance, FileImageInstance]) -> torch.Te
 
 
 class NPR(Model):
+    """
+    Implementation of the Neighboring Pixel Relationships (NPR) model by Tan et al. (2023).
+
+    More info about the model can be found here: https://github.com/chuangchuangtan/NPR-DeepfakeDetection.
+    """
 
     def __init__(self, ckpt: str, device: str = 'cuda'):
         super(NPR, self).__init__("NPR")
@@ -35,12 +40,18 @@ class NPR(Model):
 
 
     def load_weights(self, ckpt):
-        state_dict = torch.load(ckpt, map_location='cpu')
-        try:
-            self.model.load_state_dict(state_dict['model'], strict=False)
-        except:
-            print('Loading failed, trying to load model without module')
-            self.model.load_state_dict(state_dict)
+        # Load state dict
+        state_dict = torch.load(ckpt, map_location='cpu', weights_only=True)
+
+        # Remove 'module.' prefix in state dict keys
+        from collections import OrderedDict
+        new_state_dict = OrderedDict()
+        for k, v in state_dict['model'].items():
+            name = k.replace("module.", "")
+            new_state_dict[name] = v
+
+        # Load weights
+        self.model.load_state_dict(new_state_dict, strict=True)
 
 
     def predict(self, instance: Union[ImageInstance, FileImageInstance]) -> Prediction:
@@ -54,7 +65,7 @@ class NPR(Model):
 
         # Run inference
         with torch.no_grad():
-            logits = self.model(model_inputs)["logits"]
+            logits = self.model(model_inputs)
             out = logits.sigmoid().flatten().tolist()
 
         # Transform to Prediction
@@ -74,7 +85,7 @@ class NPR(Model):
 
         # Run inference
         with torch.no_grad():
-            logits = self.model(model_inputs)["logits"]
+            logits = self.model(model_inputs)
             out = logits.sigmoid().flatten().tolist()
 
         # Transform to Prediction
