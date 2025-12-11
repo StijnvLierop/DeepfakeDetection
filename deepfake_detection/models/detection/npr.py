@@ -3,11 +3,10 @@ from typing import Union, List
 import torch
 from torchvision.transforms import v2
 
-from deepfake_detection.data import FileImageInstance, Dataset
-from deepfake_detection.data import ImageInstance
-from deepfake_detection.models import Model
-from deepfake_detection.models.networks.resnet_cnndetect import resnet50
+from deepfake_detection.data import ImageInstance, FileImageInstance, Dataset
 from deepfake_detection.models import Prediction
+from deepfake_detection.models.model import Model
+from deepfake_detection.models.networks.resnet_npr import resnet50
 
 
 def process_input(instance: Union[ImageInstance, FileImageInstance]) -> torch.Tensor:
@@ -20,19 +19,15 @@ def process_input(instance: Union[ImageInstance, FileImageInstance]) -> torch.Te
     return cpu_transforms(instance.data)
 
 
-class CNNDetect(Model):
+class NPR(Model):
     """
-    Implementation of the CNNDetect model by Peter Wang et al. (2020).
+    Implementation of the Neighboring Pixel Relationships (NPR) model by Tan et al. (2023).
 
-    More info about the model can be found here: https://github.com/PeterWang512/CNNDetection/tree/master.
+    More info about the model can be found here: https://github.com/chuangchuangtan/NPR-DeepfakeDetection.
     """
 
     def __init__(self, ckpt: str, device: str = 'cuda'):
-        """
-        :param: ckpt: Path to the checkpoint file of the CNNDetect model.
-        :param device: Device to use for inference.
-        """
-        super(CNNDetect, self).__init__(name='CNNDetect')
+        super(NPR, self).__init__("NPR")
         self.model = None
         self.ckpt = ckpt
         self.device = device
@@ -45,11 +40,18 @@ class CNNDetect(Model):
 
 
     def load_weights(self, ckpt):
-        state_dict = torch.load(ckpt, weights_only=True, map_location='cpu')
-        try:
-            self.model.load_state_dict(state_dict['model'])
-        except:
-            self.model.load_state_dict(state_dict)
+        # Load state dict
+        state_dict = torch.load(ckpt, map_location='cpu', weights_only=True)
+
+        # Remove 'module.' prefix in state dict keys
+        from collections import OrderedDict
+        new_state_dict = OrderedDict()
+        for k, v in state_dict['model'].items():
+            name = k.replace("module.", "")
+            new_state_dict[name] = v
+
+        # Load weights
+        self.model.load_state_dict(new_state_dict, strict=True)
 
 
     def predict(self, instance: Union[ImageInstance, FileImageInstance]) -> Prediction:
@@ -63,14 +65,15 @@ class CNNDetect(Model):
 
         # Run inference
         with torch.no_grad():
-            logits = self.model(model_inputs)["logits"]
+            logits = self.model(model_inputs)
             out = logits.sigmoid().flatten().tolist()
 
         # Transform to Prediction
-        return Prediction(classification={'fake': out[0], 'real': 1-out[0]})
+        return Prediction(classification={'fake': out[0], 'real': 1 - out[0]})
 
 
-    def predict_batch(self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset])\
+    def predict_batch(self,
+                      instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]) \
             -> List[Prediction]:
 
         # If model not yet loaded, load model
@@ -82,7 +85,7 @@ class CNNDetect(Model):
 
         # Run inference
         with torch.no_grad():
-            logits = self.model(model_inputs)["logits"]
+            logits = self.model(model_inputs)
             out = logits.sigmoid().flatten().tolist()
 
         # Transform to Prediction

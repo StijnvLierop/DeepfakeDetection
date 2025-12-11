@@ -11,3 +11,9 @@ UnivFD
 ```Python
 https://github.com/WisconsinAIVision/UniversalFakeDetect/tree/main/pretrained_weights
 ```
+
+
+NPR
+```Python
+https://github.com/chuangchuangtan/NPR-DeepfakeDetection/blob/main/NPR.pth
+```
