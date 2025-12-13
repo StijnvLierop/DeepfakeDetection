@@ -51,22 +51,6 @@ class UnivFD(Model):
         return self.fc(features)
 
 
-    def predict(self, instance: Union[ImageInstance, FileImageInstance]) -> Prediction:
-
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
-
-        # Get model inputs
-        model_inputs = process_input(instance).to(self.device).unsqueeze(0)
-
-        # Make predictions
-        with torch.no_grad():
-            logits = self.forward(model_inputs)
-            out = logits.sigmoid().flatten().tolist()
-            return Prediction(classification={'fake': out[0], 'real': 1 - out[0]})
-
-
     def predict_batch(self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset])\
             -> List[Prediction]:
 
