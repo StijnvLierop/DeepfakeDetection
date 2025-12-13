@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.20.0 (2025-12-13)
+
+### Features
+
+- Move predict function to model class so models only have to implement predict_batch function
+  ([`d44a078`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d44a07804684eb9a38faf99695bc0665b3e2f374))
+
+
 ## v0.19.0 (2025-12-11)
 
 ### Features
