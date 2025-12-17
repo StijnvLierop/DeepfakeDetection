@@ -10,9 +10,8 @@ class Model(ABC):
     def __init__(self, name):
         self.name = name
 
-    @abstractmethod
     def predict(self, instance: Instance) -> Prediction:
-        raise NotImplementedError
+        return self.predict_batch([instance])[0]
 
     @abstractmethod
     def predict_batch(self, instances: Union[List[Instance], Dataset]) -> List[Prediction]:
