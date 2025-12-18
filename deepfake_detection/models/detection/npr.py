@@ -54,24 +54,6 @@ class NPR(Model):
         self.model.load_state_dict(new_state_dict, strict=True)
 
 
-    def predict(self, instance: Union[ImageInstance, FileImageInstance]) -> Prediction:
-
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
-
-        # Transform instance to tensor
-        model_inputs = process_input(instance).to(self.device).unsqueeze(0)
-
-        # Run inference
-        with torch.no_grad():
-            logits = self.model(model_inputs)
-            out = logits.sigmoid().flatten().tolist()
-
-        # Transform to Prediction
-        return Prediction(classification={'fake': out[0], 'real': 1 - out[0]})
-
-
     def predict_batch(self,
                       instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]) \
             -> List[Prediction]:
