@@ -45,6 +45,7 @@ class PytorchTrainer(Trainer):
             torch_dataset = TorchDataset(train_dataset)
         else:
             torch_dataset = TorchIterableDataset(train_dataset)
+            self.train_params.shuffle = False
 
         # Create data loader from dataset
         loader = DataLoader(torch_dataset,
@@ -94,4 +95,4 @@ class PytorchTrainer(Trainer):
 
     def save_checkpoint(self, path: str):
         # Save model
-        self.model.save_weights(os.path.join(path, "trainer_state.pt"))
+        self.model.save_weights(path)

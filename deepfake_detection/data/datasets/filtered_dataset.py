@@ -21,3 +21,9 @@ class FilteredDataset(Dataset):
         for idx, instance in enumerate(self.dataset):
             if idx in self.indices:
                 yield instance
+
+    def __len__(self):
+        return len(list(self.indices))
+
+    def __getitem__(self, idx: int):
+        return self.dataset[list(self.indices)[idx]]
