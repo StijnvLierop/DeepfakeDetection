@@ -16,9 +16,15 @@ class Instance(ABC):
     A single dataset instance. Each instance can have one or more optional labels.
 
     :param annotation: An annotation for the instance.
+    :param meta: an optional mapping containing extra metadata about the instance.
     """
-    def __init__(self, annotation: Optional[Annotation]=None):
+
+    def __init__(self,
+                 annotation: Optional[Annotation] = None,
+                 meta: Optional[dict] = None
+                 ):
         self.annotation = annotation
+        self.meta = meta
 
     def __eq__(self, other):
         if not isinstance(other, Instance):
@@ -46,10 +52,11 @@ class ImageInstance(Instance):
 
     :param data: The image data in the form of a PIL Image.
     :param annotation: An annotation for the instance.
+    :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, data: Image, annotation: Optional[Annotation]=None):
-        super().__init__(annotation)
+    def __init__(self, data: Image, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+        super().__init__(annotation, meta)
         self.data = data
 
     def __hash__(self):
@@ -70,10 +77,11 @@ class FileImageInstance(Instance):
 
     :param path: The image path.
     :param annotation: An annotation for the instance.
+    :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, path: str, annotation: Optional[Annotation]=None):
-        super().__init__(annotation)
+    def __init__(self, path: str, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+        super().__init__(annotation, meta)
         self.path = Path(path)
 
     @cached_property
@@ -99,10 +107,11 @@ class FileImageSequenceInstance(Instance):
 
     :param path: The path to the image sequence directory.
     :param annotation: An annotation for the instance.
+    :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, path: str, annotation: Optional[Annotation]=None):
-        super().__init__(annotation)
+    def __init__(self, path: str, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+        super().__init__(annotation, meta)
         self.path = Path(path)
 
     @cached_property
@@ -131,10 +140,11 @@ class FileVideoInstance(Instance):
 
     :param path: The path to the video file.
     :param annotation: An annotation for the instance.
+    :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, path: str, annotation: Optional[Annotation]=None):
-        super().__init__(annotation)
+    def __init__(self, path: str, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+        super().__init__(annotation, meta)
         self.path = Path(path)
 
     @cached_property

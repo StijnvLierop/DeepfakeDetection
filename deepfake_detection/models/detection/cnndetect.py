@@ -47,7 +47,10 @@ class CNNDetect(Model, TrainableMixin):
             state_dict = torch.load(self.ckpt,
                                     weights_only=True,
                                     map_location='cpu')
-            self.model.load_state_dict(state_dict)
+            try:
+                self.model.load_state_dict(state_dict)
+            except:
+                self.model.load_state_dict(state_dict["model"])
         else:
             print("No checkpoint provided, initializing model with random weights.")
 
