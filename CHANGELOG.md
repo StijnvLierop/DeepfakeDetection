@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.22.0 (2025-12-20)
+
+### Features
+
+- Add cnndetect dataset
+  ([`b8f4794`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b8f4794095412ab970e5c8db6050a9b7db82b032))
+
+
 ## v0.21.0 (2025-12-20)
 
 ### Features
