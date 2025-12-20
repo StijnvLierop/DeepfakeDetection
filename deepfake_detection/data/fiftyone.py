@@ -10,7 +10,6 @@ from fiftyone.core.fields import EmbeddedDocumentField
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction
 
-
 IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
 
 
@@ -18,6 +17,7 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
     """
     Helper class that is used to load Dataset samples as FiftyOne samples.
     """
+
     def __init__(self,
                  dataset: Dataset,
                  predictions: Optional[Sequence[Prediction]] = None,
@@ -36,11 +36,9 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
         self.cache_dir = cache_dir
         self.predictions = predictions
 
-
     @property
     def has_sample_field_schema(self):
         return True
-
 
     def get_sample_field_schema(self):
         schema = {
