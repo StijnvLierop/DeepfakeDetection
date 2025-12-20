@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## v0.21.0 (2025-12-20)
+
+### Features
+
+- Add support for pytorch training
+  ([`d1654ae`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d1654ae58f35a14ae9c01447e32996c15b40a929))
+
+### Refactoring
+
+- Fix formatting
+  ([`04953b9`](https://github.com/StijnvLierop/DeepfakeDetection/commit/04953b96e1949897d8762b87623ecd20a1eb11ac))
+
+### Testing
+
+- Fix unit tests
+  ([`1a1407e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1a1407e951dd0c14183b51439c3f076f1c2523ae))
+
+
 ## v0.20.0 (2025-12-13)
 
 ### Features
