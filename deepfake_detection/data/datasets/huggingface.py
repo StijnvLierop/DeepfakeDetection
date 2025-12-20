@@ -4,11 +4,11 @@ import datasets
 from datasets import load_dataset
 from datasets.features import Image
 
-from deepfake_detection.data import Dataset, ImageInstance
+from deepfake_detection.data import Dataset, MapStyleDatasetMixin, ImageInstance
 from deepfake_detection.data.annotation import Annotation
 
 
-class HuggingfaceDataset(Dataset):
+class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
     """
     Class that can be used to load a Huggingface dataset as a deepfake_detection.data.Dataset.
     """
@@ -49,29 +49,31 @@ class HuggingfaceDataset(Dataset):
             raise ValueError(f"Loading data of type {data_type} "
                              f"not supported with available instance classes.")
 
+    def __getitem__(self, idx: int) -> ImageInstance:
+        # Get sample
+        sample = self.dataset[idx]
 
-    def __iter__(self):
-        # Loop over samples in dataset
-        for sample in self.dataset:
+        # Create annotation (if present)
+        annotation = None
+        source_label = None
+        authenticity_label = None
+        if self.source_label_col:
+            source_label = sample[self.source_label_col]
 
-            # Create annotation (if present)
-            annotation = None
-            source_label = None
-            authenticity_label = None
-            if self.source_label_col:
-                source_label = sample[self.source_label_col]
+        if self.authenticity_label_col:
+            authenticity_label = sample[self.authenticity_label_col]
+            if self.authenticity_label_mapping:
+                authenticity_label = self.authenticity_label_mapping[authenticity_label]
 
-            if self.authenticity_label_col:
-                authenticity_label = sample[self.authenticity_label_col]
-                if self.authenticity_label_mapping:
-                    authenticity_label = self.authenticity_label_mapping[authenticity_label]
+        if source_label is not None or authenticity_label is not None:
+            annotation = Annotation(source_label=source_label,
+                                    authenticity_label=authenticity_label
+                                    )
 
-            if source_label is not None or authenticity_label is not None:
-                annotation = Annotation(source_label=source_label,
-                                        authenticity_label=authenticity_label
-                                        )
+        # Create instance
+        instance = self.instance_class(data=sample[self.data_col], annotation=annotation)
 
-            # Create instance
-            instance = self.instance_class(data=sample[self.data_col], annotation=annotation)
+        return instance
 
-            yield instance
+    def __len__(self):
+        return len(self.dataset)

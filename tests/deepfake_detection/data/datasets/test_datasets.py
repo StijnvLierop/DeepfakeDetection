@@ -146,3 +146,9 @@ def test_iter_with_large_batch_size(dummy_dataset):
     # The entire dataset should be yielded as a single batch
     assert len(batches) == 1
     assert len(batches[0]) == len(dummy_dataset)
+
+
+def test_get_item(dummy_dataset):
+    instance = dummy_dataset[0]
+    assert instance.annotation.authenticity_label == 'real'
+

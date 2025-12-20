@@ -37,6 +37,8 @@ class Annotation:
         Returns a binary integer label for the annotation.
         The binary label is 1 for fake or manipulated instances and 0 for real instances.
         """
+        if self.authenticity_label is None:
+            raise ValueError("Authenticity label not set so cannot determine binary label.")
         if self.authenticity_label in ['fake', 'manipulated']:
             return 1
         elif self.authenticity_label == 'real':

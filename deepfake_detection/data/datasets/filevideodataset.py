@@ -1,20 +1,21 @@
 import logging
 import os
-from typing import Iterable
+from pathlib import Path
+from typing import List
 
 from deepfake_detection.data.annotation import Annotation
-from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.instance import FileVideoInstance
+from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
+from deepfake_detection.data.instance import FileVideoInstance, Instance
 
 
-class FileVideoDataset(Dataset):
+class FileVideoDataset(MapStyleDatasetMixin, Dataset):
     """
     This dataset loads a dataset of videos from a filesystem.
     The dataset should be stored on the filesystem as follows:
 
     <root dataset dir>
         real
-            <label 1_1fake>
+            <label 1>
                 - video1
         fake
             <label 2>
@@ -39,8 +40,15 @@ class FileVideoDataset(Dataset):
         else:
             self.included_instances = None
 
+        # Store instance paths
+        self.instance_paths = self._index()
 
-    def __iter__(self) -> Iterable[FileVideoInstance]:
+    def _index(self) -> List[Path]:
+        """
+        Indexes all files in the dataset and returns a list of filepaths.
+        """
+        # Loop over folders (labels) in dataset
+        paths = []
         # Loop over folders (authenticity class) in dataset
         for folder in os.listdir(self.path):
             # If directory
@@ -53,9 +61,23 @@ class FileVideoDataset(Dataset):
                         for video in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if video.split('.')[-1].lower() in ['mp4', 'mov']:
                                 if self.included_instances is None or video in self.included_instances:
-                                    yield FileVideoInstance(os.path.join(self.path, folder, subfolder, video),
-                                                            Annotation(authenticity_label=folder,
-                                                                       source_label=subfolder)
-                                                            )
+                                    paths.append(Path(os.path.join(self.path, folder, subfolder, video)))
                             else:
                                 raise logging.debug("Found file that is not a mp4 or mov file: {}".format(video))
+        return paths
+
+    def __getitem__(self, idx: int) -> Instance:
+        # Get instance path
+        path = self.instance_paths[idx]
+
+        # Get labels from path
+        authenticity_label, source_label, img_name = path.parts[-3:]
+
+        # Return instance
+        return FileVideoInstance(str(path),
+                                 Annotation(authenticity_label=authenticity_label,
+                                            source_label=source_label)
+                                 )
+
+    def __len__(self):
+        return len(self.instance_paths)
