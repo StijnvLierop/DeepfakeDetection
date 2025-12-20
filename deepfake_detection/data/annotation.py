@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class Annotation:
     """
     Represents an annotation for an instance. Each annotation has:
@@ -5,14 +8,15 @@ class Annotation:
     - an optional source label containing the generator or camera used to generate the instance.
     """
 
-    def __init__(self, authenticity_label: str, source_label: str=None):
+    def __init__(self,
+                 authenticity_label: str,
+                 source_label: Optional[str] = None):
         """
         :param authenticity_label: authenticity label (fake, real or manipulated).
         :param source_label: optional source label containing the generator or camera used to generate the instance.
         """
         self.authenticity_label = authenticity_label
         self.source_label = source_label
-
 
     def get_label(self, label_type: str):
         """
