@@ -41,7 +41,7 @@ def authenticity_predictions() -> List[Prediction]:
         Prediction(classification=classification)
         for classification in [
             {"real": 0.8, "fake": 0.2},  # True = "r" hit
-            {"real": 0.4, "fake": 0.6},  # True = "f"
+            {"real": 0.4, "fake": 0.6},  # True = "r"
             {"real": 1.0, "fake": 0.0},  # True = "r" hit
             {"real": 0.8, "fake": 0.2},  # True = "r" hit
             {"real": 0.3, "fake": 0.7},  # True = "f" hit
