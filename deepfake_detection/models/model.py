@@ -23,7 +23,7 @@ class Model(ABC):
         raise NotImplementedError
 
 
-class TrainableMixin(torch.nn.Module):
+class TrainableMixin(torch.nn.Module, ABC):
     """
     Extension of the model class that defines methods to make a model trainable.
     """
