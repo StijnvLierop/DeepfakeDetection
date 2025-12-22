@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.23.0 (2025-12-21)
+
+### Features
+
+- Add evaluator class to quickly calculate metrics
+  ([`40d6203`](https://github.com/StijnvLierop/DeepfakeDetection/commit/40d620394e7483d222ee75fb9a1abec4b216b985))
+
+
+## v0.22.0 (2025-12-20)
+
+### Features
+
+- Add cnndetect dataset
+  ([`b8f4794`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b8f4794095412ab970e5c8db6050a9b7db82b032))
+
+
 ## v0.21.0 (2025-12-20)
 
 ### Features
