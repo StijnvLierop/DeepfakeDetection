@@ -20,8 +20,8 @@ class RandomGaussianBlur(torch.nn.Module):
 
     def forward(self, img):
         if torch.rand(1) < self.prob:
-            kernel_size = int(2 * int(2 * self.sigma + 0.5) + 1)
+            kernel_size = int(2 * int(2 * self.sigma_low + 0.5) + 1)
             return v2.functional.gaussian_blur(img,
                                                [kernel_size, kernel_size],
-                                               [self.sigma_low, self.sigma_up])
+                                               [self.sigma_low + 0.00000000001, self.sigma_up])
         return img
