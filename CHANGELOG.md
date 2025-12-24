@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## v0.24.1 (2025-12-24)
+
+
 ## v0.24.0 (2025-12-24)
 
 ### Bug Fixes
@@ -8,13 +11,27 @@
 - Cnndetect transform function now transforms inputs instead of returning the transform function
   ([`881ddda`](https://github.com/StijnvLierop/DeepfakeDetection/commit/881dddacea75e9dbf5af4885e39f187e1b5191f0))
 
+- Genimage dataset is now a mapstyle dataset
+  ([`db38efd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/db38efdbe7abf90a162e3659c29fadabb9c18f9d))
+
 - Sigma variable naming in randomgaussianblur augmentation
   ([`0a07380`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0a0738037676fe064899718d789f92478ba1b45d))
+
+### Features
+
+- Add blur and compression to data augmentations
+  ([`ebd0dd8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ebd0dd840464dafc19aa9fe8b0dc9c7c5b1c86e6))
+
+- Add support for huggingface trainer and trainingarguments
+  ([`0f9af94`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0f9af94ebc6a9f34c7ce0831b5e6c86cbb5bda19))
 
 ### Refactoring
 
 - Change default augmentation params to be same as in cnndetect paper
   ([`1853c3d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1853c3d6fb92f695914da1d9ef3e34588ad057b1))
+
+- Change transform func in cnndetect
+  ([`65370b4`](https://github.com/StijnvLierop/DeepfakeDetection/commit/65370b4ddb2cd4b8ef1df0cfa25be0c5450d6bbe))
 
 - Transform inputs function now returns function instead of transformed inputs
   ([`ab8c545`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ab8c5454d4dd1ecd8e1fa504de1632984c425f7f))
@@ -32,19 +49,8 @@
 
 ### Features
 
-- Add blur and compression to data augmentations
-  ([`ebd0dd8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ebd0dd840464dafc19aa9fe8b0dc9c7c5b1c86e6))
-
 - Add cnndetect dataset
   ([`b8f4794`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b8f4794095412ab970e5c8db6050a9b7db82b032))
-
-- Add support for huggingface trainer and trainingarguments
-  ([`0f9af94`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0f9af94ebc6a9f34c7ce0831b5e6c86cbb5bda19))
-
-### Refactoring
-
-- Change transform func in cnndetect
-  ([`65370b4`](https://github.com/StijnvLierop/DeepfakeDetection/commit/65370b4ddb2cd4b8ef1df0cfa25be0c5450d6bbe))
 
 
 ## v0.21.0 (2025-12-20)
