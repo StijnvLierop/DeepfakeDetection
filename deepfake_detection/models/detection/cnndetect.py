@@ -1,4 +1,4 @@
-from typing import Union, List, Optional, Any, Callable
+from typing import Union, List, Optional, Any
 
 import torch
 from torchvision.transforms import v2
@@ -69,8 +69,11 @@ class CNNDetect(TrainableMixin, Model):
         # Set model to eval mode for inference
         self.model.eval()
 
+        # Get transform func
+        transform_func = self.get_input_transform_func(resize=False)
+
         # Transform instances to tensor
-        model_inputs = torch.stack([self.transform_inputs(i.data) for i in instances], dim=0).to(self.device)
+        model_inputs = torch.stack([transform_func(i.data) for i in instances], dim=0).to(self.device)
 
         # Run inference
         with torch.no_grad():
@@ -94,11 +97,17 @@ class CNNDetect(TrainableMixin, Model):
 
 
     @staticmethod
-    def transform_inputs(inputs: Any) -> Any:
-        transforms = v2.Compose([
+    def get_input_transform_func(resize: bool = False) -> v2.Compose:
+        transforms = [
             v2.ToImage(),
             v2.CenterCrop(224),
             v2.ToDtype(torch.float32, scale=True),
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
-        return transforms(inputs)
+        ]
+        if resize:
+            transforms.insert(1, v2.Resize(256,
+                                           interpolation=v2.InterpolationMode.BILINEAR,
+                                           antialias=True)
+                              )
+        transforms = v2.Compose(transforms)
+        return transforms

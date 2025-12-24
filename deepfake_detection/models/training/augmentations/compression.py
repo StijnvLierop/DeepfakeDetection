@@ -4,9 +4,9 @@ import torch
 from torchvision.io import encode_jpeg, decode_jpeg
 
 
-class RandomJpegCompression(torch.nn.Module):
+class RandomPILJpegCompression(torch.nn.Module):
     """
-    Data augmentation that can be used to apply random JPEG compression.
+    Data augmentation that can be used to apply random JPEG compression using PIL.
     """
 
     def __init__(self, quality_range: Tuple[float, float] = (30, 100), prob: float = 0.5):
