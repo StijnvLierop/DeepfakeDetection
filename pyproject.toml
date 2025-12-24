@@ -1,5 +1,5 @@
 [project]
-name = "DeepfakeDetection"
+name = "deepfake_detection"
 version = "0.23.0"
 description = "Default template for PDM package"
 readme = "README.md"
