@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List, Union, Any
+from typing import List, Union, Any, Dict
+
+import torch
 
 from deepfake_detection.data import Instance, Dataset
 from deepfake_detection.models.prediction import Prediction
@@ -21,35 +23,16 @@ class Model(ABC):
         raise NotImplementedError
 
 
-class TrainableMixin(ABC):
+class TrainableMixin(torch.nn.Module, ABC):
     """
     Extension of the model class that defines methods to make a model trainable.
     """
 
     @abstractmethod
-    def get_model_parameters(self) -> Any:
+    def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Dict:
         """
-        Returns the trainable parameters of the model.
-        """
-        raise NotImplementedError
+        Returns the output of a single forward pass through the model in a dictionary.
 
-    @abstractmethod
-    def forward_pass(self, inputs: Any) -> Any:
-        """
-        Returns the output of a single forward pass through the model.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def save_weights(self, path: str) -> None:
-        """
-        Saves the weights of the model to a given path.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def train(self) -> None:
-        """
-        Sets the model in train mode.
+        If labels are provided, this method should return the loss of the forward pass as well.
         """
         raise NotImplementedError
