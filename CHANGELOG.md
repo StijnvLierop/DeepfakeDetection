@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.24.2 (2025-12-26)
+
+### Bug Fixes
+
+- Loading old cnndetect model weights
+  ([`33dc9e6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/33dc9e69942bf7e20828cb403acf124e28b1861e))
+
+
 ## v0.24.1 (2025-12-24)
 
 
