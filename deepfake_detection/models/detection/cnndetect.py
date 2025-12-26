@@ -54,7 +54,10 @@ class CNNDetect(TrainableMixin, Model):
                                         map_location='cpu')
 
             # Load weights in model
-            self.model.load_state_dict(state_dict)
+            try:
+                self.model.load_state_dict(state_dict)
+            except:
+                self.model.load_state_dict(state_dict['model'])
 
         else:
             print("No checkpoint provided, initializing model with random weights.")
