@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.25.1 (2025-12-27)
+
+### Bug Fixes
+
+- Authenticity label in diffusion dataset
+  ([`d41e413`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d41e41318ccdb639dbfa54d71c4a3de4602f3e7f))
+
+
 ## v0.25.0 (2025-12-27)
 
 ### Features
