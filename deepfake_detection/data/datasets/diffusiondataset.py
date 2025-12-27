@@ -65,6 +65,12 @@ class DiffusionDataset(MapStyleDatasetMixin, Dataset):
         # Get labels from path
         source_label, authenticity_label, img_name = path.parts[-3:]
 
+        # Only keep relevant parts of the label
+        if "fake" in authenticity_label:
+            authenticity_label = "fake"
+        elif "real" in authenticity_label:
+            authenticity_label = "real"
+
         # Return instance
         return FileImageInstance(str(path),
                                  Annotation(authenticity_label=authenticity_label,
