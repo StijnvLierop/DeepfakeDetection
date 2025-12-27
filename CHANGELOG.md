@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.25.0 (2025-12-27)
+
+### Features
+
+- Add diffusiondataset used by univfd
+  ([`b80201f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b80201f725aa2cd71dbfdf349994b1c739c387c0))
+
+
 ## v0.24.2 (2025-12-26)
 
 ### Bug Fixes
