@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: deepfake_detection
-Version: 0.24.1
+Version: 0.24.2
 Summary: Default template for PDM package
 Author-email: Stijn van Lierop <s.van.lierop@nfi.nl>, Stijn van Lierop <150940112+StijnvLierop@users.noreply.github.com>
 License: MIT
