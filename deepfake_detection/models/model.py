@@ -12,7 +12,7 @@ class Model(ABC):
     Abstract base class that every model should inherit from.
     """
 
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
 
     def predict(self, instance: Instance) -> Prediction:
