@@ -1,7 +1,0 @@
-README.md
-pyproject.toml
-deepfake_detection.egg-info/PKG-INFO
-deepfake_detection.egg-info/SOURCES.txt
-deepfake_detection.egg-info/dependency_links.txt
-deepfake_detection.egg-info/requires.txt
-deepfake_detection.egg-info/top_level.txt
