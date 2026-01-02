@@ -27,6 +27,8 @@ dependencies = [
     "typing-extensions>=4.10",
     "transformers>=4.57.3",
     "accelerate>=0.26.0",
+    "git+https://github.com/openai/CLIP.git",
+    "albumentations>=2.0.8",
 ]
 license = {text = "MIT"}
 

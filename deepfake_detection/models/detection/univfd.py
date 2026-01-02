@@ -7,7 +7,7 @@ from deepfake_detection.data import ImageInstance, FileImageInstance
 from deepfake_detection.data import Dataset
 from deepfake_detection.models import Model
 from deepfake_detection.models import Prediction
-from deepfake_detection.models.networks.clip import clip
+from clip import clip
 from models.model import TrainableMixin
 
 

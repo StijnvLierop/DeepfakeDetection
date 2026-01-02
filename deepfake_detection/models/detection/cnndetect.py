@@ -8,7 +8,7 @@ from deepfake_detection.data import FileImageInstance, Dataset
 from deepfake_detection.data import ImageInstance
 from deepfake_detection.models import Model
 from deepfake_detection.models.model import TrainableMixin
-from deepfake_detection.models.networks.resnet_cnndetect import resnet50
+from deepfake_detection.models.custom_networks.resnet_cnndetect import resnet50
 from deepfake_detection.models import Prediction
 
 

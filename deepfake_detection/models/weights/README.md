@@ -23,3 +23,6 @@ FreqNet
 ```Python
 https://github.com/chuangchuangtan/FreqNet-DeepfakeDetection/blob/main/4-classes-freqnet-v2.pth
 ```
+
+Latte
+No public weights available yet.

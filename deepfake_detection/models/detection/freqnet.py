@@ -9,7 +9,7 @@ from deepfake_detection.data import ImageInstance
 from deepfake_detection.models import Model
 from deepfake_detection.models.model import TrainableMixin
 from deepfake_detection.models import Prediction
-from deepfake_detection.models.networks.freqnet import FreqNetCNN
+from deepfake_detection.models.custom_networks.freqnet import FreqNetCNN
 
 
 class FreqNet(TrainableMixin, Model):
