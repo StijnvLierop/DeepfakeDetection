@@ -16,4 +16,5 @@ https://github.com/WisconsinAIVision/UniversalFakeDetect/tree/main/pretrained_we
 NPR
 ```Python
 https://github.com/chuangchuangtan/NPR-DeepfakeDetection/blob/main/NPR.pth
+https://drive.google.com/drive/folders/1_mD17F94xMbJqEAsWRW1gVsZ5db6YamI # GenImage sdv14 pretrained version
 ```

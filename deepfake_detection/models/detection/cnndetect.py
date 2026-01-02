@@ -19,11 +19,12 @@ class CNNDetect(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/PeterWang512/CNNDetection/tree/master.
     """
 
-    def __init__(self, ckpt: Optional[str] = None, device: str = 'cuda', *args, **kwargs):
+    def __init__(self, ckpt: Optional[str] = None, device: str = 'cuda', name: str = 'CNNDetect', *args, **kwargs):
         """
         :param: ckpt: Path to the checkpoint file of the CNNDetect model.
         :param device: Device to use for inference.
         """
+        Model.__init__(self, name)
         super().__init__(*args, **kwargs)
         self.model = None
         self.ckpt = ckpt
