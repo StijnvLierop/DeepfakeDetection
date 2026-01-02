@@ -79,14 +79,14 @@ class UnivFD(TrainableMixin, Model):
     @staticmethod
     def get_input_transform_func(resize: bool = False) -> v2.Compose:
         transforms = [
-            v2.ToImage(),
             v2.CenterCrop(224),
+            v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
             v2.Normalize(mean=[0.48145466, 0.4578275, 0.40821073],
                          std=[0.26862954, 0.26130258, 0.27577711])
         ]
         if resize:
-            transforms.insert(1, v2.Resize(256,
+            transforms.insert(0, v2.Resize(256,
                                            interpolation=v2.InterpolationMode.BILINEAR,
                                            antialias=True)
                               )
