@@ -34,31 +34,44 @@ def to_arrays(instances: Sequence[Instance],
               predictions: Sequence[Prediction],
               label: str,
               label_type: str,
+              threshold: Optional[float] = None,
               binary: Optional[bool] = False) \
         -> Tuple[np.ndarray, np.ndarray]:
     """
-    This function takes a series of predictions and instances and
-    transforms them into binary arrays given a certain label.
+    This function takes a series of predictions and instances and transforms them into arrays.
 
     :param instances: Instances with ground-truth labels
-    :param predictions: Model predictions with classification scores
-    :param label: label that corresponds to `true` class.
-    :param label_type: The label type in 'Annotation' to use for computing the accuracy. Can be 'source_label',
+    :param predictions: Model predictions with classification scores.
+    :param label: label that corresponds to positive class.
+    :param label_type: The label type in 'Annotation' to use for y_true. Can be 'source_label',
                        'authenticity_label' or 'binary_label'. Should correspond with the labels in 'predictions'.
-    :param binary: If `True`, predictions are returned as one-hot encoded labels for the particular label
-                   (true if the label has the highest confidence score).
+    :param threshold: An optional threshold to use for converting confidence scores to predicted labels.
+    :param binary: If `True`, predictions are returned as one-hot encoded labels for the particular target class.
                    If `False`, predictions are returned as the confidence score for the particular label.
     :return: Tuple of (y_true, y_pred) arrays.
     """
-    if binary:
-        y_pred = np.array([max(p.classification, key=p.classification.get) == label for p in predictions])
+    # If a threshold is set and binary labels should be returned, return one-hot labels higher than threshold
+    if threshold and binary:
+        y_pred = np.array([int(p.classification[label] >= threshold) for p in predictions])
+
+    # Otherwise if no threshold is set and binary labels should be returned,
+    # return one-hot labels of max confidence score
+    elif binary:
+        y_pred = np.array([int(max(p.classification, key=p.classification.get) == label) for p in predictions])
+
+    # Otherwise just return confidence score of selected label
     else:
         y_pred = np.array([p.classification[label] for p in predictions])
+
+    # Get true labels of specified label type
     y_true = np.array([int(label == i.annotation.get_label(label_type)) for i in instances])
+
+    # Raise warnings when certain labels are not found
     if y_pred.sum() == 0:
         logging.warn("No predictions for label %s.", label)
     if y_true.sum() == 0:
         logging.warn("No labels for label %s.", label)
+
     return y_true, y_pred
 
 

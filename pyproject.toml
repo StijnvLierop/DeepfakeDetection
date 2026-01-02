@@ -1,15 +1,12 @@
-[build-system]
-requires = ["pdm-backend >= 2.4.0"]
-build-backend = "pdm.backend"
-
 [project]
 name = "deepfake_detection"
-version = "0.17.0"
-description = "A library for deepfake detection research."
+version = "0.27.0"
+description = "Default template for PDM package"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = "==3.10.*"
 authors = [
     {name = "Stijn van Lierop", email = "s.van.lierop@nfi.nl"},
+    {name = "Stijn van Lierop", email = "150940112+StijnvLierop@users.noreply.github.com"},
 ]
 dependencies = [
     "pillow>=11.3.0",
@@ -25,8 +22,15 @@ dependencies = [
     "tqdm>=4.67.1",
     "torch>=2.7.1",
     "fiftyone>=1.11.0",
+    "torchvision>=0.22.1",
+    "datasets>=4.4.2",
+    "typing-extensions>=4.10",
     "transformers>=4.57.3",
+    "accelerate>=0.26.0",
+    "git+https://github.com/openai/CLIP.git",
+    "albumentations>=2.0.8",
 ]
+license = {text = "MIT"}
 
 [dependency-groups]
 test = [
@@ -59,7 +63,7 @@ prerelease_token = "rc"
 prerelease = false
 
 [tool.pdm]
-distribution = true
+distribution = false
 
 [changelog.default_templates]
 changelog_file = ""

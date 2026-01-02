@@ -11,3 +11,18 @@ UnivFD
 ```Python
 https://github.com/WisconsinAIVision/UniversalFakeDetect/tree/main/pretrained_weights
 ```
+
+
+NPR
+```Python
+https://github.com/chuangchuangtan/NPR-DeepfakeDetection/blob/main/NPR.pth
+https://drive.google.com/drive/folders/1_mD17F94xMbJqEAsWRW1gVsZ5db6YamI # GenImage sdv14 pretrained version
+```
+
+FreqNet
+```Python
+https://github.com/chuangchuangtan/FreqNet-DeepfakeDetection/blob/main/4-classes-freqnet-v2.pth
+```
+
+Latte
+No public weights available yet.

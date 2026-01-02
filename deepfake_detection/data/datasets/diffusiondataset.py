@@ -9,18 +9,18 @@ from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
 from deepfake_detection.data.instance import FileImageInstance
 
 
-class FileImageDataset(MapStyleDatasetMixin, Dataset):
+class DiffusionDataset(MapStyleDatasetMixin, Dataset):
     """
-    This dataset loads a dataset of images from a filesystem.
+    This dataset loads a dataset of images from a filesystem in the DiffusionDataset (Ohja et al., 2023) format.
     The dataset should be stored on the filesystem as follows:
 
     <root dataset dir>
-        fake
-            <label 1>
+        <label 1>
+            fake_1
             - image 1
             - image 2
-        camera1
-            <label 2>
+        <label 2>
+            fake_1
             - image 1
             - image 2
         ...
@@ -29,19 +29,11 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
 
     :param path: The path to the root folder of the dataset.
     :param name: The name of the dataset.
-    :param split_file: The path to a file containing the filenames of the images that should be returned.
     """
 
-    def __init__(self, path: str, name: str = None, split_file: str = None):
-        super(FileImageDataset, self).__init__(name)
+    def __init__(self, path: str, name: str = None):
+        super().__init__(name)
         self.path = path
-
-        # If split file provided store the filenames of included instances in a list
-        if split_file:
-            with open(split_file, 'r') as f:
-                self.included_instances = f.read().splitlines()
-        else:
-            self.included_instances = None
 
         # Store instance paths
         self.instance_paths = self._index()
@@ -61,8 +53,7 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
                         # Loop over images
                         for img in os.listdir(os.path.join(self.path, folder, subfolder)):
                             if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                if self.included_instances is None or img in self.included_instances:
-                                    paths.append(Path(os.path.join(self.path, folder, subfolder, img)))
+                                paths.append(Path(os.path.join(self.path, folder, subfolder, img)))
                             else:
                                 logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))
         return paths
@@ -72,7 +63,13 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
         path = self.instance_paths[idx]
 
         # Get labels from path
-        authenticity_label, source_label, img_name = path.parts[-3:]
+        source_label, authenticity_label, img_name = path.parts[-3:]
+
+        # Only keep relevant parts of the label
+        if "fake" in authenticity_label:
+            authenticity_label = "fake"
+        elif "real" in authenticity_label:
+            authenticity_label = "real"
 
         # Return instance
         return FileImageInstance(str(path),

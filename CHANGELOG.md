@@ -1,6 +1,180 @@
 # CHANGELOG
 
 
+## v0.27.0 (2026-01-02)
+
+### Bug Fixes
+
+- **latte**: Fix torch transforms
+  ([`0976c0e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0976c0ea82a8b5fdc94ef586dd8f61e98163ca0c))
+
+
+## v0.26.0 (2026-01-02)
+
+
+## v0.25.3 (2026-01-02)
+
+### Bug Fixes
+
+- Loading of weights with different formats in npr model
+  ([`f19e305`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f19e305ea8b2abb47bd1b29d27b523ddbb66d7cd))
+
+- **npr**: Set transformations equal to genimage testing parameters in paper
+  ([`3fad3e3`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3fad3e3e9f46622ebe970e7a2491e55203db10f3))
+
+
+## v0.25.2 (2026-01-02)
+
+### Bug Fixes
+
+- **univfd**: Reorder transforms to get same inference results as in paper
+  ([`e4d0e30`](https://github.com/StijnvLierop/DeepfakeDetection/commit/e4d0e30a5be90173e1a76d5819c8f92c90ddadcb))
+
+### Chores
+
+- Remove build files
+  ([`3bcc0a2`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3bcc0a219282775df2214727ad1a03659f3d2f78))
+
+### Features
+
+- Add freqnet model
+  ([`9970c07`](https://github.com/StijnvLierop/DeepfakeDetection/commit/9970c07ae76247f0c66f6ed3cc612522ae0ab2b2))
+
+### Refactoring
+
+- Make univfd trainable
+  ([`fa29ecb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/fa29ecb913aa18705196101564cfb29525776fed))
+
+
+## v0.25.1 (2025-12-27)
+
+### Bug Fixes
+
+- Authenticity label in diffusion dataset
+  ([`d41e413`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d41e41318ccdb639dbfa54d71c4a3de4602f3e7f))
+
+
+## v0.25.0 (2025-12-27)
+
+### Features
+
+- Add diffusiondataset used by univfd
+  ([`b80201f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b80201f725aa2cd71dbfdf349994b1c739c387c0))
+
+
+## v0.24.2 (2025-12-26)
+
+### Bug Fixes
+
+- Loading old cnndetect model weights
+  ([`33dc9e6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/33dc9e69942bf7e20828cb403acf124e28b1861e))
+
+
+## v0.24.1 (2025-12-24)
+
+
+## v0.24.0 (2025-12-24)
+
+### Bug Fixes
+
+- Cnndetect transform function now transforms inputs instead of returning the transform function
+  ([`881ddda`](https://github.com/StijnvLierop/DeepfakeDetection/commit/881dddacea75e9dbf5af4885e39f187e1b5191f0))
+
+- Genimage dataset is now a mapstyle dataset
+  ([`db38efd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/db38efdbe7abf90a162e3659c29fadabb9c18f9d))
+
+- Sigma variable naming in randomgaussianblur augmentation
+  ([`0a07380`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0a0738037676fe064899718d789f92478ba1b45d))
+
+### Features
+
+- Add blur and compression to data augmentations
+  ([`ebd0dd8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ebd0dd840464dafc19aa9fe8b0dc9c7c5b1c86e6))
+
+- Add support for huggingface trainer and trainingarguments
+  ([`0f9af94`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0f9af94ebc6a9f34c7ce0831b5e6c86cbb5bda19))
+
+### Refactoring
+
+- Change default augmentation params to be same as in cnndetect paper
+  ([`1853c3d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1853c3d6fb92f695914da1d9ef3e34588ad057b1))
+
+- Change transform func in cnndetect
+  ([`65370b4`](https://github.com/StijnvLierop/DeepfakeDetection/commit/65370b4ddb2cd4b8ef1df0cfa25be0c5450d6bbe))
+
+- Transform inputs function now returns function instead of transformed inputs
+  ([`ab8c545`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ab8c5454d4dd1ecd8e1fa504de1632984c425f7f))
+
+
+## v0.23.0 (2025-12-21)
+
+### Features
+
+- Add evaluator class to quickly calculate metrics
+  ([`40d6203`](https://github.com/StijnvLierop/DeepfakeDetection/commit/40d620394e7483d222ee75fb9a1abec4b216b985))
+
+
+## v0.22.0 (2025-12-20)
+
+### Features
+
+- Add cnndetect dataset
+  ([`b8f4794`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b8f4794095412ab970e5c8db6050a9b7db82b032))
+
+
+## v0.21.0 (2025-12-20)
+
+### Features
+
+- Add support for pytorch training
+  ([`d1654ae`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d1654ae58f35a14ae9c01447e32996c15b40a929))
+
+### Refactoring
+
+- Fix formatting
+  ([`04953b9`](https://github.com/StijnvLierop/DeepfakeDetection/commit/04953b96e1949897d8762b87623ecd20a1eb11ac))
+
+### Testing
+
+- Fix unit tests
+  ([`1a1407e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1a1407e951dd0c14183b51439c3f076f1c2523ae))
+
+
+## v0.20.0 (2025-12-13)
+
+### Features
+
+- Move predict function to model class so models only have to implement predict_batch function
+  ([`d44a078`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d44a07804684eb9a38faf99695bc0665b3e2f374))
+
+
+## v0.19.0 (2025-12-11)
+
+### Features
+
+- Add first version of npr model
+  ([`92cc963`](https://github.com/StijnvLierop/DeepfakeDetection/commit/92cc963878b293a6460736fc3eeda486c89e268b))
+
+- Correctly load model weights
+  ([`d10b652`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d10b6525fc77374b4457ca2612c3d006fb6afc09))
+
+- First version of latte model
+  ([`a903df5`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a903df561ddc8d0600b7356a09e2106a03042954))
+
+### Refactoring
+
+- Add missing dependency and fix module import
+  ([`ecd30d3`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ecd30d3cbffbbba7d7e76ff29785616e3d9ed52e))
+
+
+## v0.18.0 (2025-12-08)
+
+### Features
+
+- Add univfd model
+  ([`5952267`](https://github.com/StijnvLierop/DeepfakeDetection/commit/59522672a60766cdd42ecbdf392c904e0881ff9f))
+
+
 ## v0.17.0 (2025-12-08)
 
 ### Features

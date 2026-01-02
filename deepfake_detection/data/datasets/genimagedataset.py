@@ -1,14 +1,16 @@
 import logging
 import os
 import re
-from typing import Iterable
+from pathlib import Path
+from typing import List
 
+from deepfake_detection.data import MapStyleDatasetMixin
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import FileImageInstance
 
 
-class GenImageDataset(Dataset):
+class GenImageDataset(MapStyleDatasetMixin, Dataset):
     """
     This dataset loads a dataset of images from a filesystem given the structure of the GenImage dataset.
     The dataset should be stored on the filesystem as follows:
@@ -45,8 +47,15 @@ class GenImageDataset(Dataset):
         else:
             self.split = ['train', 'val']
 
+        # Index dataset
+        self.instance_paths = self._index()
 
-    def __iter__(self) -> Iterable[FileImageInstance]:
+
+    def _index(self) -> List[Path]:
+        """
+        Indexes all files in the dataset and returns a list of filepaths.
+        """
+        paths = []
         # Loop over generators
         for generator in os.listdir(self.path):
             # If directory
@@ -61,16 +70,23 @@ class GenImageDataset(Dataset):
                                 # Loop over images
                                 for img in os.listdir(os.path.join(self.path, generator, split, binary_label)):
                                     if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                        yield FileImageInstance(
-                                            os.path.join(self.path, generator, split, binary_label, img),
-                                            Annotation(authenticity_label="real" if generator == "nature" else "fake",
-                                                       source_label=self._format_label(generator)),
-                                        )
+                                        paths.append(Path(os.path.join(self.path, generator, split, binary_label, img)))
                                     else:
                                         logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))
+        return paths
 
 
-    def _format_label(self, label: str) -> str:
+    def __getitem__(self, idx: int):
+        path = self.instance_paths[idx]
+        generator, split, binary_label, img = path.parts[-4:]
+        return FileImageInstance(
+            str(path),
+            Annotation(authenticity_label="real" if generator == "nature" else "fake",
+                       source_label=self._format_label(generator)),
+        )
+
+    @staticmethod
+    def _format_label(label: str) -> str:
         """
         Format the given label to a standard form so labels of different datasets can be compared.
 
@@ -82,11 +98,12 @@ class GenImageDataset(Dataset):
         label = label.lower()
 
         # For stable diffusion labels, correctly format version number
-        print(label)
         if label.startswith('stable diffusion'):
             label = re.sub(r'v_(\d)_(\d)', r'v$1.$2', label)
-        print(label)
         # Replace any underscores with spaces
         label = label.replace('_', ' ')
 
         return label
+
+    def __len__(self):
+        return len(self.instance_paths)
