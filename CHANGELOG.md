@@ -1,6 +1,9 @@
 # CHANGELOG
 
 
+## v0.26.0 (2026-01-02)
+
+
 ## v0.25.3 (2026-01-02)
 
 ### Bug Fixes
@@ -23,6 +26,11 @@
 
 - Remove build files
   ([`3bcc0a2`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3bcc0a219282775df2214727ad1a03659f3d2f78))
+
+### Features
+
+- Add freqnet model
+  ([`9970c07`](https://github.com/StijnvLierop/DeepfakeDetection/commit/9970c07ae76247f0c66f6ed3cc612522ae0ab2b2))
 
 ### Refactoring
 
