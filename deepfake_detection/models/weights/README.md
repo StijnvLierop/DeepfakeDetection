@@ -17,3 +17,8 @@ NPR
 ```Python
 https://github.com/chuangchuangtan/NPR-DeepfakeDetection/blob/main/NPR.pth
 ```
+
+FreqNet
+```Python
+https://github.com/chuangchuangtan/FreqNet-DeepfakeDetection/blob/main/4-classes-freqnet-v2.pth
+```
