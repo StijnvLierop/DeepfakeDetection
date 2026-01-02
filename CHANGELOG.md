@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.27.0 (2026-01-02)
+
+### Bug Fixes
+
+- **latte**: Fix torch transforms
+  ([`0976c0e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0976c0ea82a8b5fdc94ef586dd8f61e98163ca0c))
+
+
 ## v0.26.0 (2026-01-02)
 
 
@@ -149,6 +157,9 @@
 
 - Correctly load model weights
   ([`d10b652`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d10b6525fc77374b4457ca2612c3d006fb6afc09))
+
+- First version of latte model
+  ([`a903df5`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a903df561ddc8d0600b7356a09e2106a03042954))
 
 ### Refactoring
 
