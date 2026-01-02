@@ -9,6 +9,7 @@ from deepfake_detection.models import Prediction
 from deepfake_detection.models.model import Model
 from deepfake_detection.models.networks.resnet_npr import resnet50
 from deepfake_detection.models.model import TrainableMixin
+from models.training.augmentations.translate_duplicate import TranslateDuplicate
 
 
 class NPR(TrainableMixin, Model):
@@ -56,7 +57,7 @@ class NPR(TrainableMixin, Model):
             self.load_model()
 
         # Transform instance to tensor
-        transform_func = self.get_input_transform_func(resize=False)
+        transform_func = self.get_input_transform_func(resize=False, crop=True, translate_and_duplicate=True)
         model_inputs = torch.stack([transform_func(i.data) for i in instances], dim=0).to(self.device)
 
         # Run inference
@@ -81,17 +82,32 @@ class NPR(TrainableMixin, Model):
                 'logits': logits}
 
     @staticmethod
-    def get_input_transform_func(resize: bool = False) -> v2.Compose:
+    def get_input_transform_func(resize: bool = False,
+                                 crop: bool = True,
+                                 translate_and_duplicate: bool = False) -> v2.Compose:
+        # Define base transforms
         transforms = [
-            v2.CenterCrop(224),
             v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ]
+
+        # Check if not both reisze and translate_and_duplicate are set to True
+        if resize and translate_and_duplicate:
+            raise ValueError("Cannot set both resize and translate_and_duplicate to True.")
+
+        # Add optional transformations
+        if crop:
+            transforms.insert(0, v2.CenterCrop(224))
         if resize:
-            transforms.insert(1, v2.Resize(256,
+            transforms.insert(0, v2.Resize((256, 256),
                                            interpolation=v2.InterpolationMode.BILINEAR,
-                                           antialias=True)
+                                           antialias=True,
+                                           max_size=None)
                               )
+        elif translate_and_duplicate:
+            transforms.insert(0, TranslateDuplicate(cropSize=224))
+
+        # Compose all transformations
         transforms = v2.Compose(transforms)
         return transforms
