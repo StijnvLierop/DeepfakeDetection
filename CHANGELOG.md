@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.28.0 (2026-01-02)
+
+### Features
+
+- Add fatformer model
+  ([`fb70f0a`](https://github.com/StijnvLierop/DeepfakeDetection/commit/fb70f0a78c669dc2d3fc40d0d4997cbcc5468c99))
+
+
 ## v0.27.0 (2026-01-02)
 
 ### Bug Fixes
