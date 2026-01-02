@@ -1,4 +1,3 @@
-import clip
 import torch
 import timm
 from torch import nn

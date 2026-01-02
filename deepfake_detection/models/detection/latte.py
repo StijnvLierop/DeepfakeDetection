@@ -1,23 +1,14 @@
+from collections import OrderedDict
 from typing import Union, List
 
 import torch
 from torchvision.transforms import v2
 from transformers import CLIPTokenizer, CLIPTextModel
-from diffusers import AutoencoderKL, UNet2DConditionModel, DDPMScheduler, DDIMScheduler
+from diffusers import AutoencoderKL, UNet2DConditionModel, DDPMScheduler
 
-from deepfake_detection.data import Instance, Dataset, ImageInstance, FileImageInstance
+from deepfake_detection.data import Dataset, ImageInstance, FileImageInstance
 from deepfake_detection.models import Model, Prediction
-from deepfake_detection.models.networks.latte import LatentTrajectoryClassifier
-
-
-def instance_to_tensor(instance: Union[ImageInstance, FileImageInstance]) -> torch.Tensor:
-    # Define transform
-    default_transform = v2.Compose([
-        v2.Resize(224, 224),
-        v2.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
-        v2.ToTensor(),
-    ])
-    return default_transform(instance.data)
+from deepfake_detection.models.custom_networks.latte import LatentTrajectoryClassifier
 
 
 class Latte(Model):
@@ -32,7 +23,7 @@ class Latte(Model):
         # Set params
         self.ckpt = ckpt
         self.device = device
-        self.tracked_timesteps = "[981, 741, 521, 261, 1]"
+        self.tracked_timesteps = [981, 741, 521, 261, 1]
 
         # Set models
         self.classifier = None
@@ -42,35 +33,45 @@ class Latte(Model):
         self.text_encoder = None
         self.noise_scheduler = None
 
-
     def load_model(self):
         # Load classifier
-        self.classifier = LatentTrajectoryClassifier()
-        state_dict = torch.load(self.ckpt, weights_only=True, map_location='cpu')
-        self.classifier.load_state_dict(state_dict['model'])
+        self.load_classifier_model()
 
         # Load diffusion model components to generate latent trajectories
-        self.vae = AutoencoderKL.from_pretrained('stabilityai/stable-diffusion-2-1', subfolder="vae").to(self.device).eval()
-        self.unet = UNet2DConditionModel.from_pretrained('stabilityai/stable-diffusion-2-1', subfolder="unet").to(self.device).eval()
-        self.tokenizer = CLIPTokenizer.from_pretrained('stabilityai/stable-diffusion-2-1', subfolder="tokenizer")
-        self.text_encoder = CLIPTextModel.from_pretrained('stabilityai/stable-diffusion-2-1', subfolder="text_encoder").to(self.device).eval()
-        self.noise_scheduler = DDPMScheduler.from_pretrained('stabilityai/stable-diffusion-2-1', subfolder="scheduler")
+        self.vae = AutoencoderKL.from_pretrained('Manojb/stable-diffusion-2-1-base', subfolder="vae").to(self.device).eval()
+        self.unet = UNet2DConditionModel.from_pretrained('Manojb/stable-diffusion-2-1-base', subfolder="unet").to(self.device).eval()
+        self.tokenizer = CLIPTokenizer.from_pretrained('Manojb/stable-diffusion-2-1-base', subfolder="tokenizer")
+        self.text_encoder = CLIPTextModel.from_pretrained('Manojb/stable-diffusion-2-1-base', subfolder="text_encoder").to(self.device).eval()
+        self.noise_scheduler = DDPMScheduler.from_pretrained('Manojb/stable-diffusion-2-1-base', subfolder="scheduler")
 
         # Disable gradient computation for inference
         for model in (self.vae, self.unet, self.text_encoder):
             model.requires_grad_(False)
 
+    def load_classifier_model(self):
+        # Load model
+        self.classifier = LatentTrajectoryClassifier(clip_type="convnext_base_in22k")
 
-    def extract_latent_trajectory(self,
-                       image: torch.Tensor)\
-            -> torch.Tensor:
+        # Load weights
+        state_dict = torch.load(self.ckpt, weights_only=False, map_location='cpu')
 
-        # Transform instances to tensor
-        # img_tensor = torch.stack([default_transform(i.data) for i in instances],
-        #                          dim=0).to(self.device)
+        # Load the original state dict
+        state_dict = state_dict['model_state_dict']
+
+        # Create a new state dict without the 'module.' prefix
+        new_state_dict = OrderedDict()
+        for k, v in state_dict.items():
+            name = k[7:] if k.startswith('module.') else k  # remove `module.`
+            new_state_dict[name] = v
+
+        # Now load the cleaned version
+        self.classifier.load_state_dict(new_state_dict)
+        self.classifier.to(self.device)
+
+    def extract_latent_trajectories(self, inputs: torch.Tensor) -> torch.Tensor:
 
         # Extract latents
-        latents = self.vae.encode(image).latent_dist.sample() * self.vae.config.scaling_factor
+        latents = self.vae.encode(inputs).latent_dist.sample() * self.vae.config.scaling_factor
 
         # Create latent trajectories
         latent_sequences = []
@@ -100,29 +101,43 @@ class Latte(Model):
         return latent_sequences
 
 
-    def predict(self, instance: Union[ImageInstance, FileImageInstance]) -> Prediction:
-
+    def predict_batch(self,  instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]) -> List[Prediction]:
+        # Load model when not yet loaded
         if self.classifier is None:
             self.load_model()
 
+        # Set classifier to eval mode for inference
+        self.classifier.eval()
+
+        # Get transform func
+        transform_func = self.get_input_transform_func()
+
+        # Transform instances to tensor
+        model_inputs = torch.stack([transform_func(i.data) for i in instances], dim=0).to(self.device)
+
+        # Run inference
         with torch.no_grad():
 
-            # Convert instance to tensor
-            img_tensor = instance_to_tensor(instance).to(self.device)
-
             # Extract features from instance
-            features = self.extract_latent_trajectory(img_tensor).to(self.device)
+            features = self.extract_latent_trajectories(model_inputs).to(self.device)
 
             # Pass image and features to model
-            logits, embeddings = self.classifier(img_tensor, features)
+            logits, embeddings = self.classifier(model_inputs, features)
 
             # Convert logits to probabilities
-            prob = torch.softmax(logits, dim=1)
+            probs = torch.softmax(logits, dim=1).cpu().numpy().tolist()
 
-            # Transform to prediction
-            return Prediction(classification={"fake": float(prob[0]), "real": float(prob[1])})
+        # Transform to predictions
+        return [Prediction(classification={'fake': float(prob[0]), 'real': float(prob[1])}) for prob in probs]
 
 
-
-    def predict_batch(self, instances: Union[List[Instance], Dataset]) -> List[Prediction]:
-        pass
+    @staticmethod
+    def get_input_transform_func() -> v2.Compose:
+        transforms = [
+            v2.Resize((224, 224)),
+            v2.ToImage(),
+            v2.ToDtype(torch.float32),
+            v2.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+        ]
+        transforms = v2.Compose(transforms)
+        return transforms

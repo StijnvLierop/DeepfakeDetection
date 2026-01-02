@@ -1,32 +1,33 @@
 import os
-from typing import Iterable
+from pathlib import Path
+from typing import List
 
 from deepfake_detection.data.annotation import Annotation
-from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.instance import FileImageSequenceInstance
+from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
+from deepfake_detection.data.instance import FileImageSequenceInstance, Instance
 
 
-class FileImageSequenceDataset(Dataset):
+class FileImageSequenceDataset(MapStyleDatasetMixin, Dataset):
     """
     This dataset loads a dataset of images from a filesystem.
     The dataset should be stored on the filesystem as follows:
 
     <root dataset dir>
         real
-            <label 1_1fake>
-                - <image sequence 1_1fake>
-                    - frame 1_1fake
+            <label 1>
+                - <image sequence 1>
+                    - frame 1
                     - frame 2
                 - <image sequence 2>
-                    - frame 1_1fake
+                    - frame 1
                     - frame 2
         fake
             <label 2>
-                - <image sequence 1_1fake>
-                    - frame 1_1fake
+                - <image sequence 1>
+                    - frame 1
                     - frame 2
                 - <image sequence 2>
-                    - frame 1_1fake
+                    - frame 1
                     - frame 2
         ...
 
@@ -48,8 +49,15 @@ class FileImageSequenceDataset(Dataset):
         else:
             self.included_instances = None
 
+        # Store instance paths
+        self.instance_paths = self._index()
 
-    def __iter__(self) -> Iterable[FileImageSequenceInstance]:
+    def _index(self) -> List[Path]:
+        """
+        Indexes all files in the dataset and returns a list of filepaths.
+        """
+        # Loop over folders (labels) in dataset
+        paths = []
         # Loop over folders (models) in dataset
         for folder in os.listdir(self.path):
             # If directory
@@ -63,7 +71,20 @@ class FileImageSequenceDataset(Dataset):
                             # if folder
                             if os.path.isdir(os.path.join(self.path, folder, subfolder, img_folder)):
                                 if self.included_instances is None or img_folder in self.included_instances:
-                                    yield FileImageSequenceInstance(
-                                        os.path.join(self.path, folder, subfolder, img_folder),
-                                        Annotation(authenticity_label=folder, source_label=subfolder)
-                                    )
+                                    paths.append(Path(os.path.join(self.path, folder, subfolder, img_folder)))
+        return paths
+
+    def __getitem__(self, idx: int) -> Instance:
+        # Get instance path
+        path = self.instance_paths[idx]
+
+        # Get labels from path
+        authenticity_label, source_label, img_name = path.parts[-3:]
+
+        # Return instance
+        return FileImageSequenceInstance(str(path),
+                                         Annotation(authenticity_label=authenticity_label, source_label=source_label)
+                                         )
+
+    def __len__(self):
+        return len(self.instance_paths)

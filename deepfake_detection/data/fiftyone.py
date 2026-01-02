@@ -1,15 +1,14 @@
 import os
 from pathlib import Path
 from typing import Optional, Sequence
+from itertools import zip_longest
 
-import numpy as np
 import fiftyone as fo
 from fiftyone.utils.data.importers import GenericSampleDatasetImporter
 from fiftyone.core.fields import EmbeddedDocumentField
 
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction
-
 
 IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
 
@@ -18,6 +17,7 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
     """
     Helper class that is used to load Dataset samples as FiftyOne samples.
     """
+
     def __init__(self,
                  dataset: Dataset,
                  predictions: Optional[Sequence[Prediction]] = None,
@@ -34,45 +34,38 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
                          max_samples=None)
         self.dataset = dataset
         self.cache_dir = cache_dir
-        if not predictions:
-            self.predictions = np.repeat(None, len(dataset))
-        else:
-            self.predictions = predictions
-
+        self.predictions = predictions
 
     @property
     def has_sample_field_schema(self):
         return True
 
-
     def get_sample_field_schema(self):
-        return {
+        schema = {
             "source_label": EmbeddedDocumentField(document_type=fo.Classification),
             "authenticity_label": EmbeddedDocumentField(document_type=fo.Classification),
-            "predictions": EmbeddedDocumentField(document_type=fo.Classifications),
-            "predicted_label": EmbeddedDocumentField(document_type=fo.Classification),
         }
-
+        if self.predictions:
+            schema["predictions"] = EmbeddedDocumentField(document_type=fo.Classifications)
+            schema["predicted_label"] = EmbeddedDocumentField(document_type=fo.Classification)
+        return schema
 
     @property
     def has_dataset_info(self):
         """Whether this importer produces dataset info."""
         return False
 
-
     def setup(self):
         """Performs any necessary setup before importing."""
         pass
-
 
     def close(self, *args):
         """Performs any necessary cleanup after importing."""
         pass
 
-
     def __iter__(self):
         # Loop over instances in the dataset
-        for instance, prediction in zip(self.dataset, self.predictions):
+        for instance, prediction in zip_longest(self.dataset, self.predictions or [], fillvalue=None):
 
             # If instance has an image path
             if (hasattr(instance, 'path') and
