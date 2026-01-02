@@ -1,8 +1,9 @@
 from collections import OrderedDict
 from typing import Union, List
 
+import albumentations
+import numpy as np
 import torch
-from torchvision.transforms import v2
 from transformers import CLIPTokenizer, CLIPTextModel
 from diffusers import AutoencoderKL, UNet2DConditionModel, DDPMScheduler
 
@@ -113,7 +114,7 @@ class Latte(Model):
         transform_func = self.get_input_transform_func()
 
         # Transform instances to tensor
-        model_inputs = torch.stack([transform_func(i.data) for i in instances], dim=0).to(self.device)
+        model_inputs = torch.stack([transform_func(image=np.array(i.data))["image"] for i in instances], dim=0).to(self.device)
 
         # Run inference
         with torch.no_grad():
@@ -132,12 +133,11 @@ class Latte(Model):
 
 
     @staticmethod
-    def get_input_transform_func() -> v2.Compose:
+    def get_input_transform_func() -> albumentations.Compose:
         transforms = [
-            v2.Resize((224, 224)),
-            v2.ToImage(),
-            v2.ToDtype(torch.float32),
-            v2.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+            albumentations.Resize(224, 224),
+            albumentations.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+            albumentations.ToTensorV2()
         ]
-        transforms = v2.Compose(transforms)
+        transforms = albumentations.Compose(transforms)
         return transforms
