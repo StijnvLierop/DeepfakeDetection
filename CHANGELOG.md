@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.25.3 (2026-01-02)
+
+### Bug Fixes
+
+- Loading of weights with different formats in npr model
+  ([`f19e305`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f19e305ea8b2abb47bd1b29d27b523ddbb66d7cd))
+
+- **npr**: Set transformations equal to genimage testing parameters in paper
+  ([`3fad3e3`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3fad3e3e9f46622ebe970e7a2491e55203db10f3))
+
+
 ## v0.25.2 (2026-01-02)
 
 ### Bug Fixes
