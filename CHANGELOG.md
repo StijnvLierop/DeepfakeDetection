@@ -1,6 +1,35 @@
 # CHANGELOG
 
 
+## v0.25.3 (2026-01-02)
+
+### Bug Fixes
+
+- Loading of weights with different formats in npr model
+  ([`f19e305`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f19e305ea8b2abb47bd1b29d27b523ddbb66d7cd))
+
+- **npr**: Set transformations equal to genimage testing parameters in paper
+  ([`3fad3e3`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3fad3e3e9f46622ebe970e7a2491e55203db10f3))
+
+
+## v0.25.2 (2026-01-02)
+
+### Bug Fixes
+
+- **univfd**: Reorder transforms to get same inference results as in paper
+  ([`e4d0e30`](https://github.com/StijnvLierop/DeepfakeDetection/commit/e4d0e30a5be90173e1a76d5819c8f92c90ddadcb))
+
+### Chores
+
+- Remove build files
+  ([`3bcc0a2`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3bcc0a219282775df2214727ad1a03659f3d2f78))
+
+### Refactoring
+
+- Make univfd trainable
+  ([`fa29ecb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/fa29ecb913aa18705196101564cfb29525776fed))
+
+
 ## v0.25.1 (2025-12-27)
 
 ### Bug Fixes
