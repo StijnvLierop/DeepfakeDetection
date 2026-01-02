@@ -26,3 +26,8 @@ https://github.com/chuangchuangtan/FreqNet-DeepfakeDetection/blob/main/4-classes
 
 Latte
 No public weights available yet.
+
+FatFormer
+```Python
+https://drive.google.com/file/d/1Q_Kgq4ygDf8XEHgAf-SgDN6Ru_IOTLkj/view
+```
