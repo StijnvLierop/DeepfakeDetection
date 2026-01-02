@@ -1,12 +1,11 @@
-from typing import Union, List
+from typing import Union, List, Optional
 
 import torch
 from transformers import LlavaForConditionalGeneration, AutoProcessor
 
-from deepfake_detection.data import Instance, Dataset
+from deepfake_detection.data import ImageInstance, FileImageInstance, Dataset
 from deepfake_detection.models import Model
 from deepfake_detection.models import Prediction
-from deepfake_detection.models.model import lazy_loader
 
 
 class FakeVLM(Model):
@@ -16,27 +15,34 @@ class FakeVLM(Model):
     More info about the model can be found here: https://github.com/opendatalab/FakeVLM.
     """
 
-    def __init__(self, device: str = 'cuda'):
+    def __init__(self, device: str = 'cuda', model_path: Optional[str] = None):
         super().__init__("FakeVLM")
         self.model = None
         self.device = device
+        if model_path:
+            self.model_path = model_path
+        else:
+            self.model_path = 'lingcco/fakeVLM'
 
 
     def load_model(self):
         self.processor = AutoProcessor.from_pretrained("llava-hf/llava-1.5-7b-hf",
                                                        use_fast=True)
         self.model = LlavaForConditionalGeneration.from_pretrained(
-            'lingcco/fakeVLM',
+            self.model_path,
             torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
         ).eval().to(torch.device(self.device))
 
 
-    @lazy_loader
-    def predict(self, instance: Instance) -> Prediction:
+    def predict_batch(self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset])\
+            -> List[Prediction]:
+        # Load model when not yet loaded
+        if self.model is None:
+            self.load_model()
 
         # Define conversation template
-        conversation = [
+        conversations = [[
             {
                 "role": "system",
                 "content": [
@@ -51,34 +57,38 @@ class FakeVLM(Model):
                     {"type": "image"},
                 ],
             },
-        ]
+        ] for _ in instances]
 
         # Process model input
-        prompt = self.processor.apply_chat_template(conversation, add_generation_prompt=True)
-        model_input = self.processor(
-            text=prompt,
-            images=instance.data,
-            return_tensors="pt",
-        ).to(self.device)
+        with torch.no_grad():
+            prompts = self.processor.apply_chat_template(conversations, add_generation_prompt=True)
+            model_input = self.processor(
+                text=prompts,
+                images=[instance.data for instance in instances],
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+            ).to(self.device)
 
-        # Run inference
-        out = self.model.generate(**model_input, max_new_tokens=200, do_sample=False)
+            # Run inference
+            out = self.model.generate(**model_input, max_new_tokens=200, do_sample=False)
 
-        # Decode response
-        generated_ids = out[0][model_input.input_ids.shape[1]:]
-        response = self.processor.decode(generated_ids, skip_special_tokens=True).strip()
+            # Iterate through the batch to decode predictions
+            predictions = []
+            input_len = model_input.input_ids.shape[1]
+            for i in range(len(instances)):
+                # Extract the generated tokens for this specific instance in the batch
+                generated_ids = out[i][input_len:]
+                response = self.processor.decode(generated_ids, skip_special_tokens=True).split('?')[-1]
 
-        # Parse response to classification
-        if 'real' in response.split('.')[0].lower():
-            classification = {'fake': 0, 'real': 1}
-        elif 'fake' in response.split('.')[0].lower():
-            classification = {'fake': 1, 'real': 0}
-        else:
-            classification = {'fake': 0.5, 'real': 0.5}
+                # Logic to parse classification
+                first_sentence = response.split('.')[0]
+                if 'real' in first_sentence:
+                    scores = {'fake': 0, 'real': 1}
+                elif 'fake' in first_sentence:
+                    scores = {'fake': 1, 'real': 0}
+                else:
+                    scores = {'fake': 0.5, 'real': 0.5}
+                predictions.append(Prediction(classification=scores))
 
-        # Transform to Prediction
-        return Prediction(classification=classification)
-
-
-    def predict_batch(self, instances: Union[List[Instance], Dataset]) -> List[Prediction]:
-        pass
+        return predictions
