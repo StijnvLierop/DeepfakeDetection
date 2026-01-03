@@ -9,7 +9,7 @@ from deepfake_detection.models import Prediction
 from deepfake_detection.models.model import Model
 from deepfake_detection.models.custom_networks.resnet_npr import resnet50
 from deepfake_detection.models.model import TrainableMixin
-from models.training.augmentations.translate_duplicate import TranslateDuplicate
+from deepfake_detection.models.training.augmentations.translate_duplicate import TranslateDuplicate
 
 
 class NPR(TrainableMixin, Model):

@@ -1,8 +1,9 @@
+import pydoc
+
 import confidence
 
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Model
-from deepfake_detection.utils.parameters import DATASETS, MODELS
 
 
 def parse_dataset_config(config_path: str):
@@ -16,7 +17,7 @@ def parse_dataset_config(config_path: str):
     datasets = {}
 
     for dataset_config in config.datasets:
-        datasets[dataset_config.name] = load_dataset(dataset_config)
+        datasets[dataset_config.params.name] = load_dataset(dataset_config)
 
     return datasets
 
@@ -24,12 +25,26 @@ def load_dataset(config: confidence.Configuration) -> Dataset:
     """
     This function initializes a dataset from a provided configuration mapping.
 
-    :param config: Configuration mapping. The mapping should contain a name of the dataset present in
-                   parameters.py and the necessary parameters to initialize that dataset.
+    :param config: Configuration mapping. The mapping should contain the classpath of the dataset to
+                   use and the necessary parameters to initialize that dataset. E.g.
+
+                   class: deepfake_detection.data.datasets.FileImageDataset
+                   params:
+                       name: TestDataset
+                       path: /path/to/dataset/folder/
+                       ...
     """
+    # Convert configuration to dictionary
     dataset_dict = dict(config)
-    type = dataset_dict.pop('type', None)
-    return DATASETS[type](**dataset_dict)
+
+    # Find dataset class specified in config
+    dataset_class = pydoc.locate(str(dataset_dict['class']))
+
+    # If class found, initialize dataset
+    if dataset_class is not None:
+        return dataset_class(**dataset_dict['params'])
+    else:
+        raise ValueError(f"Dataset class not found: {dataset_dict['class']}")
 
 
 def parse_model_config(config_path: str):
@@ -43,7 +58,7 @@ def parse_model_config(config_path: str):
     models = {}
 
     for model_config in config.models:
-        models[model_config.name] = load_model(model_config)
+        models[model_config.params.name] = load_model(model_config)
 
     return models
 
@@ -52,9 +67,23 @@ def load_model(config: confidence.Configuration) -> Model:
     """
     This function initializes a model from a provided configuration mapping.
 
-    :param config: Configuration mapping. The mapping should contain a name of the model present in
-                   parameters.py and the necessary parameters to initialize that model.
+    :param config: Configuration mapping. The mapping should contain the classpath of the model to
+                   use and the necessary parameters to initialize that model. E.g.
+
+                   class: deepfake_detection.models.detection.CNNDetect
+                   params:
+                       name: CNNDetect
+                       ckpt: /path/to/model/checkpoint/
+                       ...
     """
-    model_args = dict(config)
-    model_name = model_args.pop('name', None)
-    return MODELS[model_name](**model_args)
+    # Convert configuration to dictionary
+    model_dict = dict(config)
+
+    # Find model class specified in config
+    model_class = pydoc.locate(str(model_dict['class']))
+
+    # If class found, initialize dataset
+    if model_class is not None:
+        return model_class(**model_dict['params'])
+    else:
+        raise ValueError(f"Dataset class not found: {model_dict['class']}")

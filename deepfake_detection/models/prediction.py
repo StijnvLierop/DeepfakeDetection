@@ -1,7 +1,6 @@
-import json
 import math
 from operator import itemgetter
-from typing import Any, Mapping, MutableMapping, Optional, Sequence, Tuple
+from typing import Any, Mapping, MutableMapping, Optional, Sequence
 
 import numpy as np
 
