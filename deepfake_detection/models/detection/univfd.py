@@ -2,13 +2,13 @@ from typing import Union, List, Any
 
 import torch
 from torchvision.transforms import v2
+from clip import clip
 
 from deepfake_detection.data import ImageInstance, FileImageInstance
 from deepfake_detection.data import Dataset
 from deepfake_detection.models import Model
 from deepfake_detection.models import Prediction
-from clip import clip
-from models.model import TrainableMixin
+from deepfake_detection.models.model import TrainableMixin
 
 
 class UnivFD(TrainableMixin, Model):
