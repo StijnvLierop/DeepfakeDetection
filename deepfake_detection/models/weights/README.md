@@ -31,3 +31,8 @@ FatFormer
 ```Python
 https://drive.google.com/file/d/1Q_Kgq4ygDf8XEHgAf-SgDN6Ru_IOTLkj/view
 ```
+
+PatchCraft
+```Python
+https://github.com/Ekko-zn/AIGCDetectBenchmark/tree/main/weights
+```
