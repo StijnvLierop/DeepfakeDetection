@@ -1,0 +1,40 @@
+Metadata-Version: 2.4
+Name: deepfake_detection
+Version: 0.28.0
+Summary: Default template for PDM package
+Author-email: Stijn van Lierop <s.van.lierop@nfi.nl>, Stijn van Lierop <150940112+StijnvLierop@users.noreply.github.com>
+License: MIT
+Requires-Python: ==3.10.*
+Description-Content-Type: text/markdown
+Requires-Dist: pillow>=11.3.0
+Requires-Dist: matplotlib==3.10.0
+Requires-Dist: scikit-learn==1.6.0
+Requires-Dist: confidence==0.15
+Requires-Dist: seaborn==0.13.2
+Requires-Dist: scikit-image==0.25.1
+Requires-Dist: PyWavelets==1.8.0
+Requires-Dist: opencv-python==4.11.0.86
+Requires-Dist: numpy>=2.2.6
+Requires-Dist: imagehash>=4.3.2
+Requires-Dist: tqdm>=4.67.1
+Requires-Dist: torch>=2.7.1
+Requires-Dist: fiftyone>=1.11.0
+Requires-Dist: torchvision>=0.22.1
+Requires-Dist: datasets>=4.4.2
+Requires-Dist: typing-extensions>=4.10
+Requires-Dist: transformers>=4.57.3
+Requires-Dist: accelerate>=0.26.0
+Requires-Dist: clip@ git+https://github.com/openai/CLIP.git
+Requires-Dist: albumentations>=2.0.8
+
+## Requirements
+
+Python >= 3.10
+
+## Installing Dependencies
+All dependencies can then be installed by running the commands below. After starting your virtual environment:
+
+```
+pip install --upgrade pip
+pip install .
+```
