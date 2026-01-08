@@ -1,6 +1,42 @@
 # CHANGELOG
 
 
+## v0.28.1 (2026-01-08)
+
+### Bug Fixes
+
+- Add diffusers package to dependencies
+  ([`7a5860b`](https://github.com/StijnvLierop/DeepfakeDetection/commit/7a5860b4bf64f9913006930ea30805d4db286932))
+
+- Formatting
+  ([`abb085e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/abb085eae1e88a6ddf6d34b66ae5173029e28273))
+
+- Package name missing in pyproject.toml dependency
+  ([`15fd2ef`](https://github.com/StijnvLierop/DeepfakeDetection/commit/15fd2ef20917e62f59e4ee8f36bc94a404bda920))
+
+- Remove build files
+  ([`faa3fd1`](https://github.com/StijnvLierop/DeepfakeDetection/commit/faa3fd10b268385dd8f4236d8a55a87bbac38e7d))
+
+- Ruff formatting
+  ([`2683e44`](https://github.com/StijnvLierop/DeepfakeDetection/commit/2683e449292dafc01f33384aa2f34eb2cdd230ac))
+
+- Simplify ruff use in pipeline
+  ([`2f1a771`](https://github.com/StijnvLierop/DeepfakeDetection/commit/2f1a771229bd444a3f82d43dd082ac51664b7aaa))
+
+- Tests formatting and fixture imports
+  ([`3d39e7c`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3d39e7c9bd716999a8974c7f5767345dea36f856))
+
+### Chores
+
+- Add ruff formatting checks to pipeline
+  ([`d3d0add`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d3d0add6f02e6d5246250b3f42edc34b83801efe))
+
+### Refactoring
+
+- Overhaul evaluation script to work with updated models
+  ([`58f44b6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/58f44b6d17732c3d7973481088700af125644eaf))
+
+
 ## v0.28.0 (2026-01-02)
 
 ### Features
