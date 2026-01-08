@@ -4,7 +4,8 @@ from collections import OrderedDict
 import torch
 from torchvision.transforms import v2
 
-from deepfake_detection.data import ImageInstance, FileImageInstance, Dataset
+from deepfake_detection.data.instance import FileImageInstance, ImageInstance
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction
 from deepfake_detection.models.model import Model
 from deepfake_detection.models.custom_networks.resnet_npr import resnet50

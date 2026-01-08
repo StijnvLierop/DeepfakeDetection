@@ -4,8 +4,8 @@ import torch
 from torchvision.transforms import v2
 from safetensors.torch import load_file
 
-from deepfake_detection.data import FileImageInstance, Dataset
-from deepfake_detection.data import ImageInstance
+from deepfake_detection.data.instance import FileImageInstance, ImageInstance
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Model
 from deepfake_detection.models.model import TrainableMixin
 from deepfake_detection.models import Prediction
