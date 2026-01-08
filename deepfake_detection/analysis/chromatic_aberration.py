@@ -7,8 +7,9 @@ import cv2
 from scipy.optimize import least_squares
 
 
-def calc_vector_field(img: np.ndarray, x0: int, y0: int, alpha: float, step: int) \
-        -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def calc_vector_field(
+    img: np.ndarray, x0: int, y0: int, alpha: float, step: int
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Calculates a vector field of the chromatic aberration warp for a given image (channel).
 
@@ -22,7 +23,7 @@ def calc_vector_field(img: np.ndarray, x0: int, y0: int, alpha: float, step: int
     """
 
     # Set up grid for vector field
-    y, x = np.mgrid[0:img.shape[0]:step, 0:img.shape[1]:step]
+    y, x = np.mgrid[0 : img.shape[0] : step, 0 : img.shape[1] : step]
     xw = alpha * (x - x0) + x0 - x
     yw = alpha * (y - y0) + y0 - y
 
@@ -48,14 +49,15 @@ def correlation_coefficient(block1: np.ndarray, block2: np.ndarray) -> float:
     block1 -= np.mean(block1)
     block2 -= np.mean(block2)
     numerator = np.sum(block1 * block2)
-    denominator = np.sqrt(np.sum(block1 ** 2) * np.sum(block2 ** 2))
+    denominator = np.sqrt(np.sum(block1**2) * np.sum(block2**2))
     if denominator == 0:
         return 0
     return numerator / denominator
 
 
-def estimate_lateral_chromatic_aberration(img: np.ndarray)\
-        -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def estimate_lateral_chromatic_aberration(
+    img: np.ndarray,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Estimates lateral chromatic aberration of a given image using the method proposed by Mayer et al, 2018.
     The method performs the following steps:
@@ -87,20 +89,31 @@ def estimate_lateral_chromatic_aberration(img: np.ndarray)\
              - Keypoints used for estimation of shape (Nx2).
     """
     # Get keypoints with high gradient
-    gray_img = np.array(Image.fromarray(img).convert('L'))
-    keypoints = cv2.goodFeaturesToTrack(gray_img, 1000, 0.01, 30).reshape(-1, 2).astype(int)
+    gray_img = np.array(Image.fromarray(img).convert("L"))
+    keypoints = (
+        cv2.goodFeaturesToTrack(gray_img, 1000, 0.01, 30).reshape(-1, 2).astype(int)
+    )
 
     # Estimate local chromatic aberration displacement for each keypoint
-    local_displacements_gr, local_displacements_gb = estimate_local_lca_displacements(img,
-                                                                                      keypoints,
-                                                                                      block_size=15,
-                                                                                      search_range=3)
+    local_displacements_gr, local_displacements_gb = estimate_local_lca_displacements(
+        img, keypoints, block_size=15, search_range=3
+    )
 
     # Estimate global chromatic aberration displacement from local displacements
-    global_displacement_gr = estimate_global_lca_model(keypoints, local_displacements_gr)
-    global_displacement_gb = estimate_global_lca_model(keypoints, local_displacements_gb)
+    global_displacement_gr = estimate_global_lca_model(
+        keypoints, local_displacements_gr
+    )
+    global_displacement_gb = estimate_global_lca_model(
+        keypoints, local_displacements_gb
+    )
 
-    return local_displacements_gr, local_displacements_gb, global_displacement_gr, global_displacement_gb, keypoints
+    return (
+        local_displacements_gr,
+        local_displacements_gb,
+        global_displacement_gr,
+        global_displacement_gb,
+        keypoints,
+    )
 
 
 def diamond_search(template: np.ndarray, search_area: np.ndarray) -> Tuple[int, int]:
@@ -115,11 +128,20 @@ def diamond_search(template: np.ndarray, search_area: np.ndarray) -> Tuple[int, 
 
     # Define the diamond search patterns relative coordinates
     LDSP = [  # Large diamond search pattern, 8 points around center
-        (0, -2), (1, -1), (2, 0), (1, 1),
-        (0, 2), (-1, 1), (-2, 0), (-1, -1)
+        (0, -2),
+        (1, -1),
+        (2, 0),
+        (1, 1),
+        (0, 2),
+        (-1, 1),
+        (-2, 0),
+        (-1, -1),
     ]
     SDSP = [  # Small diamond search pattern, 4 points around center
-        (0, -1), (1, 0), (0, 1), (-1, 0)
+        (0, -1),
+        (1, 0),
+        (0, 1),
+        (-1, 0),
     ]
 
     # Central point coordinates in search_area
@@ -131,7 +153,9 @@ def diamond_search(template: np.ndarray, search_area: np.ndarray) -> Tuple[int, 
     def correlation_at_offset(cx, cy):
         top_left_x = cx - block_size // 2
         top_left_y = cy - block_size // 2
-        candidate_block = search_area[top_left_y:top_left_y + block_size, top_left_x:top_left_x + block_size]
+        candidate_block = search_area[
+            top_left_y : top_left_y + block_size, top_left_x : top_left_x + block_size
+        ]
         if candidate_block.shape != template.shape:
             return -1  # invalid block (at search area border)
         return correlation_coefficient(template, candidate_block)
@@ -143,11 +167,15 @@ def diamond_search(template: np.ndarray, search_area: np.ndarray) -> Tuple[int, 
         best_point = current_point
 
         # Search the 8 neighboring points of the LDSP + center point
-        candidates = [current_point] + [(current_point[0] + dx, current_point[1] + dy) for dx, dy in LDSP]
+        candidates = [current_point] + [
+            (current_point[0] + dx, current_point[1] + dy) for dx, dy in LDSP
+        ]
 
-        for (cx, cy) in candidates:
-            if (0 <= cx - block_size // 2 < search_area.shape[1] - block_size + 1 and
-                0 <= cy - block_size // 2 < search_area.shape[0] - block_size + 1):
+        for cx, cy in candidates:
+            if (
+                0 <= cx - block_size // 2 < search_area.shape[1] - block_size + 1
+                and 0 <= cy - block_size // 2 < search_area.shape[0] - block_size + 1
+            ):
                 corr = correlation_at_offset(cx, cy)
                 if corr > best_corr:
                     best_corr = corr
@@ -165,11 +193,15 @@ def diamond_search(template: np.ndarray, search_area: np.ndarray) -> Tuple[int, 
         best_corr = -np.inf
         best_point = current_point
 
-        candidates = [current_point] + [(current_point[0] + dx, current_point[1] + dy) for dx, dy in SDSP]
+        candidates = [current_point] + [
+            (current_point[0] + dx, current_point[1] + dy) for dx, dy in SDSP
+        ]
 
-        for (cx, cy) in candidates:
-            if (0 <= cx - block_size // 2 < search_area.shape[1] - block_size + 1 and
-                0 <= cy - block_size // 2 < search_area.shape[0] - block_size + 1):
+        for cx, cy in candidates:
+            if (
+                0 <= cx - block_size // 2 < search_area.shape[1] - block_size + 1
+                and 0 <= cy - block_size // 2 < search_area.shape[0] - block_size + 1
+            ):
                 corr = correlation_at_offset(cx, cy)
                 if corr > best_corr:
                     best_corr = corr
@@ -187,10 +219,9 @@ def diamond_search(template: np.ndarray, search_area: np.ndarray) -> Tuple[int, 
     return (dx, dy)
 
 
-def estimate_local_lca_displacements(image: np.ndarray,
-                                     keypoints: np.ndarray,
-                                     block_size: int,
-                                     search_range: int) -> Tuple[np.ndarray, np.ndarray]:
+def estimate_local_lca_displacements(
+    image: np.ndarray, keypoints: np.ndarray, block_size: int, search_range: int
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Local LCA displacement algorithm to find the best matching block displacement for each keypoint.
 
@@ -210,16 +241,22 @@ def estimate_local_lca_displacements(image: np.ndarray,
     blue = image[:, :, 2]  # blue channel
 
     # Loop over keypoints
-    for (x, y) in keypoints:
-
+    for x, y in keypoints:
         # Extract reference (green) block
-        ref_block = green[y - block_size // 2:y + block_size // 2 + 1, x - block_size // 2:x + block_size // 2 + 1]
+        ref_block = green[
+            y - block_size // 2 : y + block_size // 2 + 1,
+            x - block_size // 2 : x + block_size // 2 + 1,
+        ]
 
         # Extract search area in red and blue channels (to find where green area fits best)
-        red_search_area = red[y - block_size // 2 - search_range:y + block_size // 2 + search_range + 1,
-                          x - block_size // 2 - search_range:x + block_size // 2 + search_range + 1]
-        blue_search_area = blue[y - block_size // 2 - search_range:y + block_size // 2 + search_range + 1,
-                           x - block_size // 2 - search_range:x + block_size // 2 + search_range + 1]
+        red_search_area = red[
+            y - block_size // 2 - search_range : y + block_size // 2 + search_range + 1,
+            x - block_size // 2 - search_range : x + block_size // 2 + search_range + 1,
+        ]
+        blue_search_area = blue[
+            y - block_size // 2 - search_range : y + block_size // 2 + search_range + 1,
+            x - block_size // 2 - search_range : x + block_size // 2 + search_range + 1,
+        ]
 
         # Execute diamond search to find optimal fit
         disp_gr = diamond_search(ref_block, red_search_area)
@@ -232,7 +269,9 @@ def estimate_local_lca_displacements(image: np.ndarray,
     return np.array(local_displacements_gr), np.array(local_displacements_gb)
 
 
-def lca_global_model_residuals(params: np.ndarray, keypoints: np.ndarray, local_d) -> np.ndarray:
+def lca_global_model_residuals(
+    params: np.ndarray, keypoints: np.ndarray, local_d
+) -> np.ndarray:
     """
     Calculates the residuals of local vectors with a global model paramaterized on the given parameters.
 
@@ -247,7 +286,9 @@ def lca_global_model_residuals(params: np.ndarray, keypoints: np.ndarray, local_
     return residuals
 
 
-def estimate_global_lca_model(keypoints: np.ndarray, local_displacements: np.ndarray) -> np.ndarray:
+def estimate_global_lca_model(
+    keypoints: np.ndarray, local_displacements: np.ndarray
+) -> np.ndarray:
     """
     Estimates the global chromatic aberration model parameters from a series of local displacements using least squares.
 
@@ -261,25 +302,29 @@ def estimate_global_lca_model(keypoints: np.ndarray, local_displacements: np.nda
     initial_guess = [1.0, keypoints[:, 0].mean(), keypoints[:, 1].mean()]
 
     # Find optimal parameters (alpha, x0, y0)
-    optim = least_squares(fun=lca_global_model_residuals, x0=initial_guess, args=(keypoints, local_displacements))
+    optim = least_squares(
+        fun=lca_global_model_residuals,
+        x0=initial_guess,
+        args=(keypoints, local_displacements),
+    )
 
     return optim.x
 
 
 def to_unit_scale(dx, dy) -> Tuple[np.ndarray, np.ndarray]:
-    mag = np.sqrt(dx ** 2 + dy ** 2)
-    dx_unit = np.divide(dx, mag, out=np.zeros_like(dx, dtype=float),
-                        where=mag != 0)
-    dy_unit = np.divide(dy, mag, out=np.zeros_like(dy, dtype=float),
-                        where=mag != 0)
+    mag = np.sqrt(dx**2 + dy**2)
+    dx_unit = np.divide(dx, mag, out=np.zeros_like(dx, dtype=float), where=mag != 0)
+    dy_unit = np.divide(dy, mag, out=np.zeros_like(dy, dtype=float), where=mag != 0)
     return dx_unit, dy_unit
 
 
-def plot_keypoints_displacement(keypoints: np.ndarray,
-                                local_displacements: np.ndarray,
-                                global_params: np.ndarray,
-                                title: str,
-                                ax=plt.axes) -> None:
+def plot_keypoints_displacement(
+    keypoints: np.ndarray,
+    local_displacements: np.ndarray,
+    global_params: np.ndarray,
+    title: str,
+    ax=plt.axes,
+) -> None:
     """
     Plots estimated displacement vectors for a given image at each given keypoint.
 
@@ -291,22 +336,40 @@ def plot_keypoints_displacement(keypoints: np.ndarray,
     """
     # Plot local displacements
     dx, dy = to_unit_scale(local_displacements[:, 0], local_displacements[:, 1])
-    ax.quiver(keypoints[:, 0], keypoints[:, 1], dx, dy,
-              color='red', label='Local Displacement', scale_units='xy')
+    ax.quiver(
+        keypoints[:, 0],
+        keypoints[:, 1],
+        dx,
+        dy,
+        color="red",
+        label="Local Displacement",
+        scale_units="xy",
+    )
 
     # Plot global diplacements
     alpha, x0, y0 = global_params
-    global_v_map = alpha * (keypoints - np.array([x0, y0])) + np.array([x0, y0]) - keypoints
+    global_v_map = (
+        alpha * (keypoints - np.array([x0, y0])) + np.array([x0, y0]) - keypoints
+    )
     dx, dy = to_unit_scale(global_v_map[:, 0], global_v_map[:, 1])
-    ax.quiver(keypoints[:, 0], keypoints[:, 1], dx, dy,
-              color='green', label='Global Displacement', scale_units='xy')
+    ax.quiver(
+        keypoints[:, 0],
+        keypoints[:, 1],
+        dx,
+        dy,
+        color="green",
+        label="Global Displacement",
+        scale_units="xy",
+    )
 
     # Plot layout
     ax.set_title(title)
-    ax.axis('off')
+    ax.axis("off")
 
 
-def plot_vector_field(img: np.ndarray, params: np.ndarray, title: str, ax=plt.axes) -> None:
+def plot_vector_field(
+    img: np.ndarray, params: np.ndarray, title: str, ax=plt.axes
+) -> None:
     """
     Plots a vector field for a given image and set of parameters.
 
@@ -325,19 +388,21 @@ def plot_vector_field(img: np.ndarray, params: np.ndarray, title: str, ax=plt.ax
     dx, dy = to_unit_scale(xw, yw)
 
     # Plot vector field
-    ax.quiver(x, y, dx, dy, color='green', scale_units='xy')
+    ax.quiver(x, y, dx, dy, color="green", scale_units="xy")
 
     # Plot layout
     ax.set_title(title)
     ax.set_aspect(np.diff(ax.get_xlim())[0] / np.diff(ax.get_ylim())[0])
 
 
-def visualize_estimated_chromatic_aberration(img: np.ndarray,
-                                             local_rg: np.ndarray,
-                                             local_bg: np.ndarray,
-                                             global_rg: np.ndarray,
-                                             global_bg: np.ndarray,
-                                             keypoints: np.ndarray) -> None:
+def visualize_estimated_chromatic_aberration(
+    img: np.ndarray,
+    local_rg: np.ndarray,
+    local_bg: np.ndarray,
+    global_rg: np.ndarray,
+    global_bg: np.ndarray,
+    keypoints: np.ndarray,
+) -> None:
     """
     Plots a figure with the following subplots:
     1. Estimated global aberration vector field for red/green displacement.
@@ -357,42 +422,54 @@ def visualize_estimated_chromatic_aberration(img: np.ndarray,
     fig, axs = plt.subplots(1, 5, figsize=(50, 10))
 
     # Plot global red/green displacement
-    plot_vector_field(img, global_rg,
-                      title='Red/Green estimated global displacement (unit scale)',
-                      ax=axs[0])
+    plot_vector_field(
+        img,
+        global_rg,
+        title="Red/Green estimated global displacement (unit scale)",
+        ax=axs[0],
+    )
 
     # Plot global blue/green displacement
-    plot_vector_field(img, global_bg,
-                      title='Blue/Green estimated global displacement (unit scale)',
-                      ax=axs[1])
+    plot_vector_field(
+        img,
+        global_bg,
+        title="Blue/Green estimated global displacement (unit scale)",
+        ax=axs[1],
+    )
 
     # Plot keypoints
     axs[2].imshow(img)
-    axs[2].scatter(keypoints[:, 0], keypoints[:, 1], color='blue')
-    axs[2].set_title('Selected Keypoints for Local Estimates')
-    axs[2].axis('off')
+    axs[2].scatter(keypoints[:, 0], keypoints[:, 1], color="blue")
+    axs[2].set_title("Selected Keypoints for Local Estimates")
+    axs[2].axis("off")
 
     # Plot estimated red/green global and local displacement for keypoints
-    plot_keypoints_displacement(keypoints,
-                                local_rg,
-                                global_rg,
-                                title='Red/Green displacement (unit scale)',
-                                ax=axs[3])
+    plot_keypoints_displacement(
+        keypoints,
+        local_rg,
+        global_rg,
+        title="Red/Green displacement (unit scale)",
+        ax=axs[3],
+    )
 
     # Plot estimated blue/green global and local displacement for keypoints
-    plot_keypoints_displacement(keypoints,
-                                local_bg,
-                                global_bg,
-                                title='Blue/Green displacement (unit scale)',
-                                ax=axs[4])
+    plot_keypoints_displacement(
+        keypoints,
+        local_bg,
+        global_bg,
+        title="Blue/Green displacement (unit scale)",
+        ax=axs[4],
+    )
 
     # Show figure
-    plt.legend(loc='upper right', bbox_to_anchor=(1.5, 0.5))
-    plt.axis('equal')
+    plt.legend(loc="upper right", bbox_to_anchor=(1.5, 0.5))
+    plt.axis("equal")
     plt.show()
 
 
-def simulate_lateral_chromatic_aberration(image: np.ndarray, alpha: float, center: Tuple[int, int]=None) -> np.ndarray:
+def simulate_lateral_chromatic_aberration(
+    image: np.ndarray, alpha: float, center: Tuple[int, int] = None
+) -> np.ndarray:
     """
     Simulates lateral chromatic aberration by radially shifting red and blue channels outward.
 
@@ -416,7 +493,7 @@ def simulate_lateral_chromatic_aberration(image: np.ndarray, alpha: float, cente
 
     # According to the paper's model:
     # d(r, theta) = alpha * (r - zeta) + zeta - r = (alpha - 1) * (r - zeta)
-    delta = (r - zeta)
+    delta = r - zeta
     disp = (alpha - 1.0) * delta
 
     # Red channel: outward shift (by +disp)
@@ -429,8 +506,20 @@ def simulate_lateral_chromatic_aberration(image: np.ndarray, alpha: float, cente
 
     # Warp red and blue channels
     red, green, blue = cv2.split(image)
-    red_shifted = cv2.remap(red, map_x_r, map_y_r, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
-    blue_shifted = cv2.remap(blue, map_x_b, map_y_b, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT)
+    red_shifted = cv2.remap(
+        red,
+        map_x_r,
+        map_y_r,
+        interpolation=cv2.INTER_LINEAR,
+        borderMode=cv2.BORDER_REFLECT,
+    )
+    blue_shifted = cv2.remap(
+        blue,
+        map_x_b,
+        map_y_b,
+        interpolation=cv2.INTER_LINEAR,
+        borderMode=cv2.BORDER_REFLECT,
+    )
 
     # Combine warped channels with unchanged green channel
     result = cv2.merge([red_shifted, green, blue_shifted])

@@ -23,13 +23,14 @@ class Prediction:
         performance or provide additional functionality.
     """
 
-    def __init__(self,
-                 classification: Mapping[str, float] = None,
-                 embedding: Sequence[float] = None,
-                 text: str = None,
-                 image: np.ndarray = None,
-                 meta: MutableMapping[str, Any] = None):
-
+    def __init__(
+        self,
+        classification: Mapping[str, float] = None,
+        embedding: Sequence[float] = None,
+        text: str = None,
+        image: np.ndarray = None,
+        meta: MutableMapping[str, Any] = None,
+    ):
         #: A mapping of class labels to the corresponding confidence scores as
         #: predicted by the model
         self.classification: Mapping[str, float] = classification
@@ -62,12 +63,11 @@ class Prediction:
         highest classification confidence.
         """
         if not self.classification:
-            raise ValueError("Can't return a confidence score "
-                             "without classification")
+            raise ValueError("Can't return a confidence score without classification")
         return self.classification[self.label]
 
     def is_close(self, other: "Prediction", epsilon: float) -> bool:
-        """ Returns whether the other Prediction is close to the current
+        """Returns whether the other Prediction is close to the current
         Prediction with a given epsilon as the allowed margin
 
         :param other: The other Prediction to compare to
@@ -75,42 +75,43 @@ class Prediction:
         considered close
 
         """
-        return self._compare_classification(other.classification, epsilon) \
-            and self._compare_embedding(other.embedding, epsilon) \
-            and self.text == other.text \
+        return (
+            self._compare_classification(other.classification, epsilon)
+            and self._compare_embedding(other.embedding, epsilon)
+            and self.text == other.text
             and np.array_equal(self.image, other.image)
+        )
 
     def __hash__(self):
-        return hash((self.classification, self.embedding, self.text, str(self.image), str(self.meta)))
+        return hash(
+            (
+                self.classification,
+                self.embedding,
+                self.text,
+                str(self.image),
+                str(self.meta),
+            )
+        )
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, self.__class__) \
-            and self.is_close(other, epsilon=0.)
-
-    def __hash__(self):
-        return hash((
-            tuple(self.classification.items()) if self.classification else (),
-            tuple(self.embedding) if self.embedding else (),
-            self.text,
-            self.image.tobytes() if self.image is not None else None,
-        ))
+        return isinstance(other, self.__class__) and self.is_close(other, epsilon=0.0)
 
     def __str__(self) -> str:
-        return f"Prediction(" \
-               f"classification={self.classification}, " \
-               f"embedding={self.embedding}, " \
-               f"text={self.text}, " \
-               f"image={self.image}, " \
-               f"meta={self.meta}" \
-               f")"
+        return (
+            f"Prediction("
+            f"classification={self.classification}, "
+            f"embedding={self.embedding}, "
+            f"text={self.text}, "
+            f"image={self.image}, "
+            f"meta={self.meta}"
+            f")"
+        )
 
     def __repr__(self) -> str:
         return str(self)
 
     def _compare_classification(
-            self,
-            classification: Optional[Mapping[str, float]],
-            epsilon: float
+        self, classification: Optional[Mapping[str, float]], epsilon: float
     ) -> bool:
         if self.classification is None and classification is None:
             return True
@@ -127,9 +128,7 @@ class Prediction:
         return True
 
     def _compare_embedding(
-            self,
-            embedding: Optional[Sequence[float]],
-            epsilon: float
+        self, embedding: Optional[Sequence[float]], epsilon: float
     ) -> bool:
         if self.embedding is None and embedding is None:
             return True

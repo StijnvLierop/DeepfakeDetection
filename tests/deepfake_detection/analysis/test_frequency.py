@@ -5,9 +5,13 @@ from deepfake_detection.analysis.frequency import fft
 
 @pytest.fixture
 def sample_image():
-    return np.array([[[10, 20, 30], [40, 50, 60], [70, 80, 90]],
-                     [[10, 20, 30], [40, 50, 60], [70, 80, 90]],
-                     [[10, 20, 30], [40, 50, 60], [70, 80, 90]]])
+    return np.array(
+        [
+            [[10, 20, 30], [40, 50, 60], [70, 80, 90]],
+            [[10, 20, 30], [40, 50, 60], [70, 80, 90]],
+            [[10, 20, 30], [40, 50, 60], [70, 80, 90]],
+        ]
+    )
 
 
 def test_fft_handles_2d_image(sample_image):
@@ -23,4 +27,6 @@ def test_fft_handles_3d_image(sample_image):
 def test_fft_zero_image():
     zero_image = np.zeros((5, 5))
     result = fft(zero_image)
-    assert np.all(result == -np.inf)  # FFT magnitude on zeros should result in -inf (log(0) behavior).
+    assert np.all(
+        result == -np.inf
+    )  # FFT magnitude on zeros should result in -inf (log(0) behavior).

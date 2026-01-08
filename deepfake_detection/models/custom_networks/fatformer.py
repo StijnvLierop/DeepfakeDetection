@@ -26,18 +26,25 @@ class TextEncoder(nn.Module):
 
         # x.shape = [batch_size, n_ctx, transformer.width]
         # take features from the eot embedding (eot_token is the highest number in each sequence)
-        x = x[torch.arange(x.shape[0]), tokenized_prompts.argmax(dim=-1)] @ self.text_projection
+        x = (
+            x[torch.arange(x.shape[0]), tokenized_prompts.argmax(dim=-1)]
+            @ self.text_projection
+        )
 
         return x
 
 
 class LanguageGuidedAlignment(nn.Module):
-    def __init__(self, clip_model, classnames=["real", "synthetic"], args={'num_context_embedding': 8,
-                                                                           'init_context_embedding': ""}):
+    def __init__(
+        self,
+        clip_model,
+        classnames=["real", "synthetic"],
+        args={"num_context_embedding": 8, "init_context_embedding": ""},
+    ):
         super().__init__()
         n_cls = len(classnames)
-        n_ctx = args['num_context_embedding']
-        ctx_init = args['init_context_embedding']
+        n_ctx = args["num_context_embedding"]
+        ctx_init = args["init_context_embedding"]
         dtype = clip_model.dtype
         ctx_dim = clip_model.ln_final.weight.shape[0]
 
@@ -65,7 +72,9 @@ class LanguageGuidedAlignment(nn.Module):
         name_lens = [len(_tokenizer.encode(name)) for name in classnames]
         prompts = [prompt_prefix + " " + name + "." for name in classnames]
 
-        tokenized_prompts = torch.cat([clip.tokenize(p) for p in prompts])  # (n_cls, n_tkn)
+        tokenized_prompts = torch.cat(
+            [clip.tokenize(p) for p in prompts]
+        )  # (n_cls, n_tkn)
         with torch.no_grad():
             embedding = clip_model.token_embedding(tokenized_prompts).type(dtype)
 
@@ -79,7 +88,7 @@ class LanguageGuidedAlignment(nn.Module):
         self.n_ctx = n_ctx
         self.tokenized_prompts = tokenized_prompts  # torch.Tensor
         self.name_lens = name_lens
-        
+
         # patch-basaed enhancer in LGA
         d_model = clip_model.ln_final.weight.shape[0]
         d_ffn = d_model * 4
@@ -96,7 +105,7 @@ class LanguageGuidedAlignment(nn.Module):
         tgt = tgt + tgt2
         tgt = self.norm2(tgt)
         return tgt
-    
+
     def construct_prompts(self, ctx, prefix, suffix, label=None):
         # dim0 is either batch_size (during training) or n_cls (during testing)
         # ctx: context tokens, with shape of (dim0, n_ctx, ctx_dim)
@@ -110,7 +119,7 @@ class LanguageGuidedAlignment(nn.Module):
         prompts = torch.cat(
             [
                 prefix,  # (dim0, 1, dim)
-                ctx,     # (dim0, n_ctx, dim)
+                ctx,  # (dim0, n_ctx, dim)
                 suffix,  # (dim0, *, dim)
             ],
             dim=1,
@@ -121,48 +130,61 @@ class LanguageGuidedAlignment(nn.Module):
     def forward(self, im_features):
         prefix = self.token_prefix
         suffix = self.token_suffix
-        ctx = self.ctx                     # (n_ctx, ctx_dim)
+        ctx = self.ctx  # (n_ctx, ctx_dim)
 
         # patch-basaed enhancer
         tgt = ctx[:, None].repeat_interleave(im_features.shape[0], dim=1)
-        tgt2 = self.patch_basaed_enhancer(tgt, im_features.transpose(0, 1), im_features.transpose(0, 1))[0]
+        tgt2 = self.patch_basaed_enhancer(
+            tgt, im_features.transpose(0, 1), im_features.transpose(0, 1)
+        )[0]
         tgt = tgt + tgt2
         tgt = self.norm1(tgt)
         tgt = self.forward_FFN(tgt)
 
         ctx_shifted = tgt.transpose(0, 1)
-        
+
         # Use instance-conditioned context tokens for all classes
         prompts = []
         for ctx_shifted_i in ctx_shifted:
             ctx_i = ctx_shifted_i.unsqueeze(0).expand(self.n_cls, -1, -1)
-            pts_i = self.construct_prompts(ctx_i, prefix, suffix)  # (n_cls, n_tkn, ctx_dim)
+            pts_i = self.construct_prompts(
+                ctx_i, prefix, suffix
+            )  # (n_cls, n_tkn, ctx_dim)
             prompts.append(pts_i)
         prompts = torch.stack(prompts)
-        
+
         return prompts
 
 
 class CLIPModel(nn.Module):
-    def __init__(self, name, args={'num_context_embedding': 8,
-                                   'init_context_embedding': "",
-                                   'num_classes': 2}):
+    def __init__(
+        self,
+        name,
+        args={
+            "num_context_embedding": 8,
+            "init_context_embedding": "",
+            "num_classes": 2,
+        },
+    ):
         super(CLIPModel, self).__init__()
-        
+
         # init backbone with forgery-aware adapter
-        self.clip_model = clip.load(name, device="cpu")[0] # self.preprecess will not be used during training, which is handled in Dataset class
+        self.clip_model = clip.load(
+            name, device="cpu"
+        )[
+            0
+        ]  # self.preprecess will not be used during training, which is handled in Dataset class
         # init language guided alignment
-        self.language_guided_alignment = LanguageGuidedAlignment(self.clip_model,
-                                                                 classnames=["real", "fake"],
-                                                                 args=args
-                                                                 )
-        
+        self.language_guided_alignment = LanguageGuidedAlignment(
+            self.clip_model, classnames=["real", "fake"], args=args
+        )
+
         self.tokenized_prompts = self.language_guided_alignment.tokenized_prompts
         self.image_encoder = self.clip_model.visual
         self.text_encoder = TextEncoder(self.clip_model)
         self.logit_scale = self.clip_model.logit_scale
         self.dtype = self.clip_model.dtype
-        self.num_classes = args['num_classes']
+        self.num_classes = args["num_classes"]
 
         # text-guided interactor in LGA
         d_model = self.clip_model.ln_final.weight.shape[0]
@@ -187,27 +209,31 @@ class CLIPModel(nn.Module):
 
         # Get full image features
         features = {}
+
         def get_features(name):
             def hook(model, input, output):
                 features[name] = output.detach()
+
             return hook
 
-        self.image_encoder.ln_pre.register_forward_hook(get_features('full_tokens'))
+        self.image_encoder.ln_pre.register_forward_hook(get_features("full_tokens"))
         _ = self.image_encoder(image.to(self.image_encoder.conv1.weight.dtype))
-        image_features = features['full_tokens']
+        image_features = features["full_tokens"]
         image_features = self.image_encoder.ln_post(image_features)
         image_features = image_features @ self.image_encoder.proj
         image_features_nrom = image_features / image_features.norm(dim=-1, keepdim=True)
 
         prompts = self.language_guided_alignment(image_features)
-        
+
         # Eq.(1)
         logits = []
         text_feature_list = []
         for pts_i, imf_i in zip(prompts, image_features_nrom):
             text_features = self.text_encoder(pts_i, tokenized_prompts)
             text_feature_list.append(text_features)
-            text_features_norm = text_features / text_features.norm(dim=-1, keepdim=True)
+            text_features_norm = text_features / text_features.norm(
+                dim=-1, keepdim=True
+            )
             l_i = logit_scale * imf_i[0] @ text_features_norm.t()
             logits.append(l_i)
         logits = torch.stack(logits)
@@ -220,13 +246,15 @@ class CLIPModel(nn.Module):
         tgt = tgt + tgt2
         tgt = self.norm1(tgt)
         tgt = self.forward_FFN(tgt)
-        
+
         aug_image_features = tgt.transpose(0, 1).mean(dim=1)
-        aug_image_features = aug_image_features / aug_image_features.norm(dim=-1, keepdim=True)
+        aug_image_features = aug_image_features / aug_image_features.norm(
+            dim=-1, keepdim=True
+        )
         text_features_norm = text_features / text_features.norm(dim=-1, keepdim=True)
         aug_logits = []
         for pts_i, imf_i in zip(aug_image_features, text_features_norm.transpose(0, 1)):
             aug_logits.append(logit_scale * pts_i @ imf_i.t())
         aug_logits = torch.stack(aug_logits)
-        
+
         return logits + aug_logits

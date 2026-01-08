@@ -11,11 +11,15 @@ from deepfake_detection.models.prediction import Prediction
 
 @pytest.fixture
 def instances() -> List[Instance]:
-    return [ImageInstance(data=Image.fromarray(np.zeros(10)), annotation=Annotation(authenticity_label=a_label,
-                                                                                    source_label=c_label))
-            for (a_label, c_label) in zip(["real", "real", "real", "real", "fake", "fake", "fake", "fake"],
-                                          "AAAABBCC") # A is real, B and C are fake
-            ]
+    return [
+        ImageInstance(
+            data=Image.fromarray(np.zeros(10)),
+            annotation=Annotation(authenticity_label=a_label, source_label=c_label),
+        )
+        for (a_label, c_label) in zip(
+            ["real", "real", "real", "real", "fake", "fake", "fake", "fake"], "AAAABBCC"
+        )  # A is real, B and C are fake
+    ]
 
 
 @pytest.fixture

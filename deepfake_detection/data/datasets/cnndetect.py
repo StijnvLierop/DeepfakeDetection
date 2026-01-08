@@ -1,7 +1,11 @@
 from pathlib import Path
 from typing import List
 
-from deepfake_detection.data import MapStyleDatasetMixin, Dataset, Instance, FileImageInstance
+from deepfake_detection.data.dataset import (
+    MapStyleDatasetMixin,
+    Dataset,
+)
+from deepfake_detection.data.instance import FileImageInstance, Instance
 from deepfake_detection.data.annotation import Annotation
 
 
@@ -16,7 +20,12 @@ class CNNDetectDataset(MapStyleDatasetMixin, Dataset):
         self.path = path
 
         # Index dataset
-        self.instance_paths, self.authenticity_labels, self.source_labels, self.semantic_labels = self._index()
+        (
+            self.instance_paths,
+            self.authenticity_labels,
+            self.source_labels,
+            self.semantic_labels,
+        ) = self._index()
 
     def _index(self) -> (List[Path], List[int], List[str], List[str]):
         instance_paths = []
@@ -25,18 +34,18 @@ class CNNDetectDataset(MapStyleDatasetMixin, Dataset):
         semantic_labels = []  # New list for semantic classes
 
         root = Path(self.path)
-        extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.webp'}
+        extensions = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
-        for img_path in root.rglob('*'):
+        for img_path in root.rglob("*"):
             if img_path.suffix.lower() in extensions:
                 parent_name = img_path.parent.name
 
-                if parent_name in ['0_real', '1_fake']:
+                if parent_name in ["0_real", "1_fake"]:
                     # Get path parts relative to root
                     parts = img_path.relative_to(root).parts
 
                     source = parts[0]
-                    auth_label = parent_name.split('_')[1]
+                    auth_label = parent_name.split("_")[1]
 
                     # Logic for semantic label
                     if len(parts) == 4:
@@ -61,11 +70,13 @@ class CNNDetectDataset(MapStyleDatasetMixin, Dataset):
         semantic_label = self.semantic_labels[idx]
 
         # Return instance
-        return FileImageInstance(str(path),
-                                 Annotation(authenticity_label=authenticity_label,
-                                            source_label=source_label),
-                                 meta={'semantic_content': semantic_label}
-                                 )
+        return FileImageInstance(
+            str(path),
+            Annotation(
+                authenticity_label=authenticity_label, source_label=source_label
+            ),
+            meta={"semantic_content": semantic_label},
+        )
 
     def __len__(self):
         return len(self.instance_paths)

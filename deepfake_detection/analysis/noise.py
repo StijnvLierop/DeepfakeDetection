@@ -4,7 +4,7 @@ from PIL import ImageFilter, Image
 import itertools
 
 
-def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
+def noise_residual(img: np.array, image_filter: str = "median") -> np.ndarray:
     """
     This function calculates the noise residual of a given image.
 
@@ -15,12 +15,16 @@ def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
     :return: A numpy array containing the noise residual.
     """
     # Apply filter to get denoised image
-    if image_filter == 'median':
-        denoised_img = np.array(Image.fromarray(img).filter(ImageFilter.MedianFilter()), dtype=np.float32)
-    elif image_filter == 'laplace':
+    if image_filter == "median":
+        denoised_img = np.array(
+            Image.fromarray(img).filter(ImageFilter.MedianFilter()), dtype=np.float32
+        )
+    elif image_filter == "laplace":
         denoised_img = scipy.ndimage.filters.laplace(np.array(img, dtype=np.float32))
     else:
-        raise ValueError("Invalid filter. Must be one of: 'median', 'laplace' or 'dncnn'.")
+        raise ValueError(
+            "Invalid filter. Must be one of: 'median', 'laplace' or 'dncnn'."
+        )
 
     # Calculate noise residual
     residual = denoised_img - img
@@ -28,8 +32,9 @@ def noise_residual(img: np.array, image_filter: str='median') -> np.ndarray:
     return residual
 
 
-def channel_noise_imbalance_ratio(img: np.ndarray,
-                                  image_filter: str='median') -> float:
+def channel_noise_imbalance_ratio(
+    img: np.ndarray, image_filter: str = "median"
+) -> float:
     """
     This function calculates the channel noise imbalance ratio (CNIR) for a given image.
     The CNIR quantifies the balance between the noise in different image channels. This balance might deviate
@@ -43,8 +48,10 @@ def channel_noise_imbalance_ratio(img: np.ndarray,
     """
     # Ensure the image has a channel dimension
     if img.ndim != 3:
-        raise ValueError("Image must have a channel dimension. "
-                         "Please ensure the provide image has shape (height, width, channels).")
+        raise ValueError(
+            "Image must have a channel dimension. "
+            "Please ensure the provide image has shape (height, width, channels)."
+        )
 
     # Calculate noise residual for each channel
     residuals = []
@@ -66,4 +73,3 @@ def channel_noise_imbalance_ratio(img: np.ndarray,
     cnir = imbalance / mu_noise
 
     return cnir
-

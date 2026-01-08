@@ -3,7 +3,8 @@ from typing import List, Union, Any, Dict
 
 import torch
 
-from deepfake_detection.data import Instance, Dataset
+from deepfake_detection.data.dataset import Dataset
+from deepfake_detection.data.instance import Instance
 from deepfake_detection.models.prediction import Prediction
 
 
@@ -19,7 +20,9 @@ class Model(ABC):
         return self.predict_batch([instance])[0]
 
     @abstractmethod
-    def predict_batch(self, instances: Union[List[Instance], Dataset]) -> List[Prediction]:
+    def predict_batch(
+        self, instances: Union[List[Instance], Dataset]
+    ) -> List[Prediction]:
         raise NotImplementedError
 
 

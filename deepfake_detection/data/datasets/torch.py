@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 from torchvision.transforms import v2
 
@@ -17,9 +16,10 @@ class TorchDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx: int):
         instance = self.dataset[idx]
-        return {'inputs': self.transforms(instance.data),
-                'label': torch.tensor(instance.annotation.binary_label, dtype=torch.uint8)
-                }
+        return {
+            "inputs": self.transforms(instance.data),
+            "label": torch.tensor(instance.annotation.binary_label, dtype=torch.uint8),
+        }
 
     def __len__(self):
         return len(self.dataset)
@@ -40,6 +40,9 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
 
     def __iter__(self):
         for instance in self.dataset:
-            yield {'inputs': self.transforms(instance.data),
-                   'label': torch.tensor(instance.annotation.binary_label, dtype=torch.int8)
-                   }
+            yield {
+                "inputs": self.transforms(instance.data),
+                "label": torch.tensor(
+                    instance.annotation.binary_label, dtype=torch.int8
+                ),
+            }

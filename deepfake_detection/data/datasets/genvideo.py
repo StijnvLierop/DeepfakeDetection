@@ -1,12 +1,10 @@
-from data import Dataset
+from deepfake_detection.data.dataset import Dataset
 
 
-class GenVideo(Dataset):
-
+class GenVideoDataset(Dataset):
     def __init__(self, path: str):
-        super().__init__(name='GenVideo')
+        super().__init__(name="GenVideo")
         self.path = path
-
 
     def __iter__(self):
         pass

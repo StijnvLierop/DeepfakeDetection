@@ -3,10 +3,9 @@ import os
 from pathlib import Path
 from typing import List
 
-from deepfake_detection.data import Instance
+from deepfake_detection.data.instance import Instance, FileImageInstance
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
-from deepfake_detection.data.instance import FileImageInstance
 
 
 class DiffusionDataset(MapStyleDatasetMixin, Dataset):
@@ -51,11 +50,21 @@ class DiffusionDataset(MapStyleDatasetMixin, Dataset):
                     # If directory
                     if os.path.isdir(os.path.join(self.path, folder, subfolder)):
                         # Loop over images
-                        for img in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                paths.append(Path(os.path.join(self.path, folder, subfolder, img)))
+                        for img in os.listdir(
+                            os.path.join(self.path, folder, subfolder)
+                        ):
+                            if img.split(".")[-1].lower() in ["jpg", "jpeg", "png"]:
+                                paths.append(
+                                    Path(
+                                        os.path.join(self.path, folder, subfolder, img)
+                                    )
+                                )
                             else:
-                                logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))
+                                logging.debug(
+                                    "Found file that is not a jpg, jpeg or png file: {}".format(
+                                        img
+                                    )
+                                )
         return paths
 
     def __getitem__(self, idx: int) -> Instance:
@@ -72,10 +81,12 @@ class DiffusionDataset(MapStyleDatasetMixin, Dataset):
             authenticity_label = "real"
 
         # Return instance
-        return FileImageInstance(str(path),
-                                 Annotation(authenticity_label=authenticity_label,
-                                            source_label=source_label)
-                                 )
+        return FileImageInstance(
+            str(path),
+            Annotation(
+                authenticity_label=authenticity_label, source_label=source_label
+            ),
+        )
 
     def __len__(self):
         return len(self.instance_paths)

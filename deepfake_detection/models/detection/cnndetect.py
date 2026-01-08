@@ -19,7 +19,14 @@ class CNNDetect(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/PeterWang512/CNNDetection/tree/master.
     """
 
-    def __init__(self, ckpt: Optional[str] = None, device: str = 'cuda', name: str = 'CNNDetect', *args, **kwargs):
+    def __init__(
+        self,
+        ckpt: Optional[str] = None,
+        device: str = "cuda",
+        name: str = "CNNDetect",
+        *args,
+        **kwargs,
+    ):
         """
         :param: ckpt: Path to the checkpoint file of the CNNDetect model.
         :param device: Device to use for inference.
@@ -39,33 +46,34 @@ class CNNDetect(TrainableMixin, Model):
 
         # Get weights
         if self.ckpt:
-
             # For loading newly trained models
             if self.ckpt.endswith(".safetensors"):
                 state_dict = load_file(self.ckpt)
 
                 # Check if keys are prefixed with "model." and remove these prefixes if present
                 if any(k.startswith("model.") for k in state_dict.keys()):
-                    state_dict = {k.replace("model.", ""): v for k, v in state_dict.items()}
+                    state_dict = {
+                        k.replace("model.", ""): v for k, v in state_dict.items()
+                    }
 
             # For loading old model files
             else:
-                state_dict = torch.load(self.ckpt,
-                                        weights_only=True,
-                                        map_location='cpu')
+                state_dict = torch.load(
+                    self.ckpt, weights_only=True, map_location="cpu"
+                )
 
             # Load weights in model
             try:
                 self.model.load_state_dict(state_dict)
-            except:
-                self.model.load_state_dict(state_dict['model'])
+            except RuntimeError:
+                self.model.load_state_dict(state_dict["model"])
 
         else:
             print("No checkpoint provided, initializing model with random weights.")
 
-    def predict_batch(self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset])\
-            -> List[Prediction]:
-
+    def predict_batch(
+        self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
+    ) -> List[Prediction]:
         # If model not yet loaded, load model
         if self.model is None:
             self.load_model()
@@ -77,18 +85,20 @@ class CNNDetect(TrainableMixin, Model):
         transform_func = self.get_input_transform_func(resize=False)
 
         # Transform instances to tensor
-        model_inputs = torch.stack([transform_func(i.data) for i in instances], dim=0).to(self.device)
+        model_inputs = torch.stack(
+            [transform_func(i.data) for i in instances], dim=0
+        ).to(self.device)
 
         # Run inference
         with torch.no_grad():
-            out = self.forward(model_inputs)['logits'].sigmoid().flatten().tolist()
+            out = self.forward(model_inputs)["logits"].sigmoid().flatten().tolist()
 
         # Transform to Prediction
-        return [Prediction(classification={'fake': o, 'real': 1 - o}) for o in out]
+        return [Prediction(classification={"fake": o, "real": 1 - o}) for o in out]
 
     def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Any:
         # Run forward pass
-        logits = self.model(inputs)['logits']
+        logits = self.model(inputs)["logits"]
 
         # If labels given, calculate loss
         loss = None
@@ -96,9 +106,7 @@ class CNNDetect(TrainableMixin, Model):
             loss = self.loss_fn(logits.view(-1), labels.float())
 
         # Return logits and (optionally) loss
-        return {'loss': loss,
-                'logits': logits}
-
+        return {"loss": loss, "logits": logits}
 
     @staticmethod
     def get_input_transform_func(resize: bool = False) -> v2.Compose:
@@ -106,12 +114,14 @@ class CNNDetect(TrainableMixin, Model):
             v2.ToImage(),
             v2.CenterCrop(224),
             v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
         if resize:
-            transforms.insert(1, v2.Resize(256,
-                                           interpolation=v2.InterpolationMode.BILINEAR,
-                                           antialias=True)
-                              )
+            transforms.insert(
+                1,
+                v2.Resize(
+                    256, interpolation=v2.InterpolationMode.BILINEAR, antialias=True
+                ),
+            )
         transforms = v2.Compose(transforms)
         return transforms

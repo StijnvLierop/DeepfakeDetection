@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from deepfake_detection.data import Dataset
+from deepfake_detection.data.dataset import Dataset
 
 
 class FilteredDataset(Dataset):

@@ -12,7 +12,7 @@ def parse_dataset_config(config_path: str):
 
     :param config_path: Path to the configuration file.
     """
-    
+
     config = confidence.loadf(config_path)
     datasets = {}
 
@@ -20,6 +20,7 @@ def parse_dataset_config(config_path: str):
         datasets[dataset_config.params.name] = load_dataset(dataset_config)
 
     return datasets
+
 
 def load_dataset(config: confidence.Configuration) -> Dataset:
     """
@@ -38,11 +39,11 @@ def load_dataset(config: confidence.Configuration) -> Dataset:
     dataset_dict = dict(config)
 
     # Find dataset class specified in config
-    dataset_class = pydoc.locate(str(dataset_dict['class']))
+    dataset_class = pydoc.locate(str(dataset_dict["class"]))
 
     # If class found, initialize dataset
     if dataset_class is not None:
-        return dataset_class(**dataset_dict['params'])
+        return dataset_class(**dataset_dict["params"])
     else:
         raise ValueError(f"Dataset class not found: {dataset_dict['class']}")
 
@@ -80,10 +81,10 @@ def load_model(config: confidence.Configuration) -> Model:
     model_dict = dict(config)
 
     # Find model class specified in config
-    model_class = pydoc.locate(str(model_dict['class']))
+    model_class = pydoc.locate(str(model_dict["class"]))
 
     # If class found, initialize dataset
     if model_class is not None:
-        return model_class(**model_dict['params'])
+        return model_class(**model_dict["params"])
     else:
         raise ValueError(f"Dataset class not found: {model_dict['class']}")

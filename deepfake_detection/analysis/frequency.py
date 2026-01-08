@@ -2,7 +2,7 @@ import numpy as np
 from skimage.filters import window
 
 
-def fft(img: np.ndarray, hamming_window: bool=False) -> np.ndarray:
+def fft(img: np.ndarray, hamming_window: bool = False) -> np.ndarray:
     """
     Performs a Fast Fourier Transform (FFT) on an image and extracts the magnitude spectrum for visualization.
 
@@ -20,10 +20,12 @@ def fft(img: np.ndarray, hamming_window: bool=False) -> np.ndarray:
         if img.ndim == 3:
             # Apply window for every channel
             for channel in range(img.shape[2]):
-                img[:, :, channel] = img[:, :, channel] * window('hamming', img.shape[:2])
+                img[:, :, channel] = img[:, :, channel] * window(
+                    "hamming", img.shape[:2]
+                )
         # If grayscale image, apply once
         else:
-            img = img * window('hamming', img.shape)
+            img = img * window("hamming", img.shape)
 
     # If array is 3D, transform so channel dimension comes first
     if img.ndim == 3:

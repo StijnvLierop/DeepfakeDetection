@@ -19,7 +19,7 @@ jobs:
 
       - name: Run Ruff Check
         # This checks for PEP 8 violations and coding errors
-        run: ruff check --output-format=full --statistics .
+        run: ruff check --output-format=full .
 
       - name: Run Ruff Format
         # This ensures the code is formatted (like Black)

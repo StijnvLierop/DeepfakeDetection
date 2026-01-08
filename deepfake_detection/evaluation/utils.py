@@ -8,9 +8,9 @@ from deepfake_detection.models.prediction import Prediction
 
 
 def get_labels(
-        instances: Sequence[Instance],
-        predictions: Sequence[Prediction],
-        label_type: str = 'authenticity_label'
+    instances: Sequence[Instance],
+    predictions: Sequence[Prediction],
+    label_type: str = "authenticity_label",
 ) -> Sequence[str]:
     """
     Returns a set of unique labels among the ground-truth annotations
@@ -30,13 +30,14 @@ def get_labels(
     return sorted(a | b)
 
 
-def to_arrays(instances: Sequence[Instance],
-              predictions: Sequence[Prediction],
-              label: str,
-              label_type: str,
-              threshold: Optional[float] = None,
-              binary: Optional[bool] = False) \
-        -> Tuple[np.ndarray, np.ndarray]:
+def to_arrays(
+    instances: Sequence[Instance],
+    predictions: Sequence[Prediction],
+    label: str,
+    label_type: str,
+    threshold: Optional[float] = None,
+    binary: Optional[bool] = False,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     This function takes a series of predictions and instances and transforms them into arrays.
 
@@ -52,19 +53,28 @@ def to_arrays(instances: Sequence[Instance],
     """
     # If a threshold is set and binary labels should be returned, return one-hot labels higher than threshold
     if threshold and binary:
-        y_pred = np.array([int(p.classification[label] >= threshold) for p in predictions])
+        y_pred = np.array(
+            [int(p.classification[label] >= threshold) for p in predictions]
+        )
 
     # Otherwise if no threshold is set and binary labels should be returned,
     # return one-hot labels of max confidence score
     elif binary:
-        y_pred = np.array([int(max(p.classification, key=p.classification.get) == label) for p in predictions])
+        y_pred = np.array(
+            [
+                int(max(p.classification, key=p.classification.get) == label)
+                for p in predictions
+            ]
+        )
 
     # Otherwise just return confidence score of selected label
     else:
         y_pred = np.array([p.classification[label] for p in predictions])
 
     # Get true labels of specified label type
-    y_true = np.array([int(label == i.annotation.get_label(label_type)) for i in instances])
+    y_true = np.array(
+        [int(label == i.annotation.get_label(label_type)) for i in instances]
+    )
 
     # Raise warnings when certain labels are not found
     if y_pred.sum() == 0:
@@ -75,7 +85,9 @@ def to_arrays(instances: Sequence[Instance],
     return y_true, y_pred
 
 
-def map_fields(init_dict: Mapping[str, float], map_dict: Mapping[str, str]) -> Mapping[str, float]:
+def map_fields(
+    init_dict: Mapping[str, float], map_dict: Mapping[str, str]
+) -> Mapping[str, float]:
     """
     Changes keys of 'init_dict' using the mapping defined in `map_dict`.
     If a key in 'init_dict' is not present in 'map_dict', it will not be changed.
@@ -97,7 +109,9 @@ def map_fields(init_dict: Mapping[str, float], map_dict: Mapping[str, str]) -> M
     return res_dict
 
 
-def find_label_type_corresponding_with_label(instances: Iterable[Instance], label: Union[str, int]) -> str:
+def find_label_type_corresponding_with_label(
+    instances: Iterable[Instance], label: Union[str, int]
+) -> str:
     """
     Determines the type of label corresponding to a given label within a list of instances.
 
@@ -108,19 +122,20 @@ def find_label_type_corresponding_with_label(instances: Iterable[Instance], labe
     """
     # Loop over instances
     for i in instances:
-
         # Check in which label type label occurs, return label type if found
         if i.annotation.authenticity_label == label:
-            return 'authenticity_label'
+            return "authenticity_label"
         elif i.annotation.source_label == label:
-            return 'source_label'
+            return "source_label"
         elif i.annotation.binary_label == label:
-            return 'binary_label'
+            return "binary_label"
 
     raise ValueError("Label not found in instances.")
 
 
-def get_label_mapping(instances: Iterable[Instance], source_label: str, target_label: str) -> Mapping[str, str]:
+def get_label_mapping(
+    instances: Iterable[Instance], source_label: str, target_label: str
+) -> Mapping[str, str]:
     """
     Returns a mapping from source labels to target labels based on the labels of the provided instances.
     If source labels occur multiple times, a random target label will be chosen for each source label.
@@ -133,22 +148,30 @@ def get_label_mapping(instances: Iterable[Instance], source_label: str, target_l
     :return: A mapping from source labels to target labels.
     """
     # Ensure source and target label parameters are valid
-    if source_label not in ['authenticity_label', 'source_label', 'binary_label']:
-        raise ValueError("Invalid source label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'.")
-    if target_label not in ['authenticity_label', 'source_label', 'binary_label']:
-        raise ValueError("Invalid target label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'.")
+    if source_label not in ["authenticity_label", "source_label", "binary_label"]:
+        raise ValueError(
+            "Invalid source label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'."
+        )
+    if target_label not in ["authenticity_label", "source_label", "binary_label"]:
+        raise ValueError(
+            "Invalid target label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'."
+        )
 
     # Create mapping
     mapping = {}
 
     # Loop over instances
     for i in instances:
-        mapping[i.annotation.get_label(source_label)] = i.annotation.get_label(target_label)
+        mapping[i.annotation.get_label(source_label)] = i.annotation.get_label(
+            target_label
+        )
 
     return mapping
 
 
-def transform_prediction(prediction: Prediction, label_mapping: Mapping[str, str]) -> Prediction:
+def transform_prediction(
+    prediction: Prediction, label_mapping: Mapping[str, str]
+) -> Prediction:
     """
     Transforms the classification attribute of prediction by replacing the source labels with the target labels.
     The values of the target labels with multiple source labels will be summed.

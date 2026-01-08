@@ -12,10 +12,10 @@ def ela(path: str) -> Image:
     tmp_savename = tempfile.NamedTemporaryFile(delete=True).name
 
     # Open image
-    img = Image.open(path).convert('RGB')
+    img = Image.open(path).convert("RGB")
 
     # Save compressed image
-    img.save(tmp_savename, 'JPEG', quality=95)
+    img.save(tmp_savename, "JPEG", quality=95)
 
     # Open compressed image
     resaved_im = Image.open(tmp_savename)
@@ -26,7 +26,7 @@ def ela(path: str) -> Image:
     # Get maximum pixels and calculate ela brightness scale
     extrema = ela_im.getextrema()
     max_diff = max([ex[1] for ex in extrema])
-    scale = 255.0/max_diff
+    scale = 255.0 / max_diff
 
     # Enhance difference image with given scale
     ela_im = ImageEnhance.Brightness(ela_im).enhance(scale)

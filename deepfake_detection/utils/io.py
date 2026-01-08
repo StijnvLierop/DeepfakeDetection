@@ -8,7 +8,9 @@ import numpy as np
 from deepfake_detection.models.prediction import Prediction
 
 
-def write_predictions_to_file(predictions: Sequence[Prediction], filepath: Path) -> None:
+def write_predictions_to_file(
+    predictions: Sequence[Prediction], filepath: Path
+) -> None:
     """
     This function writes a set of predictions corresponding to a given dataset to a .json file.
 
@@ -24,7 +26,7 @@ def write_predictions_to_file(predictions: Sequence[Prediction], filepath: Path)
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
     # Write predictions to file
-    with open(filepath, 'w') as outfile:
+    with open(filepath, "w") as outfile:
         outfile.write(json.dumps(encoded_predictions))
 
 
@@ -43,6 +45,7 @@ def encode_prediction(obj: Prediction) -> Dict[str, Any]:
         "meta": encode_meta(obj.meta),
     }
 
+
 @staticmethod
 def encode_meta(meta: Mapping[str, Any]) -> Mapping[str, Any]:
     """
@@ -59,8 +62,7 @@ def encode_meta(meta: Mapping[str, Any]) -> Mapping[str, Any]:
             return attr, jsonify(meta[attr])
         except TypeError:
             warnings.warn(
-                f"Skipping meta attribute '{attr}' because it cannot be "
-                f"serialized"
+                f"Skipping meta attribute '{attr}' because it cannot be serialized"
             )
             return None
 
@@ -80,7 +82,7 @@ def decode_prediction(obj: Mapping[str, Any]) -> Prediction:
         embedding=obj["embedding"],
         text=obj["text"],
         image=image,
-        meta=obj.get("meta")
+        meta=obj.get("meta"),
     )
 
 
@@ -90,7 +92,7 @@ def read_predictions_from_file(predictions_path: str) -> Sequence[Prediction]:
 
     :param predictions_path: The path to the file where the predictions are stored.
     """
-    with open(predictions_path, 'r') as infile:
+    with open(predictions_path, "r") as infile:
         return [decode_prediction(p) for p in json.load(infile)]
 
 
@@ -114,9 +116,7 @@ def jsonify(obj: Any) -> Any:
 
     # We recursively serialize all public items in a mapping.
     if isinstance(obj, Mapping):
-        return {
-            k: jsonify(v) for k, v in obj.items() if not k.startswith('_')
-        }
+        return {k: jsonify(v) for k, v in obj.items() if not k.startswith("_")}
 
     # We recursively serialize any items in a `Sequence`. Any cases where `obj`
     # is a `Sequence` but should not be handled as such (e.g. `str`) should
@@ -125,7 +125,7 @@ def jsonify(obj: Any) -> Any:
         return list(map(jsonify, obj))
 
     # If we're dealing with an object, we serialize its attributes.
-    if hasattr(obj, '__dict__'):
+    if hasattr(obj, "__dict__"):
         return jsonify(vars(obj))
 
     # For all other cases, we check whether `json.dumps()` accepts `obj`.
