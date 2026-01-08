@@ -7,7 +7,8 @@ import torch
 from transformers import CLIPTokenizer, CLIPTextModel
 from diffusers import AutoencoderKL, UNet2DConditionModel, DDPMScheduler
 
-from deepfake_detection.data import Dataset, ImageInstance, FileImageInstance
+from deepfake_detection.data.instance import FileImageInstance, ImageInstance
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Model, Prediction
 from deepfake_detection.models.custom_networks.latte import LatentTrajectoryClassifier
 
