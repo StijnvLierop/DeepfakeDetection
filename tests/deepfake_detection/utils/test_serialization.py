@@ -2,9 +2,6 @@ import json
 
 from deepfake_detection.utils.serialization import InstanceDecoder, InstanceEncoder
 
-from tests.deepfake_detection.fixtures import (file_image_instance, image_instance,
-                                               file_video_instance, file_image_sequence_instance)
-
 
 def test_encode_decode_file_image_instance(file_image_instance):
     encoded = json.dumps(file_image_instance, cls=InstanceEncoder)

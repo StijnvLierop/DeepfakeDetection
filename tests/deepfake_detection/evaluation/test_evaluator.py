@@ -10,8 +10,6 @@ from sklearn.metrics import (
 
 from deepfake_detection.evaluation.evaluator import Evaluator, EvaluationResult
 
-from tests.deepfake_detection.evaluation.config import instances, authenticity_predictions
-
 
 def test_init(instances, authenticity_predictions):
     evaluator = Evaluator(instances, authenticity_predictions)

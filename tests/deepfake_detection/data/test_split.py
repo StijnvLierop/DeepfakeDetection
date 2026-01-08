@@ -3,8 +3,6 @@ import collections
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.utils import split_dataset
 
-from tests.deepfake_detection.fixtures import dummy_dataset
-
 
 def test_split_dataset_size(dummy_dataset: Dataset):
     train_set, test_set = split_dataset(dummy_dataset, test_size=0.2, random_state=42)

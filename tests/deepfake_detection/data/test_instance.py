@@ -1,8 +1,6 @@
 import os
 import pytest
 
-from tests.deepfake_detection.fixtures import image_instance, file_image_instance, file_image_sequence_instance
-
 
 def test_save_raises_error_with_invalid_path_image(image_instance):
     with pytest.raises(ValueError):

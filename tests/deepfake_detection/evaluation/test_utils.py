@@ -11,8 +11,6 @@ from deepfake_detection.evaluation.utils import (
 )
 from deepfake_detection.models import Prediction
 
-from tests.deepfake_detection.evaluation.config import instances, source_predictions
-
 
 @pytest.fixture
 def dummy_prediction():

@@ -4,8 +4,6 @@ import pytest
 from deepfake_detection.data.datasets import (ListDataset, FileImageSequenceDataset, FileImageDataset,
                                               FileVideoDataset, FilteredDataset)
 from tests.deepfake_detection.paths import RESOURCES_DIR
-from tests.deepfake_detection.fixtures import (image_dataset_path, image_sequence_dataset_path,
-                                               video_dataset_path, dummy_dataset)
 
 
 @pytest.fixture

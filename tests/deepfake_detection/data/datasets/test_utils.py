@@ -4,8 +4,6 @@ import pytest
 
 from deepfake_detection.data.utils import sample_n_per_class
 
-from tests.deepfake_detection.fixtures import dummy_dataset
-
 
 def test_sample_n_per_class(dummy_dataset):
     filtered_dataset = sample_n_per_class(dummy_dataset, n=2)

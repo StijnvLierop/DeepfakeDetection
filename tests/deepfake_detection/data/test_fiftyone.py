@@ -7,8 +7,6 @@ from fiftyone.core.dataset import Dataset as FoDataset
 
 from deepfake_detection.models import Prediction
 
-from tests.deepfake_detection.fixtures import image_dataset_path
-
 
 def test_to_fiftyone_dataset_paths_available_without_predictions(image_dataset_path):
     image_dataset = FileImageDataset(image_dataset_path)
