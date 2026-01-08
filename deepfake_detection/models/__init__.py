@@ -1,2 +1,2 @@
-from deepfake_detection.models.model import Model
-from deepfake_detection.models.prediction import Prediction
+from deepfake_detection.models.model import Model as Model
+from deepfake_detection.models.prediction import Prediction as Prediction

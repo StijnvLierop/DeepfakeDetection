@@ -1,26 +1,24 @@
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 from torch.nn import functional as F
-from typing import Any, cast, Dict, List, Optional, Union
-import numpy as np
 
-__all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152']
+__all__ = ["ResNet", "resnet18", "resnet34", "resnet50", "resnet101", "resnet152"]
 
 
 model_urls = {
-    'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
-    'resnet34': 'https://download.pytorch.org/models/resnet34-333f7ec4.pth',
-    'resnet50': 'https://download.pytorch.org/models/resnet50-19c8e357.pth',
-    'resnet101': 'https://download.pytorch.org/models/resnet101-5d3b4d8f.pth',
-    'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
+    "resnet18": "https://download.pytorch.org/models/resnet18-5c106cde.pth",
+    "resnet34": "https://download.pytorch.org/models/resnet34-333f7ec4.pth",
+    "resnet50": "https://download.pytorch.org/models/resnet50-19c8e357.pth",
+    "resnet101": "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth",
+    "resnet152": "https://download.pytorch.org/models/resnet152-b121ed2d.pth",
 }
 
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(
+        in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False
+    )
 
 
 def conv1x1(in_planes, out_planes, stride=1):
@@ -99,20 +97,22 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-
     def __init__(self, block, layers, num_classes=1, zero_init_residual=False):
         super(ResNet, self).__init__()
 
         self.unfoldSize = 2
         self.unfoldIndex = 0
         assert self.unfoldSize > 1
-        assert -1 < self.unfoldIndex and self.unfoldIndex < self.unfoldSize*self.unfoldSize
+        assert (
+            -1 < self.unfoldIndex
+            and self.unfoldIndex < self.unfoldSize * self.unfoldSize
+        )
         self.inplanes = 64
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=2, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64 , layers[0])
+        self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         # self.fc1 = nn.Linear(512 * block.expansion, 1)
@@ -120,7 +120,7 @@ class ResNet(nn.Module):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -150,8 +150,17 @@ class ResNet(nn.Module):
             layers.append(block(self.inplanes, planes))
 
         return nn.Sequential(*layers)
+
     def interpolate(self, img, factor):
-        return F.interpolate(F.interpolate(img, scale_factor=factor, mode='nearest', recompute_scale_factor=True), scale_factor=1/factor, mode='nearest', recompute_scale_factor=True)
+        return F.interpolate(
+            F.interpolate(
+                img, scale_factor=factor, mode="nearest", recompute_scale_factor=True
+            ),
+            scale_factor=1 / factor,
+            mode="nearest",
+            recompute_scale_factor=True,
+        )
+
     def forward(self, x):
         # n,c,w,h = x.shape
         # if -1*w%2 != 0: x = x[:,:,:w%2*-1,:      ]
@@ -163,9 +172,9 @@ class ResNet(nn.Module):
         # n,c,w,h = x.shape
         # if w%2 == 1 : x = x[:,:,:-1,:]
         # if h%2 == 1 : x = x[:,:,:,:-1]
-        NPR  = x - self.interpolate(x, 0.5)
+        NPR = x - self.interpolate(x, 0.5)
 
-        x = self.conv1(NPR*2.0/3.0)
+        x = self.conv1(NPR * 2.0 / 3.0)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
@@ -187,7 +196,7 @@ def resnet18(pretrained=False, **kwargs):
     """
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+        model.load_state_dict(model_zoo.load_url(model_urls["resnet18"]))
     return model
 
 
@@ -198,7 +207,7 @@ def resnet34(pretrained=False, **kwargs):
     """
     model = ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet34']))
+        model.load_state_dict(model_zoo.load_url(model_urls["resnet34"]))
     return model
 
 
@@ -209,7 +218,7 @@ def resnet50(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
+        model.load_state_dict(model_zoo.load_url(model_urls["resnet50"]))
     return model
 
 
@@ -220,7 +229,7 @@ def resnet101(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet101']))
+        model.load_state_dict(model_zoo.load_url(model_urls["resnet101"]))
     return model
 
 
@@ -231,5 +240,5 @@ def resnet152(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet152']))
+        model.load_state_dict(model_zoo.load_url(model_urls["resnet152"]))
     return model

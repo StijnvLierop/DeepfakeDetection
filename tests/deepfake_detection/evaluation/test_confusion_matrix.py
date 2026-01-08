@@ -4,12 +4,11 @@ import numpy as np
 import pytest
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.instance import Instance
-from deepfake_detection.evaluation.confusion_matrix import confusion_matrix, plot_confusion_matrix
+from deepfake_detection.evaluation.confusion_matrix import confusion_matrix
 from deepfake_detection.models.prediction import Prediction
 
 
 class MockInstance(Instance):
-
     def save(self, path: Path) -> Path:
         pass
 
@@ -43,7 +42,9 @@ def test_confusion_matrix(test_instances):
 
 def test_confusion_matrix_mismatched_lengths(test_instances):
     predictions = [Prediction(classification={"fake": 0.9, "real": 0.1})]
-    with pytest.raises(ValueError, match="Predictions and instances must have the same length."):
+    with pytest.raises(
+        ValueError, match="Predictions and instances must have the same length."
+    ):
         confusion_matrix(test_instances, predictions, "authenticity_label")
 
 

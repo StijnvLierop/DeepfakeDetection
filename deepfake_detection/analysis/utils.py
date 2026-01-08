@@ -4,12 +4,14 @@ from typing import Sequence, Union, Callable
 import numpy as np
 from tqdm import tqdm
 
-from deepfake_detection.data import FileImageInstance, ImageInstance
+from deepfake_detection.data.instance import FileImageInstance, ImageInstance
 
 
-def average_over_images(instances: Sequence[Union[ImageInstance, FileImageInstance]],
-                        func: Callable[..., np.ndarray],
-                        verbose: bool=False) -> np.ndarray:
+def average_over_images(
+    instances: Sequence[Union[ImageInstance, FileImageInstance]],
+    func: Callable[..., np.ndarray],
+    verbose: bool = False,
+) -> np.ndarray:
     """
     This function processes a sequence of image instances, applies a specified function on the image data, and computes
     the average result. It ensures that the images are cropped to the smallest dimensions (width and height) present in
@@ -32,11 +34,16 @@ def average_over_images(instances: Sequence[Union[ImageInstance, FileImageInstan
 
     # Take the mean result of all processed instances
     result = np.mean(
-        [centercrop(func(np.array(i.data)),
-                    min_width=min_width,
-                    min_height=min_height) for i in
-         (tqdm(instances, desc="Processing images") if verbose else instances)],
-        axis=0)
+        [
+            centercrop(
+                func(np.array(i.data)), min_width=min_width, min_height=min_height
+            )
+            for i in (
+                tqdm(instances, desc="Processing images") if verbose else instances
+            )
+        ],
+        axis=0,
+    )
 
     return result
 
@@ -70,5 +77,5 @@ def centercrop(img: np.ndarray, min_width: int, min_height: int) -> np.ndarray:
     end_x = start_x + min_width
 
     # Crop, ensuring we stay within image bounds
-    cropped_img = img[start_y:min(end_y, h), start_x:min(end_x, w)]
+    cropped_img = img[start_y : min(end_y, h), start_x : min(end_x, w)]
     return cropped_img

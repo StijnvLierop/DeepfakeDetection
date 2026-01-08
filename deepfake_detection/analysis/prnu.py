@@ -1,9 +1,6 @@
-from typing import Union, Sequence
-
 import numpy as np
 
-from deepfake_detection.analysis.utils import centercrop
-from deepfake_detection.data import ImageInstance, FileImageInstance
+from deepfake_detection.data.instance import ImageInstance
 
 
 def prnu_fstv(instance: ImageInstance) -> np.ndarray:
@@ -23,7 +20,7 @@ def prnu_fstv(instance: ImageInstance) -> np.ndarray:
 
     # Calculate the strength of the gradients (add small epsilon to avoid taking the square root of 0)
     epsilon = 1e-8
-    grad_mag = np.sqrt(grad_x ** 2 + grad_y ** 2 + epsilon ** 2)
+    grad_mag = np.sqrt(grad_x**2 + grad_y**2 + epsilon**2)
 
     # Normalize gradients
     norm_grad_x = grad_x / grad_mag

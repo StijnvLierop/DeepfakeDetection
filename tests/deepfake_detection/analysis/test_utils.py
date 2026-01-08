@@ -3,18 +3,18 @@ import pytest
 from PIL import Image
 
 from deepfake_detection.analysis.utils import average_over_images
-from deepfake_detection.data import ImageInstance
+from deepfake_detection.data.instance import ImageInstance
 
 
 @pytest.fixture
 def image_instance():
-    data = Image.fromarray(np.ones( (100, 100, 3), dtype=np.uint8))
+    data = Image.fromarray(np.ones((100, 100, 3), dtype=np.uint8))
     return ImageInstance(data)
 
 
 @pytest.fixture
 def image_instance2():
-    data = Image.fromarray(np.ones( (100, 100, 3), dtype=np.uint8) * 3)
+    data = Image.fromarray(np.ones((100, 100, 3), dtype=np.uint8) * 3)
     return ImageInstance(data)
 
 

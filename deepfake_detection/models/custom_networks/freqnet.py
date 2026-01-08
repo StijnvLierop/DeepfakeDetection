@@ -2,13 +2,12 @@ import torch.nn as nn
 from torch.nn import functional as F
 import torch
 
-__all__ = ['FreqNet, freqnet']
-
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(
+        in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False
+    )
 
 
 def conv1x1(in_planes, out_planes, stride=1):
@@ -87,42 +86,43 @@ class Bottleneck(nn.Module):
 
 
 class FreqNetCNN(nn.Module):
-
-    def __init__(self, block=Bottleneck, layers=[3, 4], num_classes=1, zero_init_residual=False):
+    def __init__(
+        self, block=Bottleneck, layers=[3, 4], num_classes=1, zero_init_residual=False
+    ):
         super(FreqNetCNN, self).__init__()
 
-
         self.weight1 = nn.Parameter(torch.randn((64, 3, 1, 1)).cuda())
-        self.bias1   = nn.Parameter(torch.randn((64,)).cuda())
+        self.bias1 = nn.Parameter(torch.randn((64,)).cuda())
         self.realconv1 = conv1x1(64, 64, stride=1)
         self.imagconv1 = conv1x1(64, 64, stride=1)
 
         self.weight2 = nn.Parameter(torch.randn((64, 64, 1, 1)).cuda())
-        self.bias2   = nn.Parameter(torch.randn((64,)).cuda())
+        self.bias2 = nn.Parameter(torch.randn((64,)).cuda())
         self.realconv2 = conv1x1(64, 64, stride=1)
         self.imagconv2 = conv1x1(64, 64, stride=1)
 
-
         self.weight3 = nn.Parameter(torch.randn((256, 256, 1, 1)).cuda())
-        self.bias3   = nn.Parameter(torch.randn((256,)).cuda())
+        self.bias3 = nn.Parameter(torch.randn((256,)).cuda())
         self.realconv3 = conv1x1(256, 256, stride=1)
         self.imagconv3 = conv1x1(256, 256, stride=1)
 
         self.weight4 = nn.Parameter(torch.randn((256, 256, 1, 1)).cuda())
-        self.bias4   = nn.Parameter(torch.randn((256,)).cuda())
+        self.bias4 = nn.Parameter(torch.randn((256,)).cuda())
         self.realconv4 = conv1x1(256, 256, stride=1)
         self.imagconv4 = conv1x1(256, 256, stride=1)
-        
-        self.inplanes = 64 
+
+        self.inplanes = 64
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0])            # layer1 of resnet50
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2) # layer2 of resnet50
+        self.layer1 = self._make_layer(block, 64, layers[0])  # layer1 of resnet50
+        self.layer2 = self._make_layer(
+            block, 128, layers[1], stride=2
+        )  # layer2 of resnet50
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc1 = nn.Linear(512, 1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -153,52 +153,55 @@ class FreqNetCNN(nn.Module):
         return nn.Sequential(*layers)
 
     def hfreqWH(self, x, scale):
-        assert scale>2
-        #print(f'input shape: {x.shape}, min: {x.min()}, max: {x.max()}, mean: {x.mean()}')
-        x = torch.fft.fft2(x, norm="ortho")#,norm='forward'
-        x = torch.fft.fftshift(x, dim=[-2, -1]) 
-        b,c,h,w = x.shape
-        x[:,:,h//2-h//scale:h//2+h//scale,w//2-w//scale:w//2+w//scale ] = 0.0
+        assert scale > 2
+        # print(f'input shape: {x.shape}, min: {x.min()}, max: {x.max()}, mean: {x.mean()}')
+        x = torch.fft.fft2(x, norm="ortho")  # ,norm='forward'
+        x = torch.fft.fftshift(x, dim=[-2, -1])
+        b, c, h, w = x.shape
+        x[
+            :,
+            :,
+            h // 2 - h // scale : h // 2 + h // scale,
+            w // 2 - w // scale : w // 2 + w // scale,
+        ] = 0.0
         x = torch.fft.ifftshift(x, dim=[-2, -1])
         x = torch.fft.ifft2(x, norm="ortho")
         x = torch.real(x)
         x = F.relu(x, inplace=True)
-        #print(f'output shape: {x.shape}, min: {x.min()}, max: {x.max()}, mean: {x.mean()}')
-        #print()
+        # print(f'output shape: {x.shape}, min: {x.min()}, max: {x.max()}, mean: {x.mean()}')
+        # print()
         return x
 
     def hfreqC(self, x, scale):
-        assert scale>2
+        assert scale > 2
         # print(f'input shape: {x.shape}, min: {x.min()}, max: {x.max()}, mean: {x.mean()}')
-        x = torch.fft.fft(x, dim=1, norm="ortho")#,norm='forward'
-        x = torch.fft.fftshift(x, dim=1) 
-        b,c,h,w = x.shape
+        x = torch.fft.fft(x, dim=1, norm="ortho")  # ,norm='forward'
+        x = torch.fft.fftshift(x, dim=1)
+        b, c, h, w = x.shape
 
-        x[:,c//2-c//scale:c//2+c//scale,:,:] = 0.0
+        x[:, c // 2 - c // scale : c // 2 + c // scale, :, :] = 0.0
 
         x = torch.fft.ifftshift(x, dim=1)
         x = torch.fft.ifft(x, dim=1, norm="ortho")
         x = torch.real(x)
         x = F.relu(x, inplace=True)
- 
+
         # print(f'output shape: {x.shape}, min: {x.min()}, max: {x.max()}, mean: {x.mean()}')
         # print()
         return x
-        
-        
+
     def forward(self, x):
-        
         ### HFRI
         x = self.hfreqWH(x, 4)
         x = F.conv2d(x, self.weight1, self.bias1, stride=1, padding=0)
         x = F.relu(x, inplace=True)
-        
+
         ### HFRFC
         x = self.hfreqC(x, 4)
-        
+
         ### FCL
-        x = torch.fft.fft2(x, norm="ortho")#,norm='forward'
-        x = torch.fft.fftshift(x, dim=[-2, -1]) 
+        x = torch.fft.fft2(x, norm="ortho")  # ,norm='forward'
+        x = torch.fft.fftshift(x, dim=[-2, -1])
         x = torch.complex(self.realconv1(x.real), self.imagconv1(x.imag))
         x = torch.fft.ifftshift(x, dim=[-2, -1])
         x = torch.fft.ifft2(x, norm="ortho")
@@ -212,30 +215,27 @@ class FreqNetCNN(nn.Module):
 
         ### HFRFC
         x = self.hfreqC(x, 4)
-        
+
         ### FCL
-        x = torch.fft.fft2(x, norm="ortho")#,norm='forward'
-        x = torch.fft.fftshift(x, dim=[-2, -1]) 
+        x = torch.fft.fft2(x, norm="ortho")  # ,norm='forward'
+        x = torch.fft.fftshift(x, dim=[-2, -1])
         x = torch.complex(self.realconv2(x.real), self.imagconv2(x.imag))
         x = torch.fft.ifftshift(x, dim=[-2, -1])
         x = torch.fft.ifft2(x, norm="ortho")
         x = torch.real(x)
         x = F.relu(x, inplace=True)
 
-
         x = self.maxpool(x)
-        x = self.layer1(x)# in64 out256
-        
-        
+        x = self.layer1(x)  # in64 out256
+
         ### HFRFS
         x = self.hfreqWH(x, 4)
         x = F.conv2d(x, self.weight3, self.bias3, stride=1, padding=0)
         x = F.relu(x, inplace=True)
-        
-        
+
         ### FCL
-        x = torch.fft.fft2(x, norm="ortho")#,norm='forward'
-        x = torch.fft.fftshift(x, dim=[-2, -1]) 
+        x = torch.fft.fft2(x, norm="ortho")  # ,norm='forward'
+        x = torch.fft.fftshift(x, dim=[-2, -1])
         x = torch.complex(self.realconv3(x.real), self.imagconv3(x.imag))
         x = torch.fft.ifftshift(x, dim=[-2, -1])
         x = torch.fft.ifft2(x, norm="ortho")
@@ -248,8 +248,8 @@ class FreqNetCNN(nn.Module):
         x = F.relu(x, inplace=True)
 
         ### FCL
-        x = torch.fft.fft2(x, norm="ortho")#,norm='forward'
-        x = torch.fft.fftshift(x, dim=[-2, -1]) 
+        x = torch.fft.fft2(x, norm="ortho")  # ,norm='forward'
+        x = torch.fft.fftshift(x, dim=[-2, -1])
         x = torch.complex(self.realconv4(x.real), self.imagconv4(x.imag))
         x = torch.fft.ifftshift(x, dim=[-2, -1])
         x = torch.fft.ifft2(x, norm="ortho")
@@ -263,5 +263,3 @@ class FreqNetCNN(nn.Module):
         x = self.fc1(x)
 
         return x
-    
-    

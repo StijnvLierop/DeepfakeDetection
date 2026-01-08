@@ -1,14 +1,25 @@
 import torch
 import timm
 from torch import nn
-from torch.nn import Sequential, Module, Linear, ReLU, MultiheadAttention, TransformerEncoder, \
-    TransformerEncoderLayer, Parameter, ModuleList, LayerNorm
+from torch.nn import (
+    Sequential,
+    Module,
+    Linear,
+    ReLU,
+    MultiheadAttention,
+    TransformerEncoder,
+    TransformerEncoderLayer,
+    Parameter,
+    ModuleList,
+    LayerNorm,
+)
 from functools import partial
 from clip import clip
 from clip.simple_tokenizer import SimpleTokenizer as _Tokenizer
 
 
 _tokenizer = _Tokenizer()
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 1) PROMPT CONFIG (minimal)
@@ -17,6 +28,7 @@ class PromptConfig:
     """
     Minimal config to drive PromptLearner exactly as in CLIPping-the-Deception.
     """
+
     def __init__(
         self,
         n_ctx=16,
@@ -54,15 +66,15 @@ class TextEncoder(nn.Module):
         # prompts:   [n_cls, seq_len, dim]
         # tokenized_prompts: [n_cls, seq_len]
         x = prompts + self.positional_embedding.type(self.dtype)
-        x = x.permute(1, 0, 2)      # [seq_len, n_cls, dim]
-        x = self.transformer(x)    # [seq_len, n_cls, dim]
-        x = x.permute(1, 0, 2)      # [n_cls, seq_len, dim]
+        x = x.permute(1, 0, 2)  # [seq_len, n_cls, dim]
+        x = self.transformer(x)  # [seq_len, n_cls, dim]
+        x = x.permute(1, 0, 2)  # [n_cls, seq_len, dim]
         x = self.ln_final(x).type(self.dtype)
 
         # Gather features at the end-of-sequence token for each prompt
         eos_indices = tokenized_prompts.argmax(dim=-1)  # [n_cls]
-        x = x[torch.arange(x.shape[0]), eos_indices]    # [n_cls, dim]
-        x = x @ self.text_projection                     # [n_cls, 512]
+        x = x[torch.arange(x.shape[0]), eos_indices]  # [n_cls, dim]
+        x = x @ self.text_projection  # [n_cls, 512]
         return x
 
 
@@ -129,8 +141,8 @@ class PromptLearner(nn.Module):
             # Expand to all classes if only one shared context
             ctx = ctx.unsqueeze(0).expand(self.n_cls, -1, -1)  # [n_cls, n_ctx, 512]
 
-        prefix = self.token_prefix     # [n_cls, 1, 512]
-        suffix = self.token_suffix     # [n_cls, seq_len - 1 - n_ctx, 512]
+        prefix = self.token_prefix  # [n_cls, 1, 512]
+        suffix = self.token_suffix  # [n_cls, seq_len - 1 - n_ctx, 512]
 
         if self.class_token_position == "end":
             prompts = torch.cat([prefix, ctx, suffix], dim=1)
@@ -139,11 +151,11 @@ class PromptLearner(nn.Module):
             half = self.n_ctx // 2
             prompts_list = []
             for i in range(self.n_cls):
-                prefix_i = prefix[i : i + 1, :, :]                    # [1,1,512]
-                class_i = suffix[i : i + 1, : self.name_lens[i], :]   # [1,name_len,512]
+                prefix_i = prefix[i : i + 1, :, :]  # [1,1,512]
+                class_i = suffix[i : i + 1, : self.name_lens[i], :]  # [1,name_len,512]
                 suffix_i = suffix[i : i + 1, self.name_lens[i] :, :]  # [1,rest,512]
-                ctx_i_h1 = ctx[i : i + 1, :half, :]                   # [1, half, 512]
-                ctx_i_h2 = ctx[i : i + 1, half :, :]                   # [1, half, 512]
+                ctx_i_h1 = ctx[i : i + 1, :half, :]  # [1, half, 512]
+                ctx_i_h2 = ctx[i : i + 1, half:, :]  # [1, half, 512]
                 prompt_i = torch.cat(
                     [prefix_i, ctx_i_h1, class_i, ctx_i_h2, suffix_i], dim=1
                 )
@@ -153,18 +165,18 @@ class PromptLearner(nn.Module):
         elif self.class_token_position == "front":
             prompts_list = []
             for i in range(self.n_cls):
-                prefix_i = prefix[i : i + 1, :, :]                    # [1,1,512]
-                class_i = suffix[i : i + 1, : self.name_lens[i], :]   # [1,name_len,512]
+                prefix_i = prefix[i : i + 1, :, :]  # [1,1,512]
+                class_i = suffix[i : i + 1, : self.name_lens[i], :]  # [1,name_len,512]
                 suffix_i = suffix[i : i + 1, self.name_lens[i] :, :]  # [1,rest,512]
-                ctx_i = ctx[i : i + 1, :, :]                           # [1,n_ctx,512]
-                prompt_i = torch.cat(
-                    [prefix_i, class_i, ctx_i, suffix_i], dim=1
-                )
+                ctx_i = ctx[i : i + 1, :, :]  # [1,n_ctx,512]
+                prompt_i = torch.cat([prefix_i, class_i, ctx_i, suffix_i], dim=1)
                 prompts_list.append(prompt_i)
             prompts = torch.cat(prompts_list, dim=0)
 
         else:
-            raise ValueError(f"Unknown CLASS_TOKEN_POSITION: {self.class_token_position}")
+            raise ValueError(
+                f"Unknown CLASS_TOKEN_POSITION: {self.class_token_position}"
+            )
 
         return prompts  # [n_cls, full_seq_len, 512]
 
@@ -177,8 +189,14 @@ class CrossAttentionDecoder(Module):
     A simple cross-attention block with a residual MLP.
     """
 
-    def __init__(self, embed_dim, num_heads=8, xavier_kaiming_init=False, dropout=0.0,
-                 qkNorm=False):
+    def __init__(
+        self,
+        embed_dim,
+        num_heads=8,
+        xavier_kaiming_init=False,
+        dropout=0.0,
+        qkNorm=False,
+    ):
         super().__init__()
         self.cross_attn = MultiheadAttention(
             embed_dim, num_heads, dropout=dropout, batch_first=True
@@ -228,7 +246,7 @@ class CrossAttentionDecoder(Module):
     def _init_weights(self):
         for m in self.modules():
             if isinstance(m, Linear):
-                nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
+                nn.init.kaiming_normal_(m.weight, nonlinearity="relu")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
 
@@ -253,6 +271,7 @@ class CrossAttentionDecoder(Module):
 # 2) Custom Forward Functions for Different Backbones
 # --------------------------------------------------
 
+
 # 2a) For ViT-B/32 or ViT-L/14
 def custom_vit_forward(visual, x):
     """
@@ -268,7 +287,9 @@ def custom_vit_forward(visual, x):
 
     # 2) Insert the CLS token
     class_token = visual.class_embedding.to(x.dtype)
-    cls = torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device)  # [B, 1, c]
+    cls = torch.zeros(
+        x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device
+    )  # [B, 1, c]
     x = torch.cat([class_token + cls, x], dim=1)  # => [B, hw+1, c]
 
     # 3) Add positional embeddings
@@ -336,10 +357,12 @@ def custom_resnet_forward(visual, x):
     token_feats = x_l3.flatten(2).transpose(1, 2)
     # Prepend global feature as the CLS token
     global_feat_unsq = global_feat.unsqueeze(1)  # [B, 1, 1024]
-    token_feats = torch.cat([global_feat_unsq, token_feats], dim=1)  # [B, 1+H*W, 1024], 14x14+1=196
+    token_feats = torch.cat(
+        [global_feat_unsq, token_feats], dim=1
+    )  # [B, 1+H*W, 1024], 14x14+1=196
 
     # Apply a projection from 1024-d to 512-d so the rest of the model can remain unchanged.
-    if not hasattr(visual, 'proj_reduction'):
+    if not hasattr(visual, "proj_reduction"):
         visual.proj_reduction = Linear(1024, 512).to(x.device)
     global_feat = visual.proj_reduction(global_feat)  # [B, 512]
     token_feats = visual.proj_reduction(token_feats)  # [B, 1+H*W, 512]
@@ -368,7 +391,7 @@ def custom_convnext_forward(model, x):
     token_feats = features.flatten(2).transpose(1, 2)  # [B, H*W, C]
     global_feat_unsq = global_feat.unsqueeze(1)  # [B, 1, C]
     token_feats = torch.cat([global_feat_unsq, token_feats], dim=1)  # [B, 1+H*W, C]
-    if not hasattr(model, 'proj_reduction'):
+    if not hasattr(model, "proj_reduction"):
         model.proj_reduction = Linear(features.shape[1], 512).to(x.device)
     global_feat = model.proj_reduction(global_feat)  # [B, 512]
     token_feats = model.proj_reduction(token_feats)  # [B, 1+H*W, 512]
@@ -402,17 +425,20 @@ def custom_convnext_forward_intermediate(model, x):
     token_feats = x_l3.flatten(2).transpose(1, 2)  # shape: [B, H*W, C]
 
     # Project global feature from 1024 to 512 dimensions
-    if not hasattr(model, 'proj_global'):
+    if not hasattr(model, "proj_global"):
         model.proj_global = Linear(global_feat.shape[-1], token_feats.shape[-1]).to(
-            global_feat.device)
+            global_feat.device
+        )
     global_feat = model.proj_global(global_feat)  # shape: [B, 512]
 
     # Prepend global feature as CLS token to the token features
     global_feat_unsq = global_feat.unsqueeze(1)  # shape: [B, 1, C]
-    token_feats = torch.cat([global_feat_unsq, token_feats], dim=1)  # shape: [B, 1+H*W, C]
+    token_feats = torch.cat(
+        [global_feat_unsq, token_feats], dim=1
+    )  # shape: [B, 1+H*W, C]
 
     # Ensure projection exists for mapping feature dimension to 512
-    if not hasattr(model, 'proj_reduction'):
+    if not hasattr(model, "proj_reduction"):
         model.proj_reduction = Linear(token_feats.shape[-1], 512).to(token_feats.device)
 
     global_feat = model.proj_reduction(global_feat)  # shape: [B, 512]
@@ -429,6 +455,7 @@ def custom_convnext_encode_image(model, image):
 # 3) Intra-Latent Self-Attention
 # --------------------------------------------------
 
+
 class IntraLatentTransformer(Module):
     def __init__(self, embed_dim, num_heads=4, num_layers=2, dropout=0.0):
         """
@@ -441,7 +468,7 @@ class IntraLatentTransformer(Module):
             nhead=num_heads,
             dim_feedforward=embed_dim * 4,
             dropout=dropout,
-            batch_first=True  # We'll keep shape as [B, T, dim]
+            batch_first=True,  # We'll keep shape as [B, T, dim]
         )
         self.transformer = TransformerEncoder(encoder_layer, num_layers=num_layers)
 
@@ -454,25 +481,28 @@ class IntraLatentTransformer(Module):
 # 4) The final classifier
 # --------------------------------------------------
 
+
 # 4a) Stacked and Separate processing model
 class LatentTrajectoryClassifier(Module):
-    def __init__(self,
-                 num_class=2,
-                 clip_type="ViT-B/32",
-                 num_timesteps=5,
-                 num_heads=8,
-                 self_attention_latents=False,
-                 weighted_average=False,
-                 single_decoder=False,
-                 process_latents_separately=False,
-                 decoders_per_timestep=1,
-                 use_cls_token=False,
-                 positional_embeddings=False,
-                 xavier_kaiming_init=False,
-                 return_clip_global_feats=False,
-                 latent_visual_refinement=True,
-                 prompt_tuning=False,
-                 qkNorm=False):
+    def __init__(
+        self,
+        num_class=2,
+        clip_type="ViT-B/32",
+        num_timesteps=5,
+        num_heads=8,
+        self_attention_latents=False,
+        weighted_average=False,
+        single_decoder=False,
+        process_latents_separately=False,
+        decoders_per_timestep=1,
+        use_cls_token=False,
+        positional_embeddings=False,
+        xavier_kaiming_init=False,
+        return_clip_global_feats=False,
+        latent_visual_refinement=True,
+        prompt_tuning=False,
+        qkNorm=False,
+    ):
         """
         Latent Trajectory Classifier that uses intermediate latents and cross-attends
         them to the (now 512-d) patch tokens.
@@ -481,16 +511,23 @@ class LatentTrajectoryClassifier(Module):
 
         if clip_type == "convnext_base_in22k":
             self.clip_model = timm.create_model("convnext_base_in22k", pretrained=True)
-            self.clip_model.forward = partial(custom_convnext_forward_intermediate, self.clip_model)
-            self.clip_model.encode_image = partial(custom_convnext_encode_image, self.clip_model)
+            self.clip_model.forward = partial(
+                custom_convnext_forward_intermediate, self.clip_model
+            )
+            self.clip_model.encode_image = partial(
+                custom_convnext_encode_image, self.clip_model
+            )
         else:
             self.clip_model, _ = clip.load(clip_type, device="cpu", jit=False)
 
             if clip_type == "RN50":
-                self.clip_model.visual.forward = partial(custom_resnet_forward,
-                                                         self.clip_model.visual)
+                self.clip_model.visual.forward = partial(
+                    custom_resnet_forward, self.clip_model.visual
+                )
             elif clip_type in ["ViT-B/32", "ViT-L/14"]:
-                self.clip_model.visual.forward = partial(custom_vit_forward, self.clip_model.visual)
+                self.clip_model.visual.forward = partial(
+                    custom_vit_forward, self.clip_model.visual
+                )
             self.clip_model.encode_image = partial(custom_encode_image, self.clip_model)
 
         # Confirm embedding dimension by a dummy forward
@@ -520,37 +557,47 @@ class LatentTrajectoryClassifier(Module):
         # Positional embeddings (learned)
         if not self.process_latents_separately and self.positional_embeddings:
             self.latent_pos_embedding = Parameter(
-                torch.zeros(1, self.num_timesteps, self.embed_dim))
+                torch.zeros(1, self.num_timesteps, self.embed_dim)
+            )
             nn.init.trunc_normal_(self.latent_pos_embedding, std=0.02)
 
         # Cross-attention decoders
         if self.process_latents_separately:
             self.decoders_per_timestep = decoders_per_timestep
-            self.decoder_layers = ModuleList([
-                ModuleList([
-                    CrossAttentionDecoder(self.embed_dim, num_heads=num_heads,
-                                          xavier_kaiming_init=self.xavier_kaiming_init,
-                                          qkNorm=self.qkNorm)
-                    for _ in range(self.decoders_per_timestep)
-                ])
-                for _ in range(self.num_timesteps)
-            ])
+            self.decoder_layers = ModuleList(
+                [
+                    ModuleList(
+                        [
+                            CrossAttentionDecoder(
+                                self.embed_dim,
+                                num_heads=num_heads,
+                                xavier_kaiming_init=self.xavier_kaiming_init,
+                                qkNorm=self.qkNorm,
+                            )
+                            for _ in range(self.decoders_per_timestep)
+                        ]
+                    )
+                    for _ in range(self.num_timesteps)
+                ]
+            )
         else:
-            self.decoder_layers = ModuleList([
-                CrossAttentionDecoder(self.embed_dim, num_heads=num_heads,
-                                      xavier_kaiming_init=self.xavier_kaiming_init,
-                                      qkNorm=self.qkNorm)
-                for _ in range(1 if self.single_decoder else self.num_timesteps)
-            ])
+            self.decoder_layers = ModuleList(
+                [
+                    CrossAttentionDecoder(
+                        self.embed_dim,
+                        num_heads=num_heads,
+                        xavier_kaiming_init=self.xavier_kaiming_init,
+                        qkNorm=self.qkNorm,
+                    )
+                    for _ in range(1 if self.single_decoder else self.num_timesteps)
+                ]
+            )
 
         # Intra-Latent Self-Attn: let timesteps talk to each other
         self.self_attention_latents = self_attention_latents
         if self_attention_latents:
             self.intra_latent_transformer = IntraLatentTransformer(
-                embed_dim=self.embed_dim,
-                num_heads=4,
-                num_layers=2,
-                dropout=0.0
+                embed_dim=self.embed_dim, num_heads=4, num_layers=2, dropout=0.0
             )
 
         # Weight-based pooling: a tiny gate that outputs a scalar per step
@@ -586,7 +633,8 @@ class LatentTrajectoryClassifier(Module):
 
         # 1) Run the monkey-patched CLIP => (global_feat=512, tokens=512)
         clip_global_feat, clip_token_feats = self.clip_model.encode_image(
-            images)  # clip_global_feat => [B, 512], clip_token_feats => [B, n_patches+1, 512]
+            images
+        )  # clip_global_feat => [B, 512], clip_token_feats => [B, n_patches+1, 512]
 
         # If prompt_tuning, augment CLIP patch tokens with prompt tokens
         if self.prompt_tuning:
@@ -618,20 +666,23 @@ class LatentTrajectoryClassifier(Module):
         # 4) Self-attention among the T latents first
         if self.self_attention_latents:
             latent_queries = self.intra_latent_transformer(
-                latent_queries)  # shape remains [B, T, embed_dim], but each step is fused
+                latent_queries
+            )  # shape remains [B, T, embed_dim], but each step is fused
 
         if self.latent_visual_refinement:
             # 5 & 6) Cross-attention with decoders
             if self.single_decoder:
                 # Single decoder for the entire sequence
-                latent_queries = self.decoder_layers[0](latent_queries, combined_context)
+                latent_queries = self.decoder_layers[0](
+                    latent_queries, combined_context
+                )
             elif self.process_latents_separately:
                 if self.use_cls_token:
                     # We'll loop over T, prepend CLS, run each step's decoder, gather the CLS outputs
                     refined_latents = []
                     for t_idx in range(T):
                         # shape [B,1,512] for this step
-                        latent_t = latent_queries[:, t_idx: t_idx + 1, :]
+                        latent_t = latent_queries[:, t_idx : t_idx + 1, :]
 
                         # Expand the shared CLS token to batch size [B,1,512]
                         cls_tokens = self.cls_token.expand(B, -1, -1)
@@ -641,7 +692,7 @@ class LatentTrajectoryClassifier(Module):
 
                         # Pass through the t-th decoder => output shape [B,2,512]
                         for decoder in self.decoder_layers[t_idx]:
-                            refined_t = decoder(latent_with_cls, combined_context)
+                            refined_t = decoder(latent_t_with_cls, combined_context)
 
                         # Typically we treat refined_t[:,0,:] as the updated CLS embedding; shape => [B,1,512]
                         step_cls = refined_t[:, 0:1, :]
@@ -652,7 +703,7 @@ class LatentTrajectoryClassifier(Module):
                 else:
                     refined_latents = []
                     for t_idx in range(T):
-                        latent_t = latent_queries[:, t_idx:t_idx + 1, :]
+                        latent_t = latent_queries[:, t_idx : t_idx + 1, :]
                         for decoder in self.decoder_layers[t_idx]:
                             latent_t = decoder(latent_t, combined_context)
                         refined_latents.append(latent_t)
@@ -688,18 +739,20 @@ class LatentTrajectoryClassifier(Module):
 
 # 4b) CLS aggregation model
 class LatentTrajectoryClassifierSingleCLS(Module):
-    def __init__(self,
-                 num_class=2,
-                 clip_type="ViT-B/32",
-                 num_timesteps=5,
-                 num_heads=8,
-                 cls_self_attn_layers=2,
-                 cls_self_attn_heads=4,
-                 positional_embeddings=False,
-                 xavier_kaiming_init=False,
-                 return_clip_global_feats=False,
-                 use_cls_token=True,
-                 qkNorm=False):
+    def __init__(
+        self,
+        num_class=2,
+        clip_type="ViT-B/32",
+        num_timesteps=5,
+        num_heads=8,
+        cls_self_attn_layers=2,
+        cls_self_attn_heads=4,
+        positional_embeddings=False,
+        xavier_kaiming_init=False,
+        return_clip_global_feats=False,
+        use_cls_token=True,
+        qkNorm=False,
+    ):
         """
         Latent Trajectory Classifier variant that decodes each timestep's latent with a dedicated decoder, then prepends a single
         learnable CLS token to the entire sequence of decoded latents. The whole sequence is refined by a self-attention module,
@@ -712,16 +765,23 @@ class LatentTrajectoryClassifierSingleCLS(Module):
 
         if clip_type == "convnext_base_in22k":
             self.clip_model = timm.create_model("convnext_base_in22k", pretrained=True)
-            self.clip_model.forward = partial(custom_convnext_forward_intermediate, self.clip_model)
-            self.clip_model.encode_image = partial(custom_convnext_encode_image, self.clip_model)
+            self.clip_model.forward = partial(
+                custom_convnext_forward_intermediate, self.clip_model
+            )
+            self.clip_model.encode_image = partial(
+                custom_convnext_encode_image, self.clip_model
+            )
         else:
             self.clip_model, _ = clip.load(clip_type, device="cpu", jit=False)
 
             if clip_type == "RN50":
-                self.clip_model.visual.forward = partial(custom_resnet_forward,
-                                                         self.clip_model.visual)
+                self.clip_model.visual.forward = partial(
+                    custom_resnet_forward, self.clip_model.visual
+                )
             elif clip_type in ["ViT-B/32", "ViT-L/14"]:
-                self.clip_model.visual.forward = partial(custom_vit_forward, self.clip_model.visual)
+                self.clip_model.visual.forward = partial(
+                    custom_vit_forward, self.clip_model.visual
+                )
             self.clip_model.encode_image = partial(custom_encode_image, self.clip_model)
 
         # Confirm embedding dimension by a dummy forward
@@ -737,11 +797,17 @@ class LatentTrajectoryClassifierSingleCLS(Module):
         self.qkNorm = qkNorm
 
         # Create one cross-attention decoder per timestep.
-        self.decoder_layers = ModuleList([
-            CrossAttentionDecoder(self.embed_dim, num_heads=num_heads,
-                                  xavier_kaiming_init=self.xavier_kaiming_init, qkNorm=self.qkNorm)
-            for _ in range(num_timesteps)
-        ])
+        self.decoder_layers = ModuleList(
+            [
+                CrossAttentionDecoder(
+                    self.embed_dim,
+                    num_heads=num_heads,
+                    xavier_kaiming_init=self.xavier_kaiming_init,
+                    qkNorm=self.qkNorm,
+                )
+                for _ in range(num_timesteps)
+            ]
+        )
 
         # Learnable single CLS token.
         self.cls_token = Parameter(torch.zeros(1, 1, self.embed_dim))
@@ -751,13 +817,17 @@ class LatentTrajectoryClassifierSingleCLS(Module):
         self.positional_embeddings = positional_embeddings
         if self.positional_embeddings:
             # [1, T, D] so it can broadcast across batch dimension
-            self.latent_pos_embedding = Parameter(torch.zeros(1, num_timesteps, self.embed_dim))
+            self.latent_pos_embedding = Parameter(
+                torch.zeros(1, num_timesteps, self.embed_dim)
+            )
             nn.init.trunc_normal_(self.latent_pos_embedding, std=0.02)
 
         # Self-attention module to refine the entire sequence (CLS token + T decoded tokens).
-        self.cls_self_attn = IntraLatentTransformer(embed_dim=self.embed_dim,
-                                                    num_heads=cls_self_attn_heads,
-                                                    num_layers=cls_self_attn_layers)
+        self.cls_self_attn = IntraLatentTransformer(
+            embed_dim=self.embed_dim,
+            num_heads=cls_self_attn_heads,
+            num_layers=cls_self_attn_layers,
+        )
 
         # Final classifier head: concatenates CLIP global image feature with the final CLS token.
         self.fc = Linear(self.embed_dim * 2, num_class)
@@ -788,9 +858,11 @@ class LatentTrajectoryClassifierSingleCLS(Module):
         # 4) Decode each timestep's latent with its own decoder.
         decoded_tokens = []
         for t in range(T):
-            latent_t = latent_queries[:, t:t + 1, :]  # [B, 1, embed_dim]
+            latent_t = latent_queries[:, t : t + 1, :]  # [B, 1, embed_dim]
             # Decode latent_t using the t-th decoder with CLIP token features as context.
-            refined_t = self.decoder_layers[t](latent_t, clip_token_feats)  # [B, 1, embed_dim]
+            refined_t = self.decoder_layers[t](
+                latent_t, clip_token_feats
+            )  # [B, 1, embed_dim]
             decoded_tokens.append(refined_t)
         # Concatenate all decoded tokens to get [B, T, embed_dim]
         decoded_seq = torch.cat(decoded_tokens, dim=1)
@@ -826,13 +898,15 @@ class LatentTrajectoryClassifierSingleCLS(Module):
 
 # 4c) Latents only model
 class LatentOnlyClassifier(Module):
-    def __init__(self,
-                 num_class: int = 2,
-                 num_timesteps: int = 5,
-                 latent_channels: int = 4,
-                 latent_h: int = 28,
-                 latent_w: int = 28,
-                 embed_dim: int = 512):
+    def __init__(
+        self,
+        num_class: int = 2,
+        num_timesteps: int = 5,
+        latent_channels: int = 4,
+        latent_h: int = 28,
+        latent_w: int = 28,
+        embed_dim: int = 512,
+    ):
         """
         A simple classifier that uses only the diffusion latents:
         - Flattens each timestep's latent (CxHxW) to a vector

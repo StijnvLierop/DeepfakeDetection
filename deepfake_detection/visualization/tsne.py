@@ -13,6 +13,7 @@ from deepfake_detection.utils.parameters import DATASETS
 hash_funcs = {d: lambda x: x.__hash__() for d in DATASETS.values()}
 hash_funcs[Prediction] = lambda x: x.__hash__()
 
+
 @st.cache_data(hash_funcs=hash_funcs)
 def run_tsne(dataset: Dataset, predictions: Sequence[Prediction]) -> pd.DataFrame:
     """
@@ -28,14 +29,18 @@ def run_tsne(dataset: Dataset, predictions: Sequence[Prediction]) -> pd.DataFram
     filepaths = [i.path for i in dataset]
 
     # Run T-SNE on features
-    features_embedded = (TSNE(n_components=2, learning_rate='auto', init='random')
-                         .fit_transform(np.array(features)))
+    features_embedded = TSNE(
+        n_components=2, learning_rate="auto", init="random"
+    ).fit_transform(np.array(features))
 
     # Transform to dataframe
-    tsne_df = pd.DataFrame({'filepath': filepaths,
-                            'x': features_embedded[:, 0],
-                            'y': features_embedded[:, 1],
-                            'label': labels}
-                           )
+    tsne_df = pd.DataFrame(
+        {
+            "filepath": filepaths,
+            "x": features_embedded[:, 0],
+            "y": features_embedded[:, 1],
+            "label": labels,
+        }
+    )
 
     return tsne_df

@@ -19,10 +19,9 @@ class Instance(ABC):
     :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self,
-                 annotation: Optional[Annotation] = None,
-                 meta: Optional[dict] = None
-                 ):
+    def __init__(
+        self, annotation: Optional[Annotation] = None, meta: Optional[dict] = None
+    ):
         self.annotation = annotation
         self.meta = meta
 
@@ -55,7 +54,12 @@ class ImageInstance(Instance):
     :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, data: Image, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+    def __init__(
+        self,
+        data: Image,
+        annotation: Optional[Annotation] = None,
+        meta: Optional[dict] = None,
+    ):
         super().__init__(annotation, meta)
         self.data = data
 
@@ -65,8 +69,8 @@ class ImageInstance(Instance):
     def save(self, path: Path) -> Path:
         if not isinstance(path, Path):
             raise ValueError("Path must be of type Path.")
-        if '.' not in str(path):
-            path = path.with_suffix('.png')
+        if "." not in str(path):
+            path = path.with_suffix(".png")
         self.data.save(path)
         return path
 
@@ -80,13 +84,18 @@ class FileImageInstance(Instance):
     :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, path: str, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+    def __init__(
+        self,
+        path: str,
+        annotation: Optional[Annotation] = None,
+        meta: Optional[dict] = None,
+    ):
         super().__init__(annotation, meta)
         self.path = Path(path)
 
     @cached_property
     def data(self):
-        return Image.open(self.path).convert('RGB')
+        return Image.open(self.path).convert("RGB")
 
     def __hash__(self):
         return hash(self.path)
@@ -95,8 +104,8 @@ class FileImageInstance(Instance):
         if not isinstance(path, Path):
             raise ValueError("Path must be of type Path.")
         # Save as png by default when no suffix provided
-        if '.' not in str(path):
-            path = path.with_suffix('.png')
+        if "." not in str(path):
+            path = path.with_suffix(".png")
         self.data.save(path)
         return path
 
@@ -110,14 +119,21 @@ class FileImageSequenceInstance(Instance):
     :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, path: str, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+    def __init__(
+        self,
+        path: str,
+        annotation: Optional[Annotation] = None,
+        meta: Optional[dict] = None,
+    ):
         super().__init__(annotation, meta)
         self.path = Path(path)
 
     @cached_property
     def data(self) -> list[FileImageInstance]:
-        return [FileImageInstance(os.path.join(self.path, img), self.annotation)
-                for img in os.listdir(self.path)]
+        return [
+            FileImageInstance(os.path.join(self.path, img), self.annotation)
+            for img in os.listdir(self.path)
+        ]
 
     def __len__(self):
         return len(self.data)
@@ -143,7 +159,12 @@ class FileVideoInstance(Instance):
     :param meta: an optional mapping containing extra metadata about the instance.
     """
 
-    def __init__(self, path: str, annotation: Optional[Annotation] = None, meta: Optional[dict] = None):
+    def __init__(
+        self,
+        path: str,
+        annotation: Optional[Annotation] = None,
+        meta: Optional[dict] = None,
+    ):
         super().__init__(annotation, meta)
         self.path = Path(path)
 

@@ -4,7 +4,10 @@ from typing import Iterable, Union
 
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.instance import FileVideoInstance, FileImageSequenceInstance
+from deepfake_detection.data.instance import (
+    FileVideoInstance,
+    FileImageSequenceInstance,
+)
 
 
 class FaceForensicsDataset(Dataset):
@@ -46,44 +49,55 @@ class FaceForensicsDataset(Dataset):
     :param split_dict_path: A path to a JSON file containing a dictionary mapping of filename indices to splits.
     """
 
-    def __init__(self, path: str,
-                 name: str = None,
-                 modality: str = 'videos',
-                 c_level : str = None,
-                 split : str = None,
-                 split_dict_path : str = None):
+    def __init__(
+        self,
+        path: str,
+        name: str = None,
+        modality: str = "videos",
+        c_level: str = None,
+        split: str = None,
+        split_dict_path: str = None,
+    ):
         super().__init__(name)
         self.path = path
 
         # Ensure that a valid value is passed for modality
-        if modality not in ['images', 'videos']:
-            raise ValueError(f'Invalid modality: {modality}. Must be one of "images" or "videos".')
+        if modality not in ["images", "videos"]:
+            raise ValueError(
+                f'Invalid modality: {modality}. Must be one of "images" or "videos".'
+            )
         else:
             self.modality = modality
 
         # Ensure that a valid value is passed for c_level
-        if c_level not in ['c23', 'c40', 'raw', None]:
-            raise ValueError(f'Invalid c_level: {c_level}. Must be one of "c23", "c40", "raw" or None.')
+        if c_level not in ["c23", "c40", "raw", None]:
+            raise ValueError(
+                f'Invalid c_level: {c_level}. Must be one of "c23", "c40", "raw" or None.'
+            )
         if c_level is None:
-            self.c_levels = ['c23', 'c40', 'raw']
+            self.c_levels = ["c23", "c40", "raw"]
         else:
             self.c_levels = [c_level]
 
         # Ensure that a valid value is passed for split
-        if split not in ['train', 'test', 'validation', None]:
-            raise ValueError(f'Invalid split: {split}. Must be one of "train", "test", "validation" or None.')
+        if split not in ["train", "test", "validation", None]:
+            raise ValueError(
+                f'Invalid split: {split}. Must be one of "train", "test", "validation" or None.'
+            )
         else:
             # Set correct split
             self.split = split
 
         # Ensure that valid split mapping file is provided
         if split and split_dict_path is None:
-            raise ValueError(f'Invalid split dict path: {split_dict_path}. Please provide a valid path to a '
-                             f'.JSON file with a dictionary mapping of filename indices to splits.')
+            raise ValueError(
+                f"Invalid split dict path: {split_dict_path}. Please provide a valid path to a "
+                f".JSON file with a dictionary mapping of filename indices to splits."
+            )
 
         # Load split dict file if provided
         if split_dict_path:
-            with open(split_dict_path, 'r') as f:
+            with open(split_dict_path, "r") as f:
                 self.split_dict = json.load(f)
         else:
             self.split_dict = None
@@ -96,18 +110,43 @@ class FaceForensicsDataset(Dataset):
                 # Loop over qualities (compression levels) in dataset
                 for c_level in self.c_levels:
                     # Loop over instances
-                    for instance in os.listdir(os.path.join(self.path, folder, subfolder, c_level, self.modality)):
+                    for instance in os.listdir(
+                        os.path.join(
+                            self.path, folder, subfolder, c_level, self.modality
+                        )
+                    ):
                         # If instance in split
                         if self._instance_in_split(instance):
-                            if self.modality == 'images':
+                            if self.modality == "images":
                                 yield FileImageSequenceInstance(
-                                    os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
-                                    Annotation(authenticity_label=folder, source_label=subfolder))
+                                    os.path.join(
+                                        self.path,
+                                        folder,
+                                        subfolder,
+                                        c_level,
+                                        self.modality,
+                                        instance,
+                                    ),
+                                    Annotation(
+                                        authenticity_label=folder,
+                                        source_label=subfolder,
+                                    ),
+                                )
                             else:
                                 yield FileVideoInstance(
-                                    os.path.join(self.path, folder, subfolder, c_level, self.modality, instance),
-                                    Annotation(authenticity_label=folder, source_label=subfolder))
-
+                                    os.path.join(
+                                        self.path,
+                                        folder,
+                                        subfolder,
+                                        c_level,
+                                        self.modality,
+                                        instance,
+                                    ),
+                                    Annotation(
+                                        authenticity_label=folder,
+                                        source_label=subfolder,
+                                    ),
+                                )
 
     def _instance_in_split(self, instance_path: str) -> bool:
         """
@@ -121,10 +160,13 @@ class FaceForensicsDataset(Dataset):
             return True
 
         # Extract filename index
-        filename_index = instance_path.split('.')[0]
+        filename_index = instance_path.split(".")[0]
 
         # Check if instance is in current split
-        if filename_index in self.split_dict.keys() and self.split_dict[filename_index] == self.split:
+        if (
+            filename_index in self.split_dict.keys()
+            and self.split_dict[filename_index] == self.split
+        ):
             return True
         else:
             return False

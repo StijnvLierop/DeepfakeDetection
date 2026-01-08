@@ -3,10 +3,9 @@ import os
 from pathlib import Path
 from typing import List
 
-from deepfake_detection.data import Instance
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
-from deepfake_detection.data.instance import FileImageInstance
+from deepfake_detection.data.instance import Instance, FileImageInstance
 
 
 class FileImageDataset(MapStyleDatasetMixin, Dataset):
@@ -38,7 +37,7 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
 
         # If split file provided store the filenames of included instances in a list
         if split_file:
-            with open(split_file, 'r') as f:
+            with open(split_file, "r") as f:
                 self.included_instances = f.read().splitlines()
         else:
             self.included_instances = None
@@ -59,12 +58,27 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
                     # If directory
                     if os.path.isdir(os.path.join(self.path, folder, subfolder)):
                         # Loop over images
-                        for img in os.listdir(os.path.join(self.path, folder, subfolder)):
-                            if img.split('.')[-1].lower() in ['jpg', 'jpeg', 'png']:
-                                if self.included_instances is None or img in self.included_instances:
-                                    paths.append(Path(os.path.join(self.path, folder, subfolder, img)))
+                        for img in os.listdir(
+                            os.path.join(self.path, folder, subfolder)
+                        ):
+                            if img.split(".")[-1].lower() in ["jpg", "jpeg", "png"]:
+                                if (
+                                    self.included_instances is None
+                                    or img in self.included_instances
+                                ):
+                                    paths.append(
+                                        Path(
+                                            os.path.join(
+                                                self.path, folder, subfolder, img
+                                            )
+                                        )
+                                    )
                             else:
-                                logging.debug("Found file that is not a jpg, jpeg or png file: {}".format(img))
+                                logging.debug(
+                                    "Found file that is not a jpg, jpeg or png file: {}".format(
+                                        img
+                                    )
+                                )
         return paths
 
     def __getitem__(self, idx: int) -> Instance:
@@ -75,10 +89,12 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
         authenticity_label, source_label, img_name = path.parts[-3:]
 
         # Return instance
-        return FileImageInstance(str(path),
-                                 Annotation(authenticity_label=authenticity_label,
-                                            source_label=source_label)
-                                 )
+        return FileImageInstance(
+            str(path),
+            Annotation(
+                authenticity_label=authenticity_label, source_label=source_label
+            ),
+        )
 
     def __len__(self):
         return len(self.instance_paths)

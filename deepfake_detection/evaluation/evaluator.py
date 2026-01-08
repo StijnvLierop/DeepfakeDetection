@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import roc_auc_score, average_precision_score
 
-from deepfake_detection.data import Instance
+from deepfake_detection.data.instance import Instance
 from deepfake_detection.evaluation.utils import to_arrays, get_labels
 from deepfake_detection.models import Prediction
 
@@ -38,10 +38,13 @@ class Evaluator:
     """
     Class that can be used to run multiple evaluations on a series of instances and corresponding predictions.
     """
+
     def __init__(self, instances: List[Instance], predictions: List[Prediction]):
         # Ensure that instances and predictions have the same length
         if len(instances) != len(predictions):
-            raise ValueError(f"Mismatch: {len(instances)} instances vs {len(predictions)} predictions.")
+            raise ValueError(
+                f"Mismatch: {len(instances)} instances vs {len(predictions)} predictions."
+            )
 
         self.instances = instances
         self.predictions = predictions
@@ -55,15 +58,17 @@ class Evaluator:
         """
         rows = []
         for idx, (inst, pred) in enumerate(zip(self.instances, self.predictions)):
-            row = {'_idx': idx}
+            row = {"_idx": idx}
 
             # Extract annotation fields
             if inst.annotation:
-                row.update({
-                    'source_label': inst.annotation.source_label,
-                    'authenticity_label': inst.annotation.authenticity_label,
-                    'binary_label': inst.annotation.binary_label,
-                })
+                row.update(
+                    {
+                        "source_label": inst.annotation.source_label,
+                        "authenticity_label": inst.annotation.authenticity_label,
+                        "binary_label": inst.annotation.binary_label,
+                    }
+                )
 
             # Extract instance metadata
             if inst.meta:
@@ -78,9 +83,9 @@ class Evaluator:
         return pd.DataFrame(rows)
 
     @staticmethod
-    def _compute_metrics(y_true: np.ndarray,
-                         y_pred: np.ndarray,
-                         metrics: List[Callable]) -> Mapping[str, float]:
+    def _compute_metrics(
+        y_true: np.ndarray, y_pred: np.ndarray, metrics: List[Callable]
+    ) -> Mapping[str, float]:
         """
         Runs all given metrics on a series of ground-truth labels (y_true) and corresponding predictions (y_pred).
         """
@@ -96,19 +101,21 @@ class Evaluator:
             return True
 
         # Check function name for common probability keywords (for custom metrics)
-        name = getattr(metric, '__name__', '').lower()
-        if any(x in name for x in ['auc', 'probability', 'log_loss', 'brier']):
+        name = getattr(metric, "__name__", "").lower()
+        if any(x in name for x in ["auc", "probability", "log_loss", "brier"]):
             return True
 
         return False
 
-    def _calculate_one_vs_rest(self,
-                               instances: List[Instance],
-                               predictions: List[Prediction],
-                               label: str,
-                               label_type: str,
-                               metrics: List[Callable],
-                               threshold: float) -> Mapping[str, float]:
+    def _calculate_one_vs_rest(
+        self,
+        instances: List[Instance],
+        predictions: List[Prediction],
+        label: str,
+        label_type: str,
+        metrics: List[Callable],
+        threshold: float,
+    ) -> Mapping[str, float]:
         """
         Calculates metrics for a single class vs others.
 
@@ -121,21 +128,29 @@ class Evaluator:
         :param threshold: Threshold to use for converting confidence scores to predicted labels.
         """
         # Calculate hard and soft labels
-        y_true, y_pred = to_arrays(instances, predictions, label, label_type, threshold, binary=True)
-        _, y_prob = to_arrays(instances, predictions, label, label_type, threshold, binary=False)
+        y_true, y_pred = to_arrays(
+            instances, predictions, label, label_type, threshold, binary=True
+        )
+        _, y_prob = to_arrays(
+            instances, predictions, label, label_type, threshold, binary=False
+        )
 
         # Calculate metrics
         return {
-            m.__name__: m(y_true, y_prob) if self._is_probability_metric(m) else m(y_true, y_pred)
+            m.__name__: m(y_true, y_prob)
+            if self._is_probability_metric(m)
+            else m(y_true, y_pred)
             for m in metrics
         }
 
-    def _calculate_macro_average(self,
-                                 instances: List[Instance],
-                                 predictions: List[Prediction],
-                                 label_type: str,
-                                 metrics: List[Callable],
-                                 threshold: float) -> Mapping[str, float]:
+    def _calculate_macro_average(
+        self,
+        instances: List[Instance],
+        predictions: List[Prediction],
+        label_type: str,
+        metrics: List[Callable],
+        threshold: float,
+    ) -> Mapping[str, float]:
         """
         Calculates metrics for every label and averages them.
 
@@ -151,19 +166,21 @@ class Evaluator:
 
         # Calculate metric for each class
         all_class_results = [
-            self._calculate_one_vs_rest(instances, predictions, lbl, label_type, metrics, threshold)
+            self._calculate_one_vs_rest(
+                instances, predictions, lbl, label_type, metrics, threshold
+            )
             for lbl in labels
         ]
         # Return dictionary of results
         return pd.DataFrame(all_class_results).mean().to_dict()
 
     def run(
-            self,
-            metrics: Union[Callable, List[Callable]],
-            label_type: str,
-            threshold: float = 0.5,
-            target_class: Optional[str] = None,
-            group_by: Optional[str] = None
+        self,
+        metrics: Union[Callable, List[Callable]],
+        label_type: str,
+        threshold: float = 0.5,
+        target_class: Optional[str] = None,
+        group_by: Optional[str] = None,
     ) -> EvaluationResult:
         """
         Executes one or multiple given evaluation functions across the dataset or per group.

@@ -6,22 +6,30 @@ from typing import List
 
 import confidence
 from datasets import tqdm
-from sklearn.metrics import accuracy_score, average_precision_score, precision_score, recall_score, f1_score, roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    average_precision_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    roc_auc_score,
+)
 
 from deepfake_detection.data import Dataset, sample_n_per_class
 from deepfake_detection.evaluation.evaluator import Evaluator
 from deepfake_detection.models import Model, Prediction
 from deepfake_detection.utils.configuration import parse_dataset_config, load_model
-from deepfake_detection.utils.io import read_predictions_from_file, write_predictions_to_file
+from deepfake_detection.utils.io import (
+    read_predictions_from_file,
+    write_predictions_to_file,
+)
 
 
 # Set the logging level to INFO
 logging.basicConfig(level=logging.INFO)
 
 
-def evaluate(dataset_config: str,
-             model_config: str,
-             output_dir: str) -> None:
+def evaluate(dataset_config: str, model_config: str, output_dir: str) -> None:
     """
     Evaluates a model on specified datasets and generates metrics and visualizations.
 
@@ -37,14 +45,15 @@ def evaluate(dataset_config: str,
     datasets = parse_dataset_config(dataset_config)
 
     # Load model
-    model = load_model(confidence.loadf(model_config)['model'])
+    model = load_model(confidence.loadf(model_config)["model"])
 
     # Log evaluation information
-    logging.info(f"Evaluating {model.name} model on {len(datasets)} datasets: {[d for d in datasets.keys()]}")
+    logging.info(
+        f"Evaluating {model.name} model on {len(datasets)} datasets: {[d for d in datasets.keys()]}"
+    )
 
     # Evaluate for each dataset
     for dataset in datasets:
-
         # Get dataset object
         dataset = datasets[dataset]
 
@@ -59,7 +68,9 @@ def evaluate(dataset_config: str,
         evaluate_model_on_dataset(dataset, model, predictions, output_dir)
 
 
-def get_predictions(model: Model, dataset: Dataset, predictions_dir: str=None) -> List[Prediction]:
+def get_predictions(
+    model: Model, dataset: Dataset, predictions_dir: str = None
+) -> List[Prediction]:
     """
     Gets predictions for a given model and dataset, either by generating new predictions or
     loading them from an existing file. If the predictions file does not exist, the function
@@ -75,26 +86,35 @@ def get_predictions(model: Model, dataset: Dataset, predictions_dir: str=None) -
     """
     # Get predictions file path
     if predictions_dir:
-        predictions_file = os.path.join(predictions_dir, f"{model.name}_{dataset.name}.json")
+        predictions_file = os.path.join(
+            predictions_dir, f"{model.name}_{dataset.name}.json"
+        )
     else:
         predictions_file = None
 
     # If predictions file is not specified or does not yet exist, make predictions
     if predictions_file is None or not os.path.exists(predictions_file):
-
         predictions = []
-        for instance in tqdm(dataset, desc=f"Making predictions for {dataset.name}", total=len(dataset)):
-
+        for instance in tqdm(
+            dataset, desc=f"Making predictions for {dataset.name}", total=len(dataset)
+        ):
             # Make prediction
             prediction = model.predict(instance)
             predictions.append(prediction)
 
         # Write predictions to file (if predictions file specified)
         if predictions_file:
-            write_predictions_to_file(predictions, Path(os.path.join(predictions_dir, f"{model.name}_{dataset.name}.json")))
+            write_predictions_to_file(
+                predictions,
+                Path(
+                    os.path.join(predictions_dir, f"{model.name}_{dataset.name}.json")
+                ),
+            )
             logging.info(f"Saved predictions to {predictions_file}")
         else:
-            logging.info("Skipping saving predictions to file because no predictions directory specified.")
+            logging.info(
+                "Skipping saving predictions to file because no predictions directory specified."
+            )
 
     # Otherwise load predictions from file
     else:
@@ -104,10 +124,9 @@ def get_predictions(model: Model, dataset: Dataset, predictions_dir: str=None) -
     return predictions
 
 
-def evaluate_model_on_dataset(dataset: Dataset,
-                              model: Model,
-                              predictions: List[Prediction],
-                              output_dir: str) -> None:
+def evaluate_model_on_dataset(
+    dataset: Dataset, model: Model, predictions: List[Prediction], output_dir: str
+) -> None:
     """
     Evaluates the performance of a prediction model on a given dataset by computing classification metrics,
     generating outputs, and saving the metrics to a file in the specified directory.
@@ -121,36 +140,67 @@ def evaluate_model_on_dataset(dataset: Dataset,
     evaluator = Evaluator(list(dataset), predictions)
 
     # Get overall evaluation results
-    overall_results = evaluator.run([accuracy_score, average_precision_score, precision_score, recall_score, f1_score, roc_auc_score],
-                                    label_type='authenticity_label')
+    overall_results = evaluator.run(
+        [
+            accuracy_score,
+            average_precision_score,
+            precision_score,
+            recall_score,
+            f1_score,
+            roc_auc_score,
+        ],
+        label_type="authenticity_label",
+    )
 
     # Get per-subset results
-    per_generator_results = evaluator.run([accuracy_score, average_precision_score, roc_auc_score],
-                                          label_type='authenticity_label',
-                                          group_by='source_label')
+    per_generator_results = evaluator.run(
+        [accuracy_score, average_precision_score, roc_auc_score],
+        label_type="authenticity_label",
+        group_by="source_label",
+    )
 
     # Make output directory
     os.makedirs(output_dir, exist_ok=True)
 
     # Save metrics to file
-    overall_results.to_df().to_csv(os.path.join(output_dir, f"{dataset.name}_{model.name}_overall_metrics.csv"))
-    per_generator_results.to_df().to_csv(os.path.join(output_dir, f"{dataset.name}_{model.name}_subset_metrics.csv"))
+    overall_results.to_df().to_csv(
+        os.path.join(output_dir, f"{dataset.name}_{model.name}_overall_metrics.csv")
+    )
+    per_generator_results.to_df().to_csv(
+        os.path.join(output_dir, f"{dataset.name}_{model.name}_subset_metrics.csv")
+    )
 
-    logging.info(f"Exported evaluation results to '{dataset.name}_{model.name}_overall_metrics.csv'"
-                 f" and '{dataset.name}_{model.name}_subset_metrics.csv'")
+    logging.info(
+        f"Exported evaluation results to '{dataset.name}_{model.name}_overall_metrics.csv'"
+        f" and '{dataset.name}_{model.name}_subset_metrics.csv'"
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Define and parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d','--dataset-config',
-                        type=str, required=True, help='Path to dataset config file.')
-    parser.add_argument('-m', '--model-config',
-                        type=str, required=True, help='Path to model config file.')
-    parser.add_argument('-o', '--output-dir',
-                        default='results',
-                        type=str, required=False,
-                        help='Path to directory where evaluation predictions should be saved.')
+    parser.add_argument(
+        "-d",
+        "--dataset-config",
+        type=str,
+        required=True,
+        help="Path to dataset config file.",
+    )
+    parser.add_argument(
+        "-m",
+        "--model-config",
+        type=str,
+        required=True,
+        help="Path to model config file.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        default="results",
+        type=str,
+        required=False,
+        help="Path to directory where evaluation predictions should be saved.",
+    )
     args = vars(parser.parse_args())
 
     # Run evaluation

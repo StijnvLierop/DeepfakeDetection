@@ -6,19 +6,30 @@ import pytest
 
 from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
 from deepfake_detection.models.prediction import Prediction
-from deepfake_detection.utils.io import write_predictions_to_file, read_predictions_from_file, jsonify, \
-    encode_prediction, decode_prediction
+from deepfake_detection.utils.io import (
+    write_predictions_to_file,
+    read_predictions_from_file,
+    jsonify,
+    encode_prediction,
+    decode_prediction,
+)
 from tests.deepfake_detection.paths import RESOURCES_DIR
 
 
 @pytest.fixture
 def image_dataset():
-    return FileImageDataset(RESOURCES_DIR / "data" / "test_image_dataset", name="test_image_dataset")
+    return FileImageDataset(
+        RESOURCES_DIR / "data" / "test_image_dataset", name="test_image_dataset"
+    )
 
 
 @pytest.fixture
 def predictions(image_dataset):
-    return [Prediction(classification={'score':0.1}), Prediction(embedding=[0.1,0.2]), Prediction(text='hoi')]
+    return [
+        Prediction(classification={"score": 0.1}),
+        Prediction(embedding=[0.1, 0.2]),
+        Prediction(text="hoi"),
+    ]
 
 
 @pytest.fixture()
@@ -29,6 +40,7 @@ def prediction() -> Prediction:
         text="Test",
         image=np.array([1, 1]),
     )
+
 
 @pytest.fixture
 def unserializable():
@@ -48,7 +60,9 @@ def test_write_read_predictions_to_file(image_dataset, predictions):
     assert read_predictions == predictions
 
 
-def test_write_read_predictions_to_file_parent_dir_not_exists(image_dataset, predictions):
+def test_write_read_predictions_to_file_parent_dir_not_exists(
+    image_dataset, predictions
+):
     temp_dir = tempfile.gettempdir()
     filepath = f"{temp_dir}/parent/predictions.json"
     write_predictions_to_file(predictions, Path(filepath))
@@ -56,7 +70,9 @@ def test_write_read_predictions_to_file_parent_dir_not_exists(image_dataset, pre
     assert read_predictions == predictions
 
 
-def test_write_read_predictions_to_file_parent_parent_dir_not_exists(image_dataset, predictions):
+def test_write_read_predictions_to_file_parent_parent_dir_not_exists(
+    image_dataset, predictions
+):
     temp_dir = tempfile.gettempdir()
     filepath = f"{temp_dir}/parent/predictions.json"
     write_predictions_to_file(predictions, Path(filepath))
@@ -65,8 +81,8 @@ def test_write_read_predictions_to_file_parent_parent_dir_not_exists(image_datas
 
 
 def get_predictions_filename():
-    name = get_predictions_filename('testdataset', 'testmodel')
-    assert name == f'predictions_testdataset_testmodel.json'
+    name = get_predictions_filename("testdataset", "testmodel")
+    assert name == "predictions_testdataset_testmodel.json"
 
 
 def test_encode_decode_prediction(prediction):
@@ -95,9 +111,7 @@ def test_encode_decode_prediction_skips_unserializable_meta(unserializable):
         assert encoded["meta"] == {"foo": "bar"}
 
 
-def test_json_encode_decode_prediction_with_unserializable_meta(
-        unserializable
-):
+def test_json_encode_decode_prediction_with_unserializable_meta(unserializable):
     meta = {
         "unserializable": unserializable,
         "foo": "bar",

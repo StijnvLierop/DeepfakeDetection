@@ -44,7 +44,7 @@ class FileImageSequenceDataset(MapStyleDatasetMixin, Dataset):
 
         # If split file provided store the filenames of included instances in a list
         if split_file:
-            with open(split_file, 'r') as f:
+            with open(split_file, "r") as f:
                 self.included_instances = f.read().splitlines()
         else:
             self.included_instances = None
@@ -67,11 +67,24 @@ class FileImageSequenceDataset(MapStyleDatasetMixin, Dataset):
                     # If directory
                     if os.path.isdir(os.path.join(self.path, folder, subfolder)):
                         # Loop over subdirs with image sequences inside them
-                        for img_folder in os.listdir(os.path.join(self.path, folder, subfolder)):
+                        for img_folder in os.listdir(
+                            os.path.join(self.path, folder, subfolder)
+                        ):
                             # if folder
-                            if os.path.isdir(os.path.join(self.path, folder, subfolder, img_folder)):
-                                if self.included_instances is None or img_folder in self.included_instances:
-                                    paths.append(Path(os.path.join(self.path, folder, subfolder, img_folder)))
+                            if os.path.isdir(
+                                os.path.join(self.path, folder, subfolder, img_folder)
+                            ):
+                                if (
+                                    self.included_instances is None
+                                    or img_folder in self.included_instances
+                                ):
+                                    paths.append(
+                                        Path(
+                                            os.path.join(
+                                                self.path, folder, subfolder, img_folder
+                                            )
+                                        )
+                                    )
         return paths
 
     def __getitem__(self, idx: int) -> Instance:
@@ -82,9 +95,12 @@ class FileImageSequenceDataset(MapStyleDatasetMixin, Dataset):
         authenticity_label, source_label, img_name = path.parts[-3:]
 
         # Return instance
-        return FileImageSequenceInstance(str(path),
-                                         Annotation(authenticity_label=authenticity_label, source_label=source_label)
-                                         )
+        return FileImageSequenceInstance(
+            str(path),
+            Annotation(
+                authenticity_label=authenticity_label, source_label=source_label
+            ),
+        )
 
     def __len__(self):
         return len(self.instance_paths)

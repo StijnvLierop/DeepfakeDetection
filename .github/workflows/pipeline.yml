@@ -14,8 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Flake8 Annotator
-        uses: rbialon/flake8-annotations@v1
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff Check
+        run: ruff check .
 
       - name: Set up Python 3.10
         uses: actions/setup-python@v5

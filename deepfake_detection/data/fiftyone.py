@@ -10,7 +10,7 @@ from fiftyone.core.fields import EmbeddedDocumentField
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction
 
-IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
 
 
 class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
@@ -18,20 +18,19 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
     Helper class that is used to load Dataset samples as FiftyOne samples.
     """
 
-    def __init__(self,
-                 dataset: Dataset,
-                 predictions: Optional[Sequence[Prediction]] = None,
-                 cache_dir: Optional[Path] = None):
+    def __init__(
+        self,
+        dataset: Dataset,
+        predictions: Optional[Sequence[Prediction]] = None,
+        cache_dir: Optional[Path] = None,
+    ):
         """
         :param dataset: The deepfake_detection.data.Dataset to import.
         :param predictions: An optional sequence of predictions.
         :param cache_dir: The directory to store temporary files in case
                           instances are not stored on disk yet.
         """
-        super().__init__(dataset_dir=None,
-                         shuffle=False,
-                         seed=None,
-                         max_samples=None)
+        super().__init__(dataset_dir=None, shuffle=False, seed=None, max_samples=None)
         self.dataset = dataset
         self.cache_dir = cache_dir
         self.predictions = predictions
@@ -43,11 +42,17 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
     def get_sample_field_schema(self):
         schema = {
             "source_label": EmbeddedDocumentField(document_type=fo.Classification),
-            "authenticity_label": EmbeddedDocumentField(document_type=fo.Classification),
+            "authenticity_label": EmbeddedDocumentField(
+                document_type=fo.Classification
+            ),
         }
         if self.predictions:
-            schema["predictions"] = EmbeddedDocumentField(document_type=fo.Classifications)
-            schema["predicted_label"] = EmbeddedDocumentField(document_type=fo.Classification)
+            schema["predictions"] = EmbeddedDocumentField(
+                document_type=fo.Classifications
+            )
+            schema["predicted_label"] = EmbeddedDocumentField(
+                document_type=fo.Classification
+            )
         return schema
 
     @property
@@ -65,11 +70,14 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 
     def __iter__(self):
         # Loop over instances in the dataset
-        for instance, prediction in zip_longest(self.dataset, self.predictions or [], fillvalue=None):
-
+        for instance, prediction in zip_longest(
+            self.dataset, self.predictions or [], fillvalue=None
+        ):
             # If instance has an image path
-            if (hasattr(instance, 'path') and
-                    os.path.splitext(instance.path)[1].lower() in IMAGE_EXTS):
+            if (
+                hasattr(instance, "path")
+                and os.path.splitext(instance.path)[1].lower() in IMAGE_EXTS
+            ):
                 path = instance.path
 
             # Otherwise export the file to a temporary directory
@@ -77,9 +85,11 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
             else:
                 # Raise ValueError in case cache_dir is not set
                 if self.cache_dir is None:
-                    raise ValueError("cache_dir must be set when converting "
-                                     "a dataset that does not contain pointers"
-                                     " to files on disk.")
+                    raise ValueError(
+                        "cache_dir must be set when converting "
+                        "a dataset that does not contain pointers"
+                        " to files on disk."
+                    )
 
                 # Save instance to temporary directory
                 path = Path(os.path.join(self.cache_dir, str(instance.__hash__())))
@@ -90,31 +100,40 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 
             # Add annotations
             if instance.annotation:
-                sample['source_label'] = fo.Classification(label=instance.annotation.source_label)
-                sample['authenticity_label'] = fo.Classification(label=instance.annotation.authenticity_label)
+                sample["source_label"] = fo.Classification(
+                    label=instance.annotation.source_label
+                )
+                sample["authenticity_label"] = fo.Classification(
+                    label=instance.annotation.authenticity_label
+                )
 
             # Add predictions
             if prediction:
                 # Add all predicted labels
-                predictions = [fo.Classification(label=l,
-                                                 confidence=prediction.classification.get(l))
-                               for l in prediction.classification]
-                sample['predictions'] = fo.Classifications(classifications=predictions)
+                predictions = [
+                    fo.Classification(
+                        label=label, confidence=prediction.classification.get(label)
+                    )
+                    for label in prediction.classification
+                ]
+                sample["predictions"] = fo.Classifications(classifications=predictions)
 
                 # Add the predicted label with the highest confidence score
-                top_pred = max(prediction.classification,
-                               key=prediction.classification.get)
-                sample['predicted_label'] = fo.Classification(
-                    label=top_pred,
-                    confidence=prediction.classification[top_pred]
+                top_pred = max(
+                    prediction.classification, key=prediction.classification.get
+                )
+                sample["predicted_label"] = fo.Classification(
+                    label=top_pred, confidence=prediction.classification[top_pred]
                 )
 
             yield sample
 
 
-def to_fiftyone_dataset(dataset: Dataset,
-                        predictions: Optional[Sequence[Prediction]] = None,
-                        cache_dir: Optional[Path] = None) -> fo.Dataset:
+def to_fiftyone_dataset(
+    dataset: Dataset,
+    predictions: Optional[Sequence[Prediction]] = None,
+    cache_dir: Optional[Path] = None,
+) -> fo.Dataset:
     """
     Function that converts a Dataset to a FiftyOne dataset.
 

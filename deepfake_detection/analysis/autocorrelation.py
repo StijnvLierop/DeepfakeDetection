@@ -17,6 +17,6 @@ def autocorrelation(img: np.ndarray) -> np.ndarray:
     image_zero_mean = img - np.mean(img)
 
     # Compute 2D autocorrelation using FFT-based convolution (correlate image with itself)
-    autocorr = fftconvolve(image_zero_mean, image_zero_mean[::-1, ::-1], mode='full')
+    autocorr = fftconvolve(image_zero_mean, image_zero_mean[::-1, ::-1], mode="full")
 
     return autocorr

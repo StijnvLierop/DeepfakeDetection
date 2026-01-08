@@ -5,14 +5,17 @@ import numpy as np
 import sklearn
 from matplotlib import pyplot as plt
 
-from deepfake_detection.data import Instance, Dataset
+from deepfake_detection.data.instance import Instance
+from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.evaluation.utils import get_labels
 from deepfake_detection.models import Prediction
 
 
-def confusion_matrix(instances: Union[Sequence[Instance], Dataset],
-                     predictions: Sequence[Prediction],
-                     label_type: str) -> np.ndarray:
+def confusion_matrix(
+    instances: Union[Sequence[Instance], Dataset],
+    predictions: Sequence[Prediction],
+    label_type: str,
+) -> np.ndarray:
     """
     Computes the confusion matrix for the annotated ``instances`` and corresponding ``predictions``.
 
@@ -44,9 +47,11 @@ def confusion_matrix(instances: Union[Sequence[Instance], Dataset],
     return cm
 
 
-def plot_confusion_matrix(instances: Union[Sequence[Instance], Dataset],
-                          predictions: Sequence[Prediction],
-                          label_type: str) -> None:
+def plot_confusion_matrix(
+    instances: Union[Sequence[Instance], Dataset],
+    predictions: Sequence[Prediction],
+    label_type: str,
+) -> None:
     """
     Plots the confusion matrix for the annotated ``instances`` and corresponding ``predictions``.
 
@@ -65,7 +70,9 @@ def plot_confusion_matrix(instances: Union[Sequence[Instance], Dataset],
 
     # Plot confusion matrix
     plt.figure(figsize=(20, 20))
-    disp = sklearn.metrics.ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+    disp = sklearn.metrics.ConfusionMatrixDisplay(
+        confusion_matrix=cm, display_labels=labels
+    )
     disp.plot()
     plt.xticks(rotation=90)
     plt.tight_layout()

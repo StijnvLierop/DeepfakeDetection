@@ -1,13 +1,8 @@
 import os
 import pytest
 
-from deepfake_detection.data.datasets import ListDataset
-from deepfake_detection.data.datasets.fileimagedataset import FileImageDataset
-from deepfake_detection.data.datasets.filevideodataset import FileVideoDataset
-from deepfake_detection.data.datasets.fileimagesequencedataset import FileImageSequenceDataset
-from deepfake_detection.data.datasets.filtered_dataset import FilteredDataset
-from tests.deepfake_detection.fixtures import (image_dataset_path, image_sequence_dataset_path,
-                                               video_dataset_path, dummy_dataset)
+from deepfake_detection.data.datasets import (ListDataset, FileImageSequenceDataset, FileImageDataset,
+                                              FileVideoDataset, FilteredDataset)
 from tests.deepfake_detection.paths import RESOURCES_DIR
 
 
@@ -18,7 +13,9 @@ def image_split_file_path():
 
 @pytest.fixture
 def image_sequence_split_file_path():
-    return os.path.join(RESOURCES_DIR, "data", "test_image_sequence_dataset", "split_file.txt")
+    return os.path.join(
+        RESOURCES_DIR, "data", "test_image_sequence_dataset", "split_file.txt"
+    )
 
 
 @pytest.fixture
@@ -27,7 +24,7 @@ def video_split_file_path():
 
 
 def test_load_file_image_dataset(image_dataset_path):
-    dataset = FileImageDataset(name='test', path=image_dataset_path)
+    dataset = FileImageDataset(name="test", path=image_dataset_path)
     instances = list(dataset)
 
     assert len(dataset) == 3
@@ -35,7 +32,9 @@ def test_load_file_image_dataset(image_dataset_path):
 
 
 def test_load_file_image_dataset_split(image_dataset_path, image_split_file_path):
-    dataset = FileImageDataset(name='test', path=image_dataset_path, split_file=image_split_file_path)
+    dataset = FileImageDataset(
+        name="test", path=image_dataset_path, split_file=image_split_file_path
+    )
     instances = list(dataset)
 
     assert len(dataset) == 1
@@ -43,17 +42,21 @@ def test_load_file_image_dataset_split(image_dataset_path, image_split_file_path
 
 
 def test_load_file_image_sequence_dataset(image_sequence_dataset_path):
-    dataset = FileImageSequenceDataset(name='test', path=image_sequence_dataset_path)
+    dataset = FileImageSequenceDataset(name="test", path=image_sequence_dataset_path)
     instances = list(dataset)
 
     assert len(dataset) == 6
     assert len(dataset) == len(instances)
 
 
-def test_load_file_image_sequence_dataset_split(image_sequence_dataset_path, image_sequence_split_file_path):
-    dataset = FileImageSequenceDataset(name='test',
-                                       path=image_sequence_dataset_path,
-                                       split_file=image_sequence_split_file_path)
+def test_load_file_image_sequence_dataset_split(
+    image_sequence_dataset_path, image_sequence_split_file_path
+):
+    dataset = FileImageSequenceDataset(
+        name="test",
+        path=image_sequence_dataset_path,
+        split_file=image_sequence_split_file_path,
+    )
     instances = list(dataset)
 
     assert len(dataset) == 1
@@ -61,7 +64,7 @@ def test_load_file_image_sequence_dataset_split(image_sequence_dataset_path, ima
 
 
 def test_load_video_dataset(video_dataset_path):
-    dataset = FileVideoDataset(name='test', path=video_dataset_path)
+    dataset = FileVideoDataset(name="test", path=video_dataset_path)
     instances = list(dataset)
 
     assert len(dataset) == 3
@@ -69,7 +72,9 @@ def test_load_video_dataset(video_dataset_path):
 
 
 def test_load_file_image_video_dataset_split(video_dataset_path, video_split_file_path):
-    dataset = FileVideoDataset(name='test', path=video_dataset_path, split_file=video_split_file_path)
+    dataset = FileVideoDataset(
+        name="test", path=video_dataset_path, split_file=video_split_file_path
+    )
     instances = list(dataset)
 
     assert len(dataset) == 1
@@ -77,16 +82,16 @@ def test_load_file_image_video_dataset_split(video_dataset_path, video_split_fil
 
 
 def test_dataset_same_instances_equal(image_dataset_path):
-    dataset = FileImageDataset(name='test', path=image_dataset_path)
-    dataset2 = FileImageDataset(name='test2', path=image_dataset_path)
+    dataset = FileImageDataset(name="test", path=image_dataset_path)
+    dataset2 = FileImageDataset(name="test2", path=image_dataset_path)
     assert dataset == dataset2
-    dataset3 = ListDataset(name='test3', instances=list(dataset))
+    dataset3 = ListDataset(name="test3", instances=list(dataset))
     assert dataset == dataset3
 
 
 def test_dataset_different_instances_different(image_dataset_path):
-    dataset = FileImageDataset(name='test', path=image_dataset_path)
-    dataset2 = ListDataset(name='test3', instances=list(dataset)[:-1])
+    dataset = FileImageDataset(name="test", path=image_dataset_path)
+    dataset2 = ListDataset(name="test3", instances=list(dataset)[:-1])
     assert dataset != dataset2
 
 
@@ -150,5 +155,4 @@ def test_iter_with_large_batch_size(dummy_dataset):
 
 def test_get_item(dummy_dataset):
     instance = dummy_dataset[0]
-    assert instance.annotation.authenticity_label == 'real'
-
+    assert instance.annotation.authenticity_label == "real"
