@@ -1,6 +1,20 @@
 # CHANGELOG
 
 
+## v0.28.2 (2026-01-08)
+
+### Bug Fixes
+
+- Imports in freqnet
+  ([`11a4dbd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/11a4dbd595697811af338b596a3bfd824bbd02c1))
+
+- Imports in univfd
+  ([`ccb2904`](https://github.com/StijnvLierop/DeepfakeDetection/commit/ccb2904859ba32610a43c313e5fbbcc92c22fda9))
+
+- Small import module mistakes in models
+  ([`41cbd4d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/41cbd4dbe1a3a00dd3f7597f52e1ce5f883cbe04))
+
+
 ## v0.28.1 (2026-01-08)
 
 ### Bug Fixes
