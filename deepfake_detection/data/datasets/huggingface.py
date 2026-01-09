@@ -29,6 +29,7 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
         :param source_label_col: Name of the column containing the source label.
         :param authenticity_label_col: Name of the column containing the authenticity label.
         :param authenticity_label_mapping: Mapping from labels to 'real', 'fake' or 'manipulated'.
+                                           A wildcard '*' can be used to map all non-specified labels to the same label.
         :param **kwargs: Additional arguments passed to datasets.load_dataset.
         """
         super().__init__(
@@ -70,7 +71,16 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
         if self.authenticity_label_col:
             authenticity_label = sample[self.authenticity_label_col]
             if self.authenticity_label_mapping:
-                authenticity_label = self.authenticity_label_mapping[authenticity_label]
+                # Check if label is in mapping and map if so
+                if authenticity_label in self.authenticity_label_mapping:
+                    authenticity_label = self.authenticity_label_mapping[authenticity_label]
+                # Otherwise check for wildcard
+                elif "*" in self.authenticity_label_mapping:
+                    authenticity_label = self.authenticity_label_mapping["*"]
+                # Otherwise raise error
+                else:
+                    raise ValueError(f"Label '{authenticity_label}' not found in authenticity_label_mapping"
+                                     f" and no wildcard '*' is provided.")
 
         if source_label is not None or authenticity_label is not None:
             annotation = Annotation(
