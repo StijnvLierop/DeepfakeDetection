@@ -35,7 +35,7 @@ jobs:
           pdm install -dG test
 
       - name: Run unit tests
-        run: pdm run pytest --import-mode=append tests/
+        run: pdm run pytest -s -vv --import-mode=append tests/
 
   # Bump version
   release:
