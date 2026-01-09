@@ -96,7 +96,8 @@ def test_dataset_different_instances_different(image_dataset_path):
 
 
 def test_filtered_dataset_iteration(dummy_dataset):
-    indices = lambda x: [2, 4]
+    def indices():
+        return lambda x: [2, 4]
     filtered_dataset = FilteredDataset(dummy_dataset, indices)
     result = list(filtered_dataset)
     answer = [list(dummy_dataset)[2], list(dummy_dataset)[4]]
@@ -104,14 +105,16 @@ def test_filtered_dataset_iteration(dummy_dataset):
 
 
 def test_filtered_dataset_empty_indices(dummy_dataset):
-    indices = lambda x: []
+    def indices():
+        return lambda x: []
     filtered_dataset = FilteredDataset(dummy_dataset, indices)
     result = list(filtered_dataset)
     assert result == []
 
 
 def test_filtered_dataset_length(dummy_dataset):
-    indices = lambda x: [1, 5]
+    def indices():
+        return lambda x: [1, 5]
     filtered_dataset = FilteredDataset(dummy_dataset, indices)
     assert len(filtered_dataset) == len(list(filtered_dataset))
     assert 2 == len(filtered_dataset)
