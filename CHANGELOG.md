@@ -1,6 +1,42 @@
 # CHANGELOG
 
 
+## v0.29.0 (2026-01-09)
+
+### Bug Fixes
+
+- Code formatting
+  ([`4c78ca6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4c78ca608c38623ab6497ec4d99b228c240a9219))
+
+- Test imports
+  ([`b1e1616`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b1e161699a434b5c1315ee9f86f4bf34361f97ec))
+
+- Unit tests
+  ([`361ec2c`](https://github.com/StijnvLierop/DeepfakeDetection/commit/361ec2cddecdd1227fa7d6aaeb2f10717c7858e8))
+
+- Unit tests
+  ([`5cb8205`](https://github.com/StijnvLierop/DeepfakeDetection/commit/5cb8205dfcc31e9c815d16d33d4382e7c05a2f46))
+
+### Chores
+
+- Fix code formatting issues
+  ([`621ed59`](https://github.com/StijnvLierop/DeepfakeDetection/commit/621ed592b0bb394a81b757021f0f31a318536f87))
+
+- Run unit tests with verbose output in pipeline
+  ([`a07e626`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a07e6260c437c8a01f1f7589e9ae3a1a55ae376b))
+
+### Features
+
+- Add combineddataset
+  ([`5efa5ef`](https://github.com/StijnvLierop/DeepfakeDetection/commit/5efa5ef5ec46d3b41bb445ac821df2fc7f24a201))
+
+- Add configuration options to load datasets from yaml file
+  ([`5583daf`](https://github.com/StijnvLierop/DeepfakeDetection/commit/5583dafe9b8f920981928ee02a7c7acd34af817b))
+
+- Add wildcard label mapping feature to huggingface dataset
+  ([`a86ec75`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a86ec750c679d0dc4afd357cefd50994dbfbff7d))
+
+
 ## v0.28.2 (2026-01-08)
 
 ### Bug Fixes
