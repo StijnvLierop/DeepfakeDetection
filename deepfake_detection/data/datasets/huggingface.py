@@ -18,6 +18,7 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
         self,
         dataset: Union[str, datasets.Dataset],
         data_col: str,
+        dataset_name: Optional[str] = None,
         source_label_col: Optional[str] = None,
         authenticity_label_col: Optional[str] = None,
         authenticity_label_mapping: Optional[Mapping[Any, str]] = None,
@@ -26,15 +27,14 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
         """
         :param dataset: Huggingface dataset object or ID of dataset.
         :param data_col: Name of the column containing the image data.
+        :param dataset_name: Name of the dataset.
         :param source_label_col: Name of the column containing the source label.
         :param authenticity_label_col: Name of the column containing the authenticity label.
         :param authenticity_label_mapping: Mapping from labels to 'real', 'fake' or 'manipulated'.
                                            A wildcard '*' can be used to map all non-specified labels to the same label.
         :param **kwargs: Additional arguments passed to datasets.load_dataset.
         """
-        super().__init__(
-            name=dataset if isinstance(dataset, str) else dataset.config_name
-        )
+        super().__init__(name=dataset_name)
         self.data_col = data_col
         self.source_label_col = source_label_col
         self.authenticity_label_col = authenticity_label_col
