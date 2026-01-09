@@ -1,4 +1,6 @@
 import pydoc
+from functools import partial
+from typing import Any, Iterable, MutableMapping
 
 import confidence
 
@@ -22,7 +24,7 @@ def parse_dataset_config(config_path: str):
     return datasets
 
 
-def load_dataset(config: confidence.Configuration) -> Dataset:
+def load_dataset(config: confidence.Configuration) -> Any:
     """
     This function initializes a dataset from a provided configuration mapping.
 
@@ -35,17 +37,55 @@ def load_dataset(config: confidence.Configuration) -> Dataset:
                        path: /path/to/dataset/folder/
                        ...
     """
-    # Convert configuration to dictionary
-    dataset_dict = dict(config)
 
-    # Find dataset class specified in config
-    dataset_class = pydoc.locate(str(dataset_dict["class"]))
+    # Handle primitives
+    if isinstance(config, (str, int, float, bool)) or config is None:
+        return config
 
-    # If class found, initialize dataset
-    if dataset_class is not None:
-        return dataset_class(**dataset_dict["params"])
+    # If dict like object
+    if isinstance(config, dict) or hasattr(config, "keys"):
+
+        # Detect if we are dealing with a function (with parameters)
+        if "func" in config:
+            func_path = config["func"]
+            func_params = config.get("params", {})
+
+            # Look for the function
+            target_func = pydoc.locate(func_path)
+            if target_func is None:
+                raise ImportError(f"Function not found: {func_path}")
+
+            return partial(target_func, **func_params)
+
+        # If a class key is present, we initialize the dataset class
+        if "class" in config:
+
+            # Load config as dict
+            config = dict(config)
+
+            # Look for the dataset class
+            cls_path = config.pop("class")
+            cls = pydoc.locate(str(cls_path))
+            if cls is None:
+                raise ImportError(f"Dataset class not found: {cls_path}")
+
+            # Get function arguments
+            init_args = config.pop("params") if "params" in config else config
+
+            # Recursively process arguments
+            processed_args = {k: load_dataset(v) for k, v in init_args.items()}
+            print(processed_args)
+            print(cls)
+            return cls(**processed_args)
+
+        return {k: load_dataset(v) for k, v in config.items()}
+
+    # Handle iterables
+    if isinstance(config, Iterable):
+        return [load_dataset(item) for item in list(config)]
+
     else:
-        raise ValueError(f"Dataset class not found: {dataset_dict['class']}")
+        return config
 
 
 def parse_model_config(config_path: str):

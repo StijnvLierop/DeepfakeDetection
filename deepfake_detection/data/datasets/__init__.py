@@ -11,7 +11,7 @@ from deepfake_detection.data.datasets.cnndetect import CNNDetectDataset
 from deepfake_detection.data.datasets.diffusiondataset import DiffusionDataset
 from deepfake_detection.data.datasets.huggingface import HuggingfaceDataset
 from deepfake_detection.data.datasets.torch import TorchDataset
-from deepfake_detection.data.datasets.filtered_dataset import FilteredDataset
+from deepfake_detection.data.datasets.filter import FilteredDataset
 from deepfake_detection.data.datasets.combined import CombinedDataset
 
 
