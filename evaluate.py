@@ -15,7 +15,8 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from deepfake_detection.data import Dataset, sample_n_per_class
+from deepfake_detection.data.dataset import Dataset
+from deepfake_detection.data.utils import sample_n_per_class
 from deepfake_detection.evaluation.evaluator import Evaluator
 from deepfake_detection.models import Model, Prediction
 from deepfake_detection.utils.configuration import parse_dataset_config, load_model
