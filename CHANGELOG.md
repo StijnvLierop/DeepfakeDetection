@@ -1,12 +1,28 @@
 # CHANGELOG
 
 
+## v0.29.1 (2026-01-09)
+
+### Bug Fixes
+
+- Remove obsolete test
+  ([`d8d90e3`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d8d90e3272b85372b270c28fdfd990637c341fbf))
+
+### Chores
+
+- Update evaluation.py
+  ([`93c1127`](https://github.com/StijnvLierop/DeepfakeDetection/commit/93c11271b6199e73509f426432b3944e9d435b90))
+
+
 ## v0.29.0 (2026-01-09)
 
 ### Bug Fixes
 
 - Code formatting
   ([`4c78ca6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4c78ca608c38623ab6497ec4d99b228c240a9219))
+
+- Imports in evaluate.py
+  ([`8a46fa6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8a46fa6c1fa397c0305c8f31b992e2adf86e9144))
 
 - Test imports
   ([`b1e1616`](https://github.com/StijnvLierop/DeepfakeDetection/commit/b1e161699a434b5c1315ee9f86f4bf34361f97ec))
