@@ -13,7 +13,7 @@ class FilteredDataset(Dataset):
     """
 
     def __init__(self, dataset: Dataset, filter_func: Callable[[Dataset], list[int]]):
-        super().__init__(name=None if dataset.name is not None else f"filtered_{dataset.name}")
+        super().__init__(name=None if dataset.name is None else f"{dataset.name}")
         self.dataset = dataset
         self.indices = filter_func(dataset)
 

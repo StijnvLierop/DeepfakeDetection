@@ -1,5 +1,5 @@
 import itertools
-from typing import Iterable, Sized
+from typing import Iterable, Sized, Optional
 
 from deepfake_detection.data.dataset import Dataset
 
@@ -9,12 +9,12 @@ class CombinedDataset(Dataset):
     Helper class that can be used to combine multiple datasets into a single dataset.
     """
 
-    def __init__(self, datasets: Iterable[Dataset]):
+    def __init__(self, datasets: Iterable[Dataset], dataset_name: Optional[str] = None):
         """
         :param datasets: The datasets to combine.
+        :param dataset_name: The name of the combined dataset.
         """
-        combined_name = 'combined_' + '_'.join(dataset.name if dataset.name is not None else '' for dataset in datasets)
-        super().__init__(name=combined_name)
+        super().__init__(name=dataset_name)
         self.datasets = datasets
 
     def __iter__(self):

@@ -10,7 +10,7 @@ class Dataset(ABC, Iterable[Instance]):
     An abstract dataset class that other datasets should inherit from.
     """
 
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: Optional[str] = 'unspecified_dataset'):
         """
         :param name: The name of the dataset (optional).
         """
