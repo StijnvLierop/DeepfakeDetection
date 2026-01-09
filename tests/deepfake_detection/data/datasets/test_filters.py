@@ -3,7 +3,7 @@ from collections import Counter
 
 import pytest
 
-from data.datasets import FilteredDataset
+from deepfake_detection.data.datasets import FilteredDataset
 from deepfake_detection.data.filters import sample_n_per_class_filter
 
 
