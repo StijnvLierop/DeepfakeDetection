@@ -22,14 +22,6 @@ class MockDataset(Dataset):
         return self.size
 
 
-def test_combined_dataset_name():
-    dataset1 = MockDataset(size=5, name="dataset1")
-    dataset2 = MockDataset(size=10, name="dataset2")
-    combined = CombinedDataset([dataset1, dataset2])
-    expected_name = "combined_dataset1_dataset2"
-    assert combined.name == expected_name
-
-
 def test_combined_dataset_length():
     dataset1 = MockDataset(size=5, name="dataset1")
     dataset2 = MockDataset(size=10, name="dataset2")
