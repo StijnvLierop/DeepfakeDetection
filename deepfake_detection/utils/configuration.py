@@ -1,10 +1,9 @@
 import pydoc
 from functools import partial
-from typing import Any, Iterable, MutableMapping
+from typing import Any, Iterable
 
 import confidence
 
-from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Model
 
 
@@ -74,8 +73,6 @@ def load_dataset(config: confidence.Configuration) -> Any:
 
             # Recursively process arguments
             processed_args = {k: load_dataset(v) for k, v in init_args.items()}
-            print(processed_args)
-            print(cls)
             return cls(**processed_args)
 
         return {k: load_dataset(v) for k, v in config.items()}
