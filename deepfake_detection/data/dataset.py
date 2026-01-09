@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Iterable, Sized, Optional
+from typing import Iterable, Optional
 
 from deepfake_detection.data.instance import Instance
 
 
-class Dataset(ABC, Iterable[Instance], Sized):
+class Dataset(ABC, Iterable[Instance]):
     """
     An abstract dataset class that other datasets should inherit from.
     """
