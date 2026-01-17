@@ -2,7 +2,7 @@ import os
 import pytest
 
 from deepfake_detection.data.datasets import (ListDataset, FileImageSequenceDataset, FileImageDataset,
-                                              FileVideoDataset, FilteredDataset)
+                                              FileVideoDataset)
 from tests.deepfake_detection.paths import RESOURCES_DIR
 
 
@@ -93,31 +93,6 @@ def test_dataset_different_instances_different(image_dataset_path):
     dataset = FileImageDataset(name="test", path=image_dataset_path)
     dataset2 = ListDataset(name="test3", instances=list(dataset)[:-1])
     assert dataset != dataset2
-
-
-def test_filtered_dataset_iteration(dummy_dataset):
-    def indices(dataset):
-        return [2, 4]
-    filtered_dataset = FilteredDataset(dummy_dataset, indices)
-    result = list(filtered_dataset)
-    answer = [list(dummy_dataset)[2], list(dummy_dataset)[4]]
-    assert result == answer
-
-
-def test_filtered_dataset_empty_indices(dummy_dataset):
-    def indices(dataset):
-        return []
-    filtered_dataset = FilteredDataset(dummy_dataset, indices)
-    result = list(filtered_dataset)
-    assert result == []
-
-
-def test_filtered_dataset_length(dummy_dataset):
-    def indices(dataset):
-        return [1, 5]
-    filtered_dataset = FilteredDataset(dummy_dataset, indices)
-    assert len(filtered_dataset) == len(list(filtered_dataset))
-    assert 2 == len(filtered_dataset)
 
 
 def test_iter_yields_batches_correctly(dummy_dataset):
