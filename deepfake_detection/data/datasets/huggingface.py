@@ -1,7 +1,8 @@
+import os
 from typing import Optional, Mapping, Any, Union
 
 import datasets
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from datasets.features import Image
 
 from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
@@ -40,12 +41,16 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
         self.authenticity_label_col = authenticity_label_col
         self.authenticity_label_mapping = authenticity_label_mapping
 
-        # Load dataset if str provided
-        if isinstance(dataset, str):
-            self.dataset = load_dataset(dataset, **kwargs)
-        # Otherwise assume dataset is already loaded
-        else:
+        # If no string is provided, assume a dataset is already loaded
+        if not isinstance(dataset, str):
             self.dataset = dataset
+        else:
+            # Check if the dataset exists locally and use the load_from_disk function
+            if os.path.isdir(dataset) and os.path.exists(os.path.join(dataset, "dataset_info.json")):
+                self.dataset = load_from_disk(dataset, **kwargs)
+            # Otherwise use load_dataset
+            else:
+                self.dataset = load_dataset(dataset, **kwargs)
 
         # Select the correct instance class
         data_type = self.dataset.features[self.data_col]
