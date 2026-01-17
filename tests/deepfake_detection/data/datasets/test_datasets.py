@@ -2,7 +2,7 @@ import os
 import pytest
 
 from deepfake_detection.data.datasets import (ListDataset, FileImageSequenceDataset, FileImageDataset,
-                                              FileVideoDataset, FilteredDataset)
+                                              FileVideoDataset)
 from tests.deepfake_detection.paths import RESOURCES_DIR
 
 
