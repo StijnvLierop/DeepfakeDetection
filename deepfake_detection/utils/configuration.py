@@ -1,5 +1,4 @@
 import pydoc
-from functools import partial
 from typing import Any, Iterable
 
 import confidence
@@ -30,15 +29,23 @@ def load_dataset(config: confidence.Configuration) -> Any:
 
         # Detect if we are dealing with a function (with parameters)
         if "func" in config:
-            func_path = config["func"]
-            func_params = config.get("params", {})
+
+            # Load config as dict
+            config = dict(config)
 
             # Look for the function
+            func_path = config.pop("func")
             target_func = pydoc.locate(func_path)
             if target_func is None:
                 raise ImportError(f"Function not found: {func_path}")
 
-            return partial(target_func, **func_params)
+            # Get function arguments
+            init_args = config.pop("params") if "params" in config else config
+
+            # Recursively process arguments
+            processed_args = {k: load_dataset(v) for k, v in init_args.items()}
+
+            return target_func(**processed_args)
 
         # If a class key is present, we initialize the dataset class
         if "class" in config:
