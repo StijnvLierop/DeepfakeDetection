@@ -2,7 +2,7 @@ from typing import Optional, Union
 
 import numpy as np
 
-from data.datasets import ListDataset
+from deepfake_detection.data.datasets import ListDataset
 from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
 
 
