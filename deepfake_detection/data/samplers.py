@@ -1,16 +1,17 @@
-from typing import Optional, Union, List
+from typing import Optional, Union
 
 import numpy as np
 
-from deepfake_detection.data.dataset import MapStyleDatasetMixin
+from data.datasets import ListDataset
+from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
 
 
-def sample_n_per_class_filter(
-    dataset: MapStyleDatasetMixin,
+def sample_n_per_class(
+    dataset: Dataset,
     n: int,
     label_type: Optional[str] = "source_label",
     random_seed: Optional[Union[int, None]] = None,
-) -> List[int]:
+) -> MapStyleDatasetMixin:
     """
     Samples n instances from each source class in the given dataset.
     If n is larger than the number of instances in a class, the maximum number of instances will be returned.
@@ -20,7 +21,7 @@ def sample_n_per_class_filter(
     :param label_type: The label type in 'Annotation' to use for sampling.
                        Can be 'source_label' or 'authenticity_label'. Defaults to 'source_label'.
     :param random_seed: The random seed to use for sampling.
-    :return: A list of indices of sampled instances.
+    :return: A sampled dataset.
     """
 
     # Return ValueError if n is invalid
@@ -33,11 +34,13 @@ def sample_n_per_class_filter(
 
     # Create a label-to-index mapping
     label_to_indices = {}
+    samples = []
     for idx, instance in enumerate(dataset):
         label = instance.annotation.get_label(label_type)
         if label not in label_to_indices:
             label_to_indices[label] = []
         label_to_indices[label].append(idx)
+        samples.append(instance)
 
     # Sample n indices from each list
     indices = []
@@ -50,5 +53,8 @@ def sample_n_per_class_filter(
             )
         )
 
-    # Return sampled indices
-    return indices
+    # Create a new sampled dataset
+    sampled_dataset = ListDataset([samples[i] for i in indices])
+
+    # Return sampled dataset
+    return sampled_dataset
