@@ -1,6 +1,26 @@
 # CHANGELOG
 
 
+## v0.29.2 (2026-01-17)
+
+### Bug Fixes
+
+- Filtered dataset and separated sampling logic
+  ([`45705b1`](https://github.com/StijnvLierop/DeepfakeDetection/commit/45705b1ceb281d77afa07523439d74684c637ca1))
+
+- Load data from disk is now directly supported from path
+  ([`75bd77b`](https://github.com/StijnvLierop/DeepfakeDetection/commit/75bd77baab80cc09058b06d3497b302fd9d3061e))
+
+- Load_dataset function to correctly load functions
+  ([`79f6423`](https://github.com/StijnvLierop/DeepfakeDetection/commit/79f64231a60413182e135dbdb1c1dc1e25b08fdf))
+
+- Module import path
+  ([`157d4d6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/157d4d64cee5fbd501e8a29174294b0f3bff51d6))
+
+- Remove unused import from tests
+  ([`0efab2b`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0efab2be6b30ce35c1bf25e15718625fde70895f))
+
+
 ## v0.29.1 (2026-01-09)
 
 ### Bug Fixes
