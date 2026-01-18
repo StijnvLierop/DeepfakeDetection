@@ -111,6 +111,7 @@ class CNNDetect(TrainableMixin, Model):
     @staticmethod
     def get_input_transform_func(resize: bool = False) -> v2.Compose:
         transforms = [
+            v2.Lambda(lambda x: x.convert('RGB') if hasattr(x, 'convert') else x),
             v2.ToImage(),
             v2.CenterCrop(224),
             v2.ToDtype(torch.float32, scale=True),
