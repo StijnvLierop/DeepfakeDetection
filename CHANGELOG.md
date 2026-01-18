@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.29.3 (2026-01-18)
+
+### Bug Fixes
+
+- Add preprocessing step to cnndetect to convert RGBA images to RGB
+  ([`7c324b9`](https://github.com/StijnvLierop/DeepfakeDetection/commit/7c324b9fb215f52b23115c69becf5bddb80449d4))
+
+
 ## v0.29.2 (2026-01-17)
 
 ### Bug Fixes
