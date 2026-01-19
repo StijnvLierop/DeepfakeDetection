@@ -30,6 +30,8 @@ dependencies = [
     "clip @ git+https://github.com/openai/CLIP.git",
     "albumentations>=2.0.8",
     "diffusers>=0.36.0",
+    "umap-learn>=0.5.11",
+    "tbb>=2021.6.0",
 ]
 license = {text = "MIT"}
 

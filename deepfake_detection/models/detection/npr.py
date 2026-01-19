@@ -70,13 +70,23 @@ class NPR(TrainableMixin, Model):
 
         # Run inference
         with torch.no_grad():
-            logits = self.forward(model_inputs)["logits"]
-            out = logits.sigmoid().flatten().tolist()
+            out = self.forward(model_inputs)
 
         # Transform to Prediction
-        return [Prediction(classification={"fake": o, "real": 1 - o}) for o in out]
+        return [Prediction(classification={"fake": output, "real": 1 - output},
+                           embedding=embedding.detach().cpu().numpy().flatten().tolist())
+                for output, embedding in zip(out['output'], out['penultimate_layer'])]
 
     def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Any:
+
+        # Attach a hook to the penultimate layer of the model
+        features = {}
+        def get_features(name):
+            def hook(model, input, output):
+                features[name] = output.detach()
+            return hook
+        self.model.avgpool.register_forward_hook(get_features('penultimate'))
+
         # Run forward pass
         logits = self.model(inputs)
 
@@ -86,7 +96,10 @@ class NPR(TrainableMixin, Model):
             loss = self.loss_fn(logits.view(-1), labels.float())
 
         # Return logits and (optionally) loss
-        return {"loss": loss, "logits": logits}
+        return {"loss": loss,
+                "logits": logits,
+                "penultimate_layer": features['penultimate'],
+                'output': logits.sigmoid().flatten().tolist()}
 
     @staticmethod
     def get_input_transform_func(

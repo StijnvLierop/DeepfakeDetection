@@ -13,6 +13,7 @@ from deepfake_detection.data.datasets.huggingface import HuggingfaceDataset
 from deepfake_detection.data.datasets.torch import TorchDataset
 from deepfake_detection.data.datasets.filter import FilteredDataset
 from deepfake_detection.data.datasets.combined import CombinedDataset
+from deepfake_detection.data.datasets.csv import CSVDataset
 
 
 __all__ = [
@@ -29,4 +30,5 @@ __all__ = [
     "CombinedDataset",
     "TorchDataset",
     "FilteredDataset",
+    "CSVDataset",
 ]
