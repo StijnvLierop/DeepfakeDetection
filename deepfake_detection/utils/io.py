@@ -21,7 +21,7 @@ def write_predictions_to_file(
     # Encode predictions
     encoded_predictions = [encode_prediction(p) for p in predictions]
 
-    # Create directory if it doesn't exist
+    # Create a directory if it doesn't exist
     if not filepath.parent.exists():
         filepath.parent.mkdir(parents=True, exist_ok=True)
 

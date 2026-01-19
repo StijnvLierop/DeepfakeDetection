@@ -95,7 +95,7 @@ class CNNDetect(TrainableMixin, Model):
 
         # Transform to Prediction
         return [Prediction(classification={"fake": output, "real": 1 - output},
-                           embedding=embedding.detach().cpu().numpy().flatten())
+                           embedding=embedding.detach().cpu().numpy().flatten().tolist())
                 for output, embedding in zip(out['output'], out['penultimate_layer'])]
 
     def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Any:
