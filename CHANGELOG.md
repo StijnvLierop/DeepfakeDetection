@@ -1,6 +1,28 @@
 # CHANGELOG
 
 
+## v0.30.0 (2026-01-19)
+
+### Chores
+
+- Add batching to fiftyone dataset embedding calculation
+  ([`8f17519`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8f17519fc3b5d70cafb5f0078def54d39c19f969))
+
+- Remove python version file
+  ([`896d9bc`](https://github.com/StijnvLierop/DeepfakeDetection/commit/896d9bcf758003e15196c035f1206265e3848fce))
+
+### Features
+
+- Add csv dataset
+  ([`45db4f8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/45db4f8f035e121d7b09143aed7ebfec28eb0ed3))
+
+- Add embedding calculation to fiftyone dataset
+  ([`eaff966`](https://github.com/StijnvLierop/DeepfakeDetection/commit/eaff966fb94673b2eb276da9a4954137d468cfd2))
+
+- Return penultimate layer features as embeddings of cnndetect and npr
+  ([`40e3e27`](https://github.com/StijnvLierop/DeepfakeDetection/commit/40e3e272d0cee80c4405d67ebb5ae04f6a00a32d))
+
+
 ## v0.29.3 (2026-01-18)
 
 ### Bug Fixes
