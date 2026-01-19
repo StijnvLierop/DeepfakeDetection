@@ -4,11 +4,12 @@ from typing import Optional, Sequence
 from itertools import zip_longest
 
 import fiftyone as fo
+import fiftyone.brain as fob
 from fiftyone.utils.data.importers import GenericSampleDatasetImporter
 from fiftyone.core.fields import EmbeddedDocumentField
 
 from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.models import Prediction
+from deepfake_detection.models import Prediction, Model
 
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
 
@@ -133,6 +134,7 @@ def to_fiftyone_dataset(
     dataset: Dataset,
     predictions: Optional[Sequence[Prediction]] = None,
     cache_dir: Optional[Path] = None,
+    embedding_model: Optional[Model] = None,
 ) -> fo.Dataset:
     """
     Function that converts a Dataset to a FiftyOne dataset.
@@ -141,11 +143,37 @@ def to_fiftyone_dataset(
     :param predictions: An optional sequence of predictions.
     :param cache_dir: The directory to store temporary files in case
                       instances are not stored on disk yet.
+    :param embedding_model: The model to use for computing embeddings (optional).
     :return: The converted FiftyOne dataset.
     """
+    # If an embedding model is specified
+    if embedding_model:
+
+        # Compute embeddings
+        embeddings = []
+        for instance in dataset:
+            embed = embedding_model.predict(instance).embedding
+            if embed is None:
+                raise ValueError("Provided model does not return embeddings!.")
+            else:
+                embeddings.append(embed)
 
     # Create dataset importer object
     dataset_importer = FiftyOneDatasetImporter(dataset, predictions, cache_dir)
 
     # Create fiftyone dataset object from importer
-    return fo.Dataset.from_importer(dataset_importer)
+    dataset = fo.Dataset.from_importer(dataset_importer, name=dataset.name)
+
+    # Visualize embeddings
+    if embedding_model:
+        fob.compute_visualization(
+            dataset,
+            brain_key=embedding_model.name,
+            embeddings=embeddings,
+            num_dims=2,
+            method="umap",
+            seed=42,
+        )
+
+    return dataset
+
