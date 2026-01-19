@@ -135,6 +135,7 @@ def to_fiftyone_dataset(
     predictions: Optional[Sequence[Prediction]] = None,
     cache_dir: Optional[Path] = None,
     embedding_model: Optional[Model] = None,
+    batch_size: int = 128,
 ) -> fo.Dataset:
     """
     Function that converts a Dataset to a FiftyOne dataset.
@@ -144,6 +145,7 @@ def to_fiftyone_dataset(
     :param cache_dir: The directory to store temporary files in case
                       instances are not stored on disk yet.
     :param embedding_model: The model to use for computing embeddings (optional).
+    :param batch_size: The batch size for computing embeddings.
     :return: The converted FiftyOne dataset.
     """
     # If an embedding model is specified
@@ -151,12 +153,12 @@ def to_fiftyone_dataset(
 
         # Compute embeddings
         embeddings = []
-        for instance in dataset:
-            embed = embedding_model.predict(instance).embedding
-            if embed is None:
+        for batch in dataset.iter(batch_size=batch_size):
+            embeds = embedding_model.predict_batch(batch)
+            if embeds[0].embedding is None:
                 raise ValueError("Provided model does not return embeddings!.")
             else:
-                embeddings.append(embed)
+                embeddings.extend([e.embedding for e in embeds])
 
     # Create dataset importer object
     dataset_importer = FiftyOneDatasetImporter(dataset, predictions, cache_dir)
