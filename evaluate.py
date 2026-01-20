@@ -70,12 +70,8 @@ def evaluate(dataset_config: str, model_config: str, output_dir: str, prediction
             predictions.append(prediction)
 
         # Write predictions to a file
-        write_predictions_to_file(
-            predictions,
-            Path(
-                os.path.join(output_dir, f"{model.name}_{dataset.name}.json")
-            ),
-        )
+        predictions_file = os.path.join(output_dir, f"{model.name}_{dataset.name}.json")
+        write_predictions_to_file(predictions, Path(predictions_file))
         logging.info(f"Saved predictions to {predictions_file}")
 
     # Calculate metrics / make plots and write to output dir
