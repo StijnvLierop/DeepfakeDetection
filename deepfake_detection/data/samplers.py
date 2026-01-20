@@ -23,38 +23,31 @@ def sample_n_per_class(
     :param random_seed: The random seed to use for sampling.
     :return: A sampled dataset.
     """
-
-    # Return ValueError if n is invalid
+    # Raise error if n is not a positive integer
     if n <= 0:
         raise ValueError("n must be a positive integer.")
 
-    # Set numpy random state
-    if random_seed:
-        np.random.seed(random_seed)
+    # Set random seed
+    rng = np.random.default_rng(random_seed)
 
-    # Create a label-to-index mapping
+    # Map labels to indices
     label_to_indices = {}
-    samples = []
-    for idx, instance in enumerate(dataset):
+    for idx in range(len(dataset)):
+        instance = dataset[idx]
         label = instance.annotation.get_label(label_type)
+
         if label not in label_to_indices:
             label_to_indices[label] = []
         label_to_indices[label].append(idx)
-        samples.append(instance)
 
-    # Sample n indices from each list
-    indices = []
-    for label in label_to_indices.keys():
-        indices.extend(
-            np.random.choice(
-                label_to_indices[label],
-                min(n, len(label_to_indices[label])),
-                replace=False,
-            )
-        )
+    # Select the subset of indices
+    selected_indices = []
+    for label, indices in label_to_indices.items():
+        sample_size = min(n, len(indices))
+        sampled = rng.choice(indices, size=sample_size, replace=False)
+        selected_indices.extend(sampled)
 
-    # Create a new sampled dataset
-    sampled_dataset = ListDataset([samples[i] for i in indices])
+    # Create the sampled dataset using only the selected items
+    sampled_instances = [dataset[i] for i in selected_indices]
 
-    # Return sampled dataset
-    return sampled_dataset
+    return ListDataset(sampled_instances)
