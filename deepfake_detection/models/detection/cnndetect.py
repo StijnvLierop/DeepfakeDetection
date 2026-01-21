@@ -94,7 +94,7 @@ class CNNDetect(TrainableMixin, Model):
             out = self.forward(model_inputs)
 
         # Transform to Prediction
-        return [Prediction(classification={"fake": output, "real": 1 - output},
+        return [Prediction(classification={"fake": float(output), "real": 1 - float(output)},
                            embedding=embedding.detach().cpu().numpy().flatten().tolist())
                 for output, embedding in zip(out['output'], out['penultimate_layer'])]
 
@@ -120,7 +120,7 @@ class CNNDetect(TrainableMixin, Model):
         return {"loss": loss,
                 "logits": logits,
                 "penultimate_layer": features['penultimate'],
-                'output': logits.sigmoid().flatten().tolist()}
+                'output': logits.sigmoid().flatten()}
 
     @staticmethod
     def get_input_transform_func(resize: bool = False) -> v2.Compose:

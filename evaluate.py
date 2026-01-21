@@ -12,7 +12,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
-    roc_auc_score,
+    roc_auc_score, balanced_accuracy_score,
 )
 
 from deepfake_detection.data.dataset import Dataset
@@ -96,6 +96,7 @@ def evaluate_model_on_dataset(
     # Get overall evaluation results
     overall_results = evaluator.run(
         [
+            balanced_accuracy_score,
             accuracy_score,
             average_precision_score,
             precision_score,
@@ -108,7 +109,7 @@ def evaluate_model_on_dataset(
 
     # Get per-subset results
     per_generator_results = evaluator.run(
-        [accuracy_score, average_precision_score, roc_auc_score],
+        [balanced_accuracy_score, accuracy_score, average_precision_score, roc_auc_score],
         label_type="authenticity_label",
         group_by="source_label",
     )
