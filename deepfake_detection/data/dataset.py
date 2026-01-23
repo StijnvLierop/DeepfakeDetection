@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Callable
+from collections import Counter
 
 from deepfake_detection.data.instance import Instance
 
@@ -30,6 +31,47 @@ class Dataset(ABC, Iterable[Instance]):
             if not batch:
                 break
             yield batch
+
+    def count_labels(self, attribute: str) -> Counter:
+        """
+        Returns a Counter containing counts for every label in a given attribute.
+
+        :param attribute: The attribute to count. Must be 'authenticity_label', 'source_label' or a key in 'meta'.
+        """
+        # Count occurrences of each authenticity label
+        if attribute == 'authenticity_label' or attribute == 'source_label':
+            counts = Counter(instance.annotation.get_label(attribute) for instance in self)
+        else:
+            counts = Counter(instance.meta[attribute] for instance in self)
+        return counts
+            
+    def info(self, attribute: str = 'authenticity_label') -> str:
+        """
+        Returns a string representing the number of samples per label in the dataset.
+
+        :param attribute: The attribute to count. Must be 'authenticity_label', 'source_label' or a key in 'meta'.
+        """
+        # Calculate counts
+        counts = self.count_labels(attribute)
+
+        # Format the header
+        header = f"Dataset: {self.name}\n"
+        separator = "-" * (len(header) - 1) + "\n"
+
+        # Create lines for each label, sorted by count (descending)
+        stats = "\n".join([f"{label}: {count}" for label, count in counts.most_common()]) + "\n"
+
+        return f"{header}{separator}{stats}{separator}"
+
+    def filter(self, func: Callable[[Instance], bool]) -> 'Dataset':
+        """
+        Returns a new dataset containing only the instances for which the given function returns True.
+
+        :param func: A function that takes an instance and returns a boolean.
+        :return: A new dataset containing only the instances for which the given function returns True.
+        """
+        from deepfake_detection.data.datasets.filter import FilteredDataset
+        return FilteredDataset(self, func)
 
 
 class MapStyleDatasetMixin(ABC):

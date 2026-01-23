@@ -1,10 +1,11 @@
 from typing import Callable
 
+from deepfake_detection.data.dataset import MapStyleDatasetMixin
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.data.dataset import Dataset
 
 
-class FilteredDataset(Dataset):
+class FilteredDataset(MapStyleDatasetMixin, Dataset):
     """
     Filters a dataset using a given filter function.
 
@@ -18,10 +19,16 @@ class FilteredDataset(Dataset):
         self.dataset = dataset
         self.filter_func = filter_func
 
-    def __iter__(self):
-        for idx, instance in enumerate(self.dataset):
-            if self.filter_func(instance):
-                yield instance
+        # Pre-calculate the valid indices once
+        self.valid_indices = [
+            idx for idx, instance in enumerate(dataset)
+            if filter_func(instance)
+        ]
+
+    def __getitem__(self, idx):
+        # Map the requested index to the original dataset's index
+        original_idx = self.valid_indices[idx]
+        return self.dataset[original_idx]
 
     def __len__(self):
-        return len(list(self.__iter__()))
+        return len(self.valid_indices)
