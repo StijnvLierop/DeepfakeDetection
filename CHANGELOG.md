@@ -1,6 +1,17 @@
 # CHANGELOG
 
 
+## v0.30.1 (2026-01-23)
+
+### Bug Fixes
+
+- Memory issues in sampling function
+  ([`1ef7082`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1ef70824647a63c0cea6c7535b3e5cb07decb3fd))
+
+- Npr and cnndetect to return only tensors in forward function
+  ([`0152abe`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0152abe5d84b8f7519c539ca62d61a3f521083bb))
+
+
 ## v0.30.0 (2026-01-19)
 
 ### Chores
