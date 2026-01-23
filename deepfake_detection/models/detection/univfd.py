@@ -55,7 +55,7 @@ class UnivFD(TrainableMixin, Model):
             loss = self.loss_fn(logits.view(-1), labels.float())
 
         # Return logits and (optionally) loss
-        return {"loss": loss, "logits": logits}
+        return {"loss": loss, "logits": logits, "embeddings": features, "out": logits.sigmoid().flatten()}
 
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
@@ -73,11 +73,11 @@ class UnivFD(TrainableMixin, Model):
 
         # Run inference
         with torch.no_grad():
-            logits = self.forward(model_inputs)["logits"]
-            out = logits.sigmoid().flatten().tolist()
+            out = self.forward(model_inputs)
 
         # Transform to Prediction
-        return [Prediction(classification={"fake": o, "real": 1 - o}) for o in out]
+        return [Prediction(classification={"fake": float(out[0]), "real": 1 - float(out[0])},
+                           embedding=embed.tolist()) for out, embed in zip(out['out'], out['embeddings'])]
 
     @staticmethod
     def get_input_transform_func(resize: bool = False) -> v2.Compose:
