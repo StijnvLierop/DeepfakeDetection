@@ -77,7 +77,8 @@ class UnivFD(TrainableMixin, Model):
 
         # Transform to Prediction
         return [Prediction(classification={"fake": out, "real": 1 - out},
-                           embedding=embed) for out, embed in zip(out['out'].cpu().tolist(), out['embeddings'].cpu().tolist())]
+                           embedding=embed) for out, embed in zip(out['out'].cpu().tolist(),
+                                                                  out['embeddings'].cpu().tolist())]
 
     @staticmethod
     def get_input_transform_func(resize: bool = False) -> v2.Compose:
