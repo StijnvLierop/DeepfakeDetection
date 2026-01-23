@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Callable
 from collections import Counter
 
 from deepfake_detection.data.instance import Instance
@@ -62,6 +62,16 @@ class Dataset(ABC, Iterable[Instance]):
         stats = "\n".join([f"{label}: {count}" for label, count in counts.most_common()])
 
         return f"{header}{separator}{stats}"
+
+    def filter(self, func: Callable[[Instance], bool]) -> 'Dataset':
+        """
+        Returns a new dataset containing only the instances for which the given function returns True.
+
+        :param func: A function that takes an instance and returns a boolean.
+        :return: A new dataset containing only the instances for which the given function returns True.
+        """
+        from deepfake_detection.data.datasets.filter import FilteredDataset
+        return FilteredDataset(self, func)
 
 
 class MapStyleDatasetMixin(ABC):
