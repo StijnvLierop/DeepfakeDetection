@@ -1,6 +1,43 @@
 # CHANGELOG
 
 
+## v0.31.0 (2026-01-23)
+
+### Bug Fixes
+
+- Issue with module import path
+  ([`dffabe8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/dffabe8e4b7ed34a80e25310c3fcd7360bbd4206))
+
+- Output of univfd model
+  ([`67225ce`](https://github.com/StijnvLierop/DeepfakeDetection/commit/67225ce0632e6726483d1d2e4c0baa0bbb7a7796))
+
+- Ruff checks
+  ([`f4c19c9`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f4c19c96bf44a653788646bc36855e5cbeb64b75))
+
+### Chores
+
+- Add shortcut for filter method
+  ([`59b45a0`](https://github.com/StijnvLierop/DeepfakeDetection/commit/59b45a027ac4a203c7a4825c60ea3f7aa4cea6b0))
+
+- Make univfd trainable from scratch
+  ([`2cd88a6`](https://github.com/StijnvLierop/DeepfakeDetection/commit/2cd88a6b4da5211b1ed94f4f627efbbbf21f424e))
+
+### Features
+
+- Add dataset info attribute that counts labels
+  ([`4d3b5b8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4d3b5b8be4a51ae385502cd097716d0c0b2b54b8))
+
+### Refactoring
+
+- Change filtered dataset to mapstyledataset
+  ([`3f6d80d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3f6d80d42d5ee49370297ceb2d699c6d6270c0a3))
+
+### Testing
+
+- Fix unit tests
+  ([`4388b73`](https://github.com/StijnvLierop/DeepfakeDetection/commit/4388b7348494afeaf528f225edf00ebc6375e5f9))
+
+
 ## v0.30.1 (2026-01-23)
 
 ### Bug Fixes
