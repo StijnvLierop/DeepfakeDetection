@@ -59,7 +59,7 @@ class Dataset(ABC, Iterable[Instance]):
         separator = "-" * (len(header) - 1) + "\n"
 
         # Create lines for each label, sorted by count (descending)
-        stats = "\n".join([f"{label}: {count}" for label, count in counts.most_common()])
+        stats = "\n".join([f"{label}: {count}" for label, count in counts.most_common()]) + "\n"
 
         return f"{header}{separator}{stats}{separator}"
 
