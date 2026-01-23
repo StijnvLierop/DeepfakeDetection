@@ -61,7 +61,7 @@ class Dataset(ABC, Iterable[Instance]):
         # Create lines for each label, sorted by count (descending)
         stats = "\n".join([f"{label}: {count}" for label, count in counts.most_common()])
 
-        return f"{header}{separator}{stats}"
+        return f"{header}{separator}{stats}{separator}"
 
     def filter(self, func: Callable[[Instance], bool]) -> 'Dataset':
         """

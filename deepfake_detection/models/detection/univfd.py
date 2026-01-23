@@ -1,4 +1,4 @@
-from typing import Union, List, Any
+from typing import Union, List, Any, Optional
 
 import torch
 from torchvision.transforms import v2
@@ -19,12 +19,12 @@ class UnivFD(TrainableMixin, Model):
     """
 
     def __init__(
-        self, ckpt: str, device: str = "cuda", name: str = "UnivFD", *args, **kwargs
+        self, ckpt: Optional[str] = None, device: str = "cuda", name: str = "UnivFD", *args, **kwargs
     ):
         Model.__init__(self, name)
         super().__init__(*args, **kwargs)
         self.clip_encoder = None
-        self.fc = None
+        self.fc = torch.nn.Linear(768, 1).to(device)
         self.ckpt = ckpt
         self.device = device
 
@@ -38,9 +38,11 @@ class UnivFD(TrainableMixin, Model):
         self.clip_encoder.requires_grad_(False)
 
         # Load fully connected layer
-        self.fc = torch.nn.Linear(768, 1).to(self.device)
-        state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
-        self.fc.load_state_dict(state_dict)
+        if self.ckpt:
+            state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
+            self.fc.load_state_dict(state_dict)
+        else:
+            torch.nn.init.normal_(self.fc.weight.data, 0.0, 0.02)
 
     def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Any:
         # Get CLIP features
