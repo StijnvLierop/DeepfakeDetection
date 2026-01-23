@@ -1,4 +1,4 @@
-from typing import Sequence, Union, Optional, Tuple
+from typing import Sequence, Union, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,7 +6,7 @@ from PIL import Image
 
 from deepfake_detection.analysis.frequency import fft
 from deepfake_detection.analysis.prnu import prnu_fstv
-from deepfake_detection.analysis.utils import average_over_images, normalize_img
+from deepfake_detection.analysis.utils import average_over_images
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import ImageInstance
 
