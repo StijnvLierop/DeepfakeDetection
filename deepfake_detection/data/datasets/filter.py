@@ -1,6 +1,6 @@
 from typing import Callable
 
-from data.dataset import MapStyleDatasetMixin
+from deepfake_detection.data.dataset import MapStyleDatasetMixin
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.data.dataset import Dataset
 
