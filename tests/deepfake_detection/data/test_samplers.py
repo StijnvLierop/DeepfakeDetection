@@ -8,15 +8,15 @@ from deepfake_detection.data.samplers import sample_n_per_class
 def test_sample_n_per_class(dummy_dataset):
     dataset = sample_n_per_class(dummy_dataset, n=2)
     assert len(dataset) == 6
-    c = Counter([i.annotation.source_label for i in dataset])
+    c = Counter([i.annotation["source"] for i in dataset])
     for e in c.keys():
         assert c[e] == 2
 
 
 def test_sample_n_per_class_authenticity(dummy_dataset):
-    dataset = sample_n_per_class(dummy_dataset, n=2, label_type="authenticity_label")
+    dataset = sample_n_per_class(dummy_dataset, n=2, label="authenticity")
     assert len(dataset) == 4
-    c = Counter([i.annotation.authenticity_label for i in dataset])
+    c = Counter([i.annotation["authenticity"] for i in dataset])
     for e in c.keys():
         assert c[e] == 2
 

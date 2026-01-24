@@ -13,7 +13,7 @@ def split_dataset(
     random_state: Optional[int] = None,
     shuffle: Optional[bool] = True,
     stratify: Optional[bool] = True,
-    label_type: Optional[str] = "source_label",
+    label: Optional[str] = "source",
 ) -> Tuple[ListDataset, ListDataset]:
     """
     Splits a dataset into training and test sets.
@@ -24,15 +24,14 @@ def split_dataset(
     :param random_state: Integer specifying the random state for splitting the dataset.
     :param shuffle: Boolean specifying whether to shuffle the dataset before splitting.
                     If shuffle=False then stratify must be None.
-    :param stratify: If set to True, data is split in a stratified fashion using the class labels type in 'label_type'.
-    :param label_type: If stratify=True, this specifies the type of labels to use for stratification.
-                       Can be one of: 'authenticity_label', 'binary_label' and 'source_label'.
+    :param stratify: If set to True, data is split in a stratified fashion using the class labels type in 'label'.
+    :param label: If stratify=True, this specifies the label to use for stratification.
     """
     # Create index array
     index_array = np.arange(0, len(dataset))
 
     # Get labels
-    labels = [i.annotation.get_label(label_type) for i in dataset] if stratify else None
+    labels = [i.annotation.get_label(label) for i in dataset] if stratify else None
 
     # Create split
     train_set, test_set = train_test_split(
@@ -52,10 +51,10 @@ def split_dataset(
     ]
 
     # Set new dataset names
-    dataset1_name = dataset.name + "_split1" if dataset.name else "split1"
-    dataset2_name = dataset.name + "_split2" if dataset.name else "split2"
+    dataset1_name = dataset.dataset_name + "_split1" if dataset.dataset_name else "split1"
+    dataset2_name = dataset.dataset_name + "_split2" if dataset.dataset_name else "split2"
 
     return (
-        ListDataset(name=dataset1_name, instances=train_instances),
-        ListDataset(name=dataset2_name, instances=test_instances),
+        ListDataset(dataset_name=dataset1_name, instances=train_instances),
+        ListDataset(dataset_name=dataset2_name, instances=test_instances),
     )

@@ -27,12 +27,12 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
     Non-image files are ignored.
 
     :param path: The path to the root folder of the dataset.
-    :param name: The name of the dataset.
+    :param dataset_name: The name of the dataset.
     :param split_file: The path to a file containing the filenames of the images that should be returned.
     """
 
-    def __init__(self, path: str, name: str = None, split_file: str = None):
-        super(FileImageDataset, self).__init__(name)
+    def __init__(self, path: str, dataset_name: str = None, split_file: str = None):
+        super(FileImageDataset, self).__init__(dataset_name)
         self.path = path
 
         # If split file provided store the filenames of included instances in a list
@@ -91,9 +91,7 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
         # Return instance
         return FileImageInstance(
             str(path),
-            Annotation(
-                authenticity_label=authenticity_label, source_label=source_label
-            ),
+            Annotation({'authenticity': authenticity_label, 'source': source_label}),
         )
 
     def __len__(self):

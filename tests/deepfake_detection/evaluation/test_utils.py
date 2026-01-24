@@ -5,8 +5,6 @@ from deepfake_detection.evaluation.utils import (
     get_labels,
     to_arrays,
     map_fields,
-    find_label_type_corresponding_with_label,
-    get_label_mapping,
     transform_prediction,
 )
 from deepfake_detection.models import Prediction
@@ -21,7 +19,7 @@ def dummy_prediction():
 def test_get_labels(instances, source_predictions):
     expected_labels = ["A", "B", "C"]
     assert (
-        get_labels(instances, source_predictions, label_type="source_label")
+        get_labels(instances, source_predictions, label_type="source")
         == expected_labels
     )
 
@@ -33,7 +31,7 @@ def test_get_labels_warning_when_no_overlap_in_labels(instances, source_predicti
 
 def test_to_arrays(instances, source_predictions):
     y_true, y_pred = to_arrays(
-        instances, source_predictions, "B", label_type="source_label"
+        instances, source_predictions, "B", label_type="source"
     )
     np.testing.assert_array_equal(y_true, np.array([0, 0, 0, 0, 1, 1, 0, 0]))
     np.testing.assert_array_equal(
@@ -43,7 +41,7 @@ def test_to_arrays(instances, source_predictions):
 
 def test_to_arrays_binary(instances, source_predictions):
     y_true, y_pred = to_arrays(
-        instances, source_predictions, "B", label_type="source_label", binary=True
+        instances, source_predictions, "B", label_type="source", binary=True
     )
     np.testing.assert_array_equal(y_true, np.array([0, 0, 0, 0, 1, 1, 0, 0]))
     np.testing.assert_array_equal(y_pred, np.array([0, 1, 0, 0, 1, 0, 0, 0]))
@@ -55,7 +53,7 @@ def test_to_arrays_warning_when_no_overlap_in_labels(instances, source_predictio
             instances,
             source_predictions,
             "B",
-            label_type="authenticity_label",
+            label_type="authenticity",
             binary=True,
         )
 
@@ -68,52 +66,6 @@ def test_map_fields():
         "y": 2.0,
     }  # "x" should take max of 1_1fake.1_0fake and 1_0fake.5
     assert map_fields(init_dict, map_dict) == expected_output
-
-
-def test_find_label_type_corresponding_with_label(instances):
-    assert (
-        find_label_type_corresponding_with_label(instances, "real")
-        == "authenticity_label"
-    )
-    assert find_label_type_corresponding_with_label(instances, "A") == "source_label"
-    assert find_label_type_corresponding_with_label(instances, 0) == "binary_label"
-
-
-def test_find_label_type_corresponding_with_label_unknown_label(instances):
-    with pytest.raises(ValueError):
-        find_label_type_corresponding_with_label(instances, "unknown label")
-
-
-def test_label_mapping_source_to_source(instances):
-    mapping = get_label_mapping(
-        instances, source_label="source_label", target_label="source_label"
-    )
-    assert mapping == {"A": "A", "B": "B", "C": "C"}
-
-
-def test_label_mapping_source_to_authenticity(instances):
-    mapping = get_label_mapping(
-        instances, source_label="source_label", target_label="authenticity_label"
-    )
-    assert mapping == {"A": "real", "B": "fake", "C": "fake"}
-
-
-def test_label_mapping_source_to_binary(instances):
-    mapping = get_label_mapping(
-        instances, source_label="source_label", target_label="binary_label"
-    )
-    assert mapping == {"A": 0, "B": 1, "C": 1}
-
-
-def test_label_mapping_invalid_labels(instances):
-    with pytest.raises(ValueError):
-        get_label_mapping(
-            instances, source_label="test_label", target_label="source_label"
-        )
-    with pytest.raises(ValueError):
-        get_label_mapping(
-            instances, source_label="source_label", target_label="test_label"
-        )
 
 
 def test_transform_prediction_updates_classification(dummy_prediction):

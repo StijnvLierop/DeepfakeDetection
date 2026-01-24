@@ -64,9 +64,7 @@ class Evaluator:
             if inst.annotation:
                 row.update(
                     {
-                        "source_label": inst.annotation.source_label,
-                        "authenticity_label": inst.annotation.authenticity_label,
-                        "binary_label": inst.annotation.binary_label,
+                        label: inst.annotation.get_label(label) for label in inst.annotation.labels
                     }
                 )
 
@@ -122,8 +120,7 @@ class Evaluator:
         :param instances: Instances with ground-truth labels.
         :param predictions: Predictions with classifications.
         :param label: Label to calculate one vs rest metric for.
-        :param label_type: The label type in 'Annotation' to use for computing the metric(s). Can be 'source_label',
-                           'authenticity_label' or 'binary_label'. Should correspond with the labels in 'predictions'.
+        :param label_type: The label type in 'Annotation' to use for computing the metric(s).
         :param metrics: Metrics to calculate.
         :param threshold: Threshold to use for converting confidence scores to predicted labels.
         """
@@ -156,8 +153,7 @@ class Evaluator:
 
         :param instances: Instances with ground-truth labels.
         :param predictions: Predictions with classifications.
-        :param label_type: The label type in 'Annotation' to use for computing the metric(s). Can be 'source_label',
-                           'authenticity_label' or 'binary_label'. Should correspond with the labels in 'predictions'.
+        :param label_type: The label type in 'Annotation' to use for computing the metric(s).
         :param metrics: Metrics to calculate.
         :param threshold: Threshold to use for converting confidence scores to predicted labels.
         """
@@ -187,8 +183,7 @@ class Evaluator:
 
         :param metrics: A function or list of functions.
                         Each must accept (List[Instance], List[Prediction]).
-        :param label_type: The label type in 'Annotation' to use for computing the metric(s). Can be 'source_label',
-                           'authenticity_label' or 'binary_label'. Should correspond with the labels in 'predictions'.
+        :param label_type: The label type in 'Annotation' to use for computing the metric(s).
         :param threshold: An optional threshold to use for converting confidence scores to predicted labels.
         :param target_class: If specified, will only return scores for this class label.
                              Otherwise, will return macro average of all labels.

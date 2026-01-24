@@ -16,7 +16,7 @@ class CNNDetectDataset(MapStyleDatasetMixin, Dataset):
     """
 
     def __init__(self, path: str):
-        super().__init__(name="CNNDetect")
+        super().__init__(dataset_name="CNNDetect")
         self.path = path
 
         # Index dataset
@@ -72,10 +72,9 @@ class CNNDetectDataset(MapStyleDatasetMixin, Dataset):
         # Return instance
         return FileImageInstance(
             str(path),
-            Annotation(
-                authenticity_label=authenticity_label, source_label=source_label
-            ),
-            meta={"semantic_content": semantic_label},
+            Annotation({"authenticity": authenticity_label,
+                        "source": source_label,
+                        "semantic": semantic_label})
         )
 
     def __len__(self):

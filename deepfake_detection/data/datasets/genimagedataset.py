@@ -105,9 +105,8 @@ class GenImageDataset(MapStyleDatasetMixin, Dataset):
         generator, split, binary_label, img = path.parts[-4:]
         return FileImageInstance(
             str(path),
-            Annotation(
-                authenticity_label="real" if generator == "nature" else "fake",
-                source_label=self._format_label(generator),
+            Annotation({'authenticity': "real" if generator == "nature" else "fake",
+                        'source': self._format_label(generator)}
             ),
         )
 

@@ -1,55 +1,54 @@
-from typing import Optional
+from typing import Mapping, Union
 
 
 class Annotation:
     """
-    Represents an annotation for an instance. Each annotation has:
-    - an authenticity label (fake, real or manipulated).
-    - an optional source label containing the generator or camera used to generate the instance.
+    Represents an annotation for an instance. Each annotation has one or multiple labels.
     """
 
-    def __init__(self, authenticity_label: str, source_label: Optional[str] = None):
+    def __init__(self, labels: Mapping[str, str]):
         """
-        :param authenticity_label: authenticity label (fake, real or manipulated).
-        :param source_label: optional source label containing the generator or camera used to generate the instance.
+        :param labels: A mapping of label keys to their values.
         """
-        self.authenticity_label = authenticity_label
-        self.source_label = source_label
+        self.labels = labels
 
-    def get_label(self, label_type: str):
-        """
-        Convenience method to get the label of the annotation given a string.
+    def __getitem__(self, item):
+        return self.get_label(item)
 
-        :param label_type: The type of label to return. Must be one of: 'authenticity_label', 'source_label'
-                           or 'binary_label'.
+    def __setitem__(self, key, value):
+        return self.set_label(key, value)
+
+    def get_label(self, label: str) -> str:
         """
-        if label_type == "authenticity_label":
-            return self.authenticity_label
-        elif label_type == "source_label":
-            return self.source_label
-        elif label_type == "binary_label":
-            return self.binary_label
+        Convenience method to get the value of a particular label.
+
+        :param label: The label to get the value of.
+        """
+        if label in self.labels:
+            return self.labels[label]
         else:
-            raise ValueError(
-                "Invalid label type. Must be one of: 'authenticity_label', "
-                "'source_label' or 'binary_label'."
-            )
+            raise ValueError(f"Invalid label type. Must be one of {self.labels.keys()}")
 
-    @property
-    def binary_label(self) -> int:
+    def set_label(self, label: str, value: Union[str, Mapping[str, str]]):
         """
-        Returns a binary integer label for the annotation.
-        The binary label is 1 for fake or manipulated instances and 0 for real instances.
+        Convenience method to set the value of a particular label.
+
+        :param label: The label to set the value of.
+        :param value: The value to set. If a mapping is provided, each value will be replaced by the
+                      corresponding value in the mapping. A '*' functions as a wildcard,
+                      and will be used when no key is specified.
         """
-        if self.authenticity_label is None:
-            raise ValueError(
-                "Authenticity label not set so cannot determine binary label."
-            )
-        if self.authenticity_label in ["fake", "manipulated"]:
-            return 1
-        elif self.authenticity_label == "real":
-            return 0
+        if isinstance(value, Mapping):
+            current_value = self.labels[label]
+            if current_value in value.keys():
+                new_value = value[current_value]
+            elif '*' in value.keys():
+                new_value = value['*']
+            else:
+                raise ValueError(f"Label '{label}' not found in mapping and no wildcard '*' is provided.")
+            self.labels[label] = new_value
         else:
-            raise ValueError(
-                "Invalid authenticity label. Must be one of: 'fake', 'real' or 'manipulated'."
-            )
+            self.labels[label] = value
+
+    def __repr__(self) -> str:
+        return str(self.labels)

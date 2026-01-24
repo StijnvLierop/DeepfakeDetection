@@ -19,7 +19,7 @@ from tests.deepfake_detection.paths import RESOURCES_DIR
 @pytest.fixture
 def image_dataset():
     return FileImageDataset(
-        RESOURCES_DIR / "data" / "test_image_dataset", name="test_image_dataset"
+        RESOURCES_DIR / "data" / "test_image_dataset", dataset_name="test_image_dataset"
     )
 
 

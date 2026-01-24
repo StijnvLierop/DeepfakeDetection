@@ -1,5 +1,5 @@
 import logging
-from typing import Sequence, Tuple, Mapping, Optional, Union, Iterable
+from typing import Sequence, Tuple, Mapping, Optional
 
 import numpy as np
 
@@ -10,7 +10,7 @@ from deepfake_detection.models.prediction import Prediction
 def get_labels(
     instances: Sequence[Instance],
     predictions: Sequence[Prediction],
-    label_type: str = "authenticity_label",
+    label_type: str = "authenticity",
 ) -> Sequence[str]:
     """
     Returns a set of unique labels among the ground-truth annotations
@@ -19,8 +19,7 @@ def get_labels(
 
     :param instances: Instances with ground-truth labels.
     :param predictions: Model predictions with classification scores.
-    :param label_type: The label type in 'Annotation' to include. Can be 'source_label', 'authenticity_label'
-                       or 'binary_label'.
+    :param label_type: The label type in 'Annotation' to include.
     :return: Unique labels among ground-truth annotations and model predictions.
     """
     a = {y.annotation.get_label(label_type) for y in instances}
@@ -44,8 +43,8 @@ def to_arrays(
     :param instances: Instances with ground-truth labels
     :param predictions: Model predictions with classification scores.
     :param label: label that corresponds to positive class.
-    :param label_type: The label type in 'Annotation' to use for y_true. Can be 'source_label',
-                       'authenticity_label' or 'binary_label'. Should correspond with the labels in 'predictions'.
+    :param label_type: The label type in 'Annotation' to use for y_true.
+                       Should correspond with the labels in 'predictions'.
     :param threshold: An optional threshold to use for converting confidence scores to predicted labels.
     :param binary: If `True`, predictions are returned as one-hot encoded labels for the particular target class.
                    If `False`, predictions are returned as the confidence score for the particular label.
@@ -107,66 +106,6 @@ def map_fields(
                 continue
         res_dict[k] = v
     return res_dict
-
-
-def find_label_type_corresponding_with_label(
-    instances: Iterable[Instance], label: Union[str, int]
-) -> str:
-    """
-    Determines the type of label corresponding to a given label within a list of instances.
-
-    :param instances: A list where each element is expected to have an 'annotation' attribute containing the label types.
-    :param label: The label whose type is being determined.
-    :return: The type of the label ('authenticity_label', 'source_label', 'binary_label') corresponding to
-             the provided label. Raises a ValueError if the label is not found in the instances.
-    """
-    # Loop over instances
-    for i in instances:
-        # Check in which label type label occurs, return label type if found
-        if i.annotation.authenticity_label == label:
-            return "authenticity_label"
-        elif i.annotation.source_label == label:
-            return "source_label"
-        elif i.annotation.binary_label == label:
-            return "binary_label"
-
-    raise ValueError("Label not found in instances.")
-
-
-def get_label_mapping(
-    instances: Iterable[Instance], source_label: str, target_label: str
-) -> Mapping[str, str]:
-    """
-    Returns a mapping from source labels to target labels based on the labels of the provided instances.
-    If source labels occur multiple times, a random target label will be chosen for each source label.
-
-    :param instances: A list of instances.
-    :param source_label: The label type to use as source for the mapping.
-                         Can be one of 'authenticity_label', 'source_label' or 'binary_label'.
-    :param target_label: The label type to use as source for the mapping.
-                         Can be one of 'authenticity_label', 'source_label' or 'binary_label'.
-    :return: A mapping from source labels to target labels.
-    """
-    # Ensure source and target label parameters are valid
-    if source_label not in ["authenticity_label", "source_label", "binary_label"]:
-        raise ValueError(
-            "Invalid source label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'."
-        )
-    if target_label not in ["authenticity_label", "source_label", "binary_label"]:
-        raise ValueError(
-            "Invalid target label. Must be one of 'authenticity_label', 'source_label' or 'binary_label'."
-        )
-
-    # Create mapping
-    mapping = {}
-
-    # Loop over instances
-    for i in instances:
-        mapping[i.annotation.get_label(source_label)] = i.annotation.get_label(
-            target_label
-        )
-
-    return mapping
 
 
 def transform_prediction(

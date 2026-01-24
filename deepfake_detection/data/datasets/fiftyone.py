@@ -6,7 +6,6 @@ from itertools import zip_longest
 import fiftyone as fo
 import fiftyone.brain as fob
 from fiftyone.utils.data.importers import GenericSampleDatasetImporter
-from fiftyone.core.fields import EmbeddedDocumentField
 
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction, Model
@@ -38,23 +37,7 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 
     @property
     def has_sample_field_schema(self):
-        return True
-
-    def get_sample_field_schema(self):
-        schema = {
-            "source_label": EmbeddedDocumentField(document_type=fo.Classification),
-            "authenticity_label": EmbeddedDocumentField(
-                document_type=fo.Classification
-            ),
-        }
-        if self.predictions:
-            schema["predictions"] = EmbeddedDocumentField(
-                document_type=fo.Classifications
-            )
-            schema["predicted_label"] = EmbeddedDocumentField(
-                document_type=fo.Classification
-            )
-        return schema
+        return False
 
     @property
     def has_dataset_info(self):
@@ -101,12 +84,10 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 
             # Add annotations
             if instance.annotation:
-                sample["source_label"] = fo.Classification(
-                    label=instance.annotation.source_label
-                )
-                sample["authenticity_label"] = fo.Classification(
-                    label=instance.annotation.authenticity_label
-                )
+                for label in instance.annotation.labels:
+                    sample[label] = fo.Classification(
+                        label=instance.annotation.get_label(label)
+                    )
 
             # Add predictions
             if prediction:
@@ -164,7 +145,7 @@ def to_fiftyone_dataset(
     dataset_importer = FiftyOneDatasetImporter(dataset, predictions, cache_dir)
 
     # Create fiftyone dataset object from importer
-    dataset = fo.Dataset.from_importer(dataset_importer, name=dataset.name)
+    dataset = fo.Dataset.from_importer(dataset_importer, name=dataset.dataset_name)
 
     # Visualize embeddings
     if embedding_model:
