@@ -14,7 +14,7 @@ from deepfake_detection.data.annotation import Annotation
 
 def serialize_annotation(annotation: Annotation):
     return {
-        l: annotation.labels[l] for l in annotation.labels
+        label: annotation.labels[label] for label in annotation.labels
     }
 
 

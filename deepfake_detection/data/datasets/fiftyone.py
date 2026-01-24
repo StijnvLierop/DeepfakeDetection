@@ -6,7 +6,6 @@ from itertools import zip_longest
 import fiftyone as fo
 import fiftyone.brain as fob
 from fiftyone.utils.data.importers import GenericSampleDatasetImporter
-from fiftyone.core.fields import EmbeddedDocumentField
 
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction, Model
@@ -85,9 +84,9 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 
             # Add annotations
             if instance.annotation:
-                for l in instance.annotation.labels:
-                    sample[l] = fo.Classification(
-                        label=instance.annotation.get_label(l)
+                for label in instance.annotation.labels:
+                    sample[label] = fo.Classification(
+                        label=instance.annotation.get_label(label)
                     )
 
             # Add predictions

@@ -70,5 +70,5 @@ class CSVDataset(MapStyleDatasetMixin, Dataset):
             annotation = None
 
         # Create instance
-        instance = instance_class(row[self.instance_col], annotation=annotation)
+        instance = instance_class(sample_path, annotation=annotation)
         return instance

@@ -1,9 +1,7 @@
-from typing import Callable, Union
+from typing import Callable
 
-from deepfake_detection.data.dataset import MapStyleDatasetMixin
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.data.dataset import Dataset
-from jinja2.nodes import Slice
 
 
 class MappedDataset(Dataset):

@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Iterable, Optional, Callable, Any
+from typing import Iterable, Optional, Callable
 from collections import Counter
-
-import numpy as np
 
 from deepfake_detection.data.instance import Instance
 

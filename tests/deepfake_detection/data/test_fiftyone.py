@@ -2,7 +2,7 @@ import pytest
 
 from deepfake_detection.data.instance import ImageInstance
 from deepfake_detection.data.datasets import FileImageDataset, ListDataset
-from deepfake_detection.data.fiftyone import to_fiftyone_dataset
+from data.datasets.fiftyone import to_fiftyone_dataset
 from fiftyone.core.dataset import Dataset as FoDataset
 
 from deepfake_detection.models import Prediction
