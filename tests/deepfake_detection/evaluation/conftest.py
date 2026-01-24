@@ -14,7 +14,7 @@ def instances() -> List[Instance]:
     return [
         ImageInstance(
             data=Image.fromarray(np.zeros(10)),
-            annotation=Annotation(authenticity_label=a_label, source_label=c_label),
+            annotation=Annotation({'authenticity': a_label, 'source': c_label}),
         )
         for (a_label, c_label) in zip(
             ["real", "real", "real", "real", "fake", "fake", "fake", "fake"], "AAAABBCC"

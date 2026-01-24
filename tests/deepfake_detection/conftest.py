@@ -22,7 +22,7 @@ def file_image_instance():
         path=os.path.join(
             RESOURCES_DIR, "data/test_image_dataset/fake/model1/fake01.png"
         ),
-        annotation=Annotation(authenticity_label="fake", source_label="model1"),
+        annotation=Annotation({'authenticity': "fake", 'source': "model1"}),
     )
 
 
@@ -34,7 +34,7 @@ def image_instance():
                 RESOURCES_DIR, "data/test_image_dataset/fake/model1/fake01.png"
             )
         ),
-        annotation=Annotation(authenticity_label="fake", source_label="model1"),
+        annotation=Annotation({'authenticity': "fake", 'source': "model1"}),
     )
 
 
@@ -44,7 +44,7 @@ def file_video_instance():
         path=os.path.join(
             RESOURCES_DIR, "data/test_image_dataset/fake/model1/fake1.mp4"
         ),
-        annotation=Annotation(authenticity_label="fake", source_label="model1"),
+        annotation=Annotation({'authenticity': "fake", 'source': "model1"}),
     )
 
 
@@ -54,7 +54,7 @@ def file_image_sequence_instance():
         path=os.path.join(
             RESOURCES_DIR, "data/test_image_sequence_dataset/fake/model1/0_0fake"
         ),
-        annotation=Annotation(authenticity_label="fake", source_label="model1"),
+        annotation=Annotation({'authenticity': "fake", 'source': "model1"}),
     )
 
 
@@ -80,8 +80,7 @@ def dummy_dataset() -> Dataset:
             ImageInstance(
                 data=Image.fromarray(np.zeros(100 + data)),
                 annotation=Annotation(
-                    authenticity_label="real" if label == "A" else "fake",
-                    source_label=label,
+                    {'authenticity': "real" if label == "A" else "fake", 'source': label},
                 ),
             )
             for (data, label) in zip(

@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
 from itertools import islice
-from typing import Iterable, Optional, Callable
+from typing import Iterable, Optional, Callable, Any
 from collections import Counter
+
+import numpy as np
 
 from deepfake_detection.data.instance import Instance
 
@@ -11,15 +13,15 @@ class Dataset(ABC, Iterable[Instance]):
     An abstract dataset class that other datasets should inherit from.
     """
 
-    def __init__(self, name: Optional[str] = 'unspecified_dataset'):
+    def __init__(self, dataset_name: Optional[str] = 'unspecified_dataset'):
         """
-        :param name: The name of the dataset (optional).
+        :param dataset_name: The name of the dataset (optional).
         """
-        self.name = name
+        self.dataset_name = dataset_name
 
-    @abstractmethod
     def __iter__(self):
-        raise NotImplementedError
+        for i in range(len(self)):
+            yield self[i]
 
     def __eq__(self, other):
         return set(self.__iter__()) == set(other.__iter__())
@@ -36,26 +38,23 @@ class Dataset(ABC, Iterable[Instance]):
         """
         Returns a Counter containing counts for every label in a given attribute.
 
-        :param attribute: The attribute to count. Must be 'authenticity_label', 'source_label' or a key in 'meta'.
+        :param attribute: The attribute to count. Must be a key in 'Annotation'.
         """
-        # Count occurrences of each authenticity label
-        if attribute == 'authenticity_label' or attribute == 'source_label':
-            counts = Counter(instance.annotation.get_label(attribute) for instance in self)
-        else:
-            counts = Counter(instance.meta[attribute] for instance in self)
+        counts = Counter(instance.annotation.get_label(attribute)
+                         if instance.annotation else '<no annotation>' for instance in self)
         return counts
             
-    def info(self, attribute: str = 'authenticity_label') -> str:
+    def info(self, attribute: str = 'authenticity') -> str:
         """
         Returns a string representing the number of samples per label in the dataset.
 
-        :param attribute: The attribute to count. Must be 'authenticity_label', 'source_label' or a key in 'meta'.
+        :param attribute: The attribute to count. Must be a key in 'Annotation'.
         """
         # Calculate counts
         counts = self.count_labels(attribute)
 
         # Format the header
-        header = f"Dataset: {self.name}\n"
+        header = f"Dataset: {self.dataset_name}\n"
         separator = "-" * (len(header) - 1) + "\n"
 
         # Create lines for each label, sorted by count (descending)
@@ -70,8 +69,18 @@ class Dataset(ABC, Iterable[Instance]):
         :param func: A function that takes an instance and returns a boolean.
         :return: A new dataset containing only the instances for which the given function returns True.
         """
-        from deepfake_detection.data.datasets.filter import FilteredDataset
+        from deepfake_detection.data.datasets import FilteredDataset
         return FilteredDataset(self, func)
+
+    def map(self, func: Callable[[Instance], Instance]) -> 'Dataset':
+        """
+        Returns a new dataset where the mapping function has been applied to each instance.
+
+        :param func: A function that takes an instance and returns a new instance.
+        :return: A new dataset with the function applied to each instance.
+        """
+        from deepfake_detection.data.datasets import MappedDataset
+        return MappedDataset(self, func)
 
 
 class MapStyleDatasetMixin(ABC):

@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, Mapping
 
 import pandas as pd
 
@@ -16,26 +16,22 @@ class CSVDataset(MapStyleDatasetMixin, Dataset):
     def __init__(self,
                  csv_path: str,
                  data_folder: str,
-                 data_col: str,
-                 authenticity_label_col: str,
-                 source_label_col: Optional[str] = None,
-                 authenticity_label_mapping: Optional[dict] = None,
+                 instance_col: str,
+                 label_cols: Optional[Mapping[str, str]] = {},
                  dataset_name: Optional[str] = None):
         """
         :param csv_path: Path to the CSV file.
         :param data_folder: Path to the folder containing the samples.
-        :param data_col: Name of the column containing the sample path.
-        :param authenticity_label_col: Name of the column containing the authenticity label.
-        :param source_label_col: Name of the column containing the source label (optional).
-        :param authenticity_label_mapping: Mapping from labels to labels.
+        :param instance_col: Name of the column containing the sample path.
+        :param label_cols: A mapping from column names to label keys. Each column will be mapped
+                           to the corresponding label in 'Annotation'.
+        :param dataset_name: Name of the dataset.
         """
-        super().__init__(name=dataset_name)
+        super().__init__(dataset_name=dataset_name)
         self.csv_path = csv_path
         self.data_folder = data_folder
-        self.data_col = data_col
-        self.source_label_col = source_label_col
-        self.authenticity_label_col = authenticity_label_col
-        self.authenticity_label_mapping = authenticity_label_mapping
+        self.instance_col = instance_col
+        self.label_cols = label_cols
 
         # Read csv file
         self.data = pd.read_csv(csv_path)
@@ -44,40 +40,35 @@ class CSVDataset(MapStyleDatasetMixin, Dataset):
         return len(self.data)
 
     def __getitem__(self, idx: int) -> Instance:
+
+        if isinstance(idx, slice):
+            instances = []
+            for i in range(len(self.dataset[idx])):
+                instances.append(self.__getitem__(i))
+            return instances
+
+        # Get row
         row = self.data.iloc[idx]
 
         # Get instance
-        sample_path = os.path.join(self.data_folder, row[self.data_col])
-        if row[self.data_col].split('.')[-1] in ('jpg', 'jpeg', 'png', 'webp'):
+        sample_path = os.path.join(self.data_folder, row[self.instance_col])
+        if row[self.instance_col].split('.')[-1] in ('jpg', 'jpeg', 'png', 'webp'):
             instance_class = FileImageInstance
         else:
-            raise ValueError("Unknown filetype: " + row[self.data_col])
+            raise ValueError("Unknown filetype: " + row[self.instance_col])
 
-        # Create annotation (if present)
-        annotation = None
-        source_label = None
-        authenticity_label = None
-        if self.source_label_col:
-            source_label = row[self.source_label_col]
+        # Loop over label_cols
+        labels = {}
+        for col, label in self.label_cols.items():
+            # Assign column value to label
+            labels[label] = row[col]
 
-        if self.authenticity_label_col:
-            authenticity_label = row[self.authenticity_label_col]
-            if self.authenticity_label_mapping:
-                # Check if label is in mapping and map if so
-                if authenticity_label in self.authenticity_label_mapping:
-                    authenticity_label = self.authenticity_label_mapping[authenticity_label]
-                # Otherwise check for wildcard
-                elif "*" in self.authenticity_label_mapping:
-                    authenticity_label = self.authenticity_label_mapping["*"]
-                # Otherwise raise error
-                else:
-                    raise ValueError(f"Label '{authenticity_label}' not found in authenticity_label_mapping"
-                                     f" and no wildcard '*' is provided.")
-
-        if source_label is not None or authenticity_label is not None:
-            annotation = Annotation(
-                source_label=source_label, authenticity_label=authenticity_label
-            )
+        # If labels found, add annotation object
+        if labels != {}:
+            annotation = Annotation(labels=labels)
+        else:
+            annotation = None
 
         # Create instance
-        return instance_class(sample_path, annotation=annotation)
+        instance = instance_class(row[self.instance_col], annotation=annotation)
+        return instance

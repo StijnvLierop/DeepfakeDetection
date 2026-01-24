@@ -9,7 +9,7 @@ from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
 def sample_n_per_class(
     dataset: Dataset,
     n: int,
-    label_type: Optional[str] = "source_label",
+    label: Optional[str] = "source",
     random_seed: Optional[Union[int, None]] = None,
 ) -> MapStyleDatasetMixin:
     """
@@ -18,8 +18,7 @@ def sample_n_per_class(
 
     :param dataset: The dataset to sample from.
     :param n: The number of instances to sample from each class.
-    :param label_type: The label type in 'Annotation' to use for sampling.
-                       Can be 'source_label' or 'authenticity_label'. Defaults to 'source_label'.
+    :param label: The label in 'Annotation' to use for sampling.
     :param random_seed: The random seed to use for sampling.
     :return: A sampled dataset.
     """
@@ -34,15 +33,15 @@ def sample_n_per_class(
     label_to_indices = {}
     for idx in range(len(dataset)):
         instance = dataset[idx]
-        label = instance.annotation.get_label(label_type)
+        label_value = instance.annotation.get_label(label)
 
-        if label not in label_to_indices:
-            label_to_indices[label] = []
-        label_to_indices[label].append(idx)
+        if label_value not in label_to_indices:
+            label_to_indices[label_value] = []
+        label_to_indices[label_value].append(idx)
 
     # Select the subset of indices
     selected_indices = []
-    for label, indices in label_to_indices.items():
+    for label_value, indices in label_to_indices.items():
         sample_size = min(n, len(indices))
         sampled = rng.choice(indices, size=sample_size, replace=False)
         selected_indices.extend(sampled)

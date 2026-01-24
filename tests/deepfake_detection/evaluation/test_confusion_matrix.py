@@ -16,15 +16,15 @@ class MockInstance(Instance):
         super().__init__(annotation)
 
     def __hash__(self):
-        return hash(self.annotation.authenticity_label)
+        return hash(self.annotation['authenticity'])
 
 
 @pytest.fixture
 def test_instances():
     return [
-        MockInstance(Annotation(authenticity_label="fake", source_label="genA")),
-        MockInstance(Annotation(authenticity_label="real", source_label="cam1")),
-        MockInstance(Annotation(authenticity_label="fake", source_label="genB")),
+        MockInstance(Annotation({'authenticity': "fake", 'source': "genA"})),
+        MockInstance(Annotation({'authenticity': "real", 'source': "cam1"})),
+        MockInstance(Annotation({'authenticity': "fake", 'source': "genB"})),
     ]
 
 
@@ -34,7 +34,7 @@ def test_confusion_matrix(test_instances):
         Prediction(classification={"fake": 0.2, "real": 0.8}),
         Prediction(classification={"fake": 0.3, "real": 0.7}),
     ]
-    result = confusion_matrix(test_instances, predictions, "authenticity_label")
+    result = confusion_matrix(test_instances, predictions, "authenticity")
     expected = [[1, 1], [0, 1]]
     assert result.shape == (2, 2)
     assert np.array_equal(result, expected)
@@ -45,7 +45,7 @@ def test_confusion_matrix_mismatched_lengths(test_instances):
     with pytest.raises(
         ValueError, match="Predictions and instances must have the same length."
     ):
-        confusion_matrix(test_instances, predictions, "authenticity_label")
+        confusion_matrix(test_instances, predictions, "authenticity")
 
 
 def test_confusion_matrix_source_label(test_instances):
@@ -54,7 +54,7 @@ def test_confusion_matrix_source_label(test_instances):
         Prediction(classification={"genA": 0.7, "genB": 0.21, "cam1": 0.09}),
         Prediction(classification={"genA": 0.5, "genB": 0.3, "cam1": 0.2}),
     ]
-    result = confusion_matrix(test_instances, predictions, "source_label")
+    result = confusion_matrix(test_instances, predictions, "source")
     expected = [[0, 1, 0], [0, 1, 0], [0, 1, 0]]
     assert result.shape == (3, 3)
     assert np.array_equal(result, expected)
@@ -67,4 +67,4 @@ def test_confusion_matrix_no_common_labels(test_instances):
         Prediction(classification={"genA": 0.5, "genB": 0.3, "cam1": 0.2}),
     ]
     with pytest.warns(UserWarning, match="No common labels between y_pred and y_true."):
-        confusion_matrix(test_instances, predictions, "authenticity_label")
+        confusion_matrix(test_instances, predictions, "authenticity")

@@ -14,16 +14,12 @@ from deepfake_detection.data.annotation import Annotation
 
 def serialize_annotation(annotation: Annotation):
     return {
-        "authenticity_label": annotation.authenticity_label,
-        "source_label": annotation.source_label,
+        l: annotation.labels[l] for l in annotation.labels
     }
 
 
 def deserialize_annotation(annotation_dict: dict):
-    return Annotation(
-        authenticity_label=annotation_dict["authenticity_label"],
-        source_label=annotation_dict["source_label"],
-    )
+    return Annotation(annotation_dict)
 
 
 def serialize_file_instance(
@@ -84,7 +80,7 @@ class InstanceDecoder(JSONDecoder):
     def entry_object_hook(self, obj):
         if "path" in obj:
             return deserialize_file_instance(obj)
-        elif "authenticity_label" in obj:
+        elif "annotation" in obj:
             return deserialize_annotation(obj)
         elif "data" in obj:
             return deserialize_image_instance(obj)

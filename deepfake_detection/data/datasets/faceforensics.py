@@ -38,7 +38,7 @@ class FaceForensicsDataset(Dataset):
     The original dataset can be found here: https://github.com/ondyari/FaceForensics
 
     :param path: The path to the root folder of the dataset.
-    :param name: The name of the dataset.
+    :param dataset_name: The name of the dataset.
     :param modality: The modality to return. Can be one of 'images' or 'videos' (default).
                      When 'images' is selected, the dataset returns a series of ImageSequenceInstance. When 'videos'
                      is selected, the dataset returns a series of VideoInstance.
@@ -52,13 +52,13 @@ class FaceForensicsDataset(Dataset):
     def __init__(
         self,
         path: str,
-        name: str = None,
+        dataset_name: str = None,
         modality: str = "videos",
         c_level: str = None,
         split: str = None,
         split_dict_path: str = None,
     ):
-        super().__init__(name)
+        super().__init__(dataset_name)
         self.path = path
 
         # Ensure that a valid value is passed for modality
@@ -127,10 +127,7 @@ class FaceForensicsDataset(Dataset):
                                         self.modality,
                                         instance,
                                     ),
-                                    Annotation(
-                                        authenticity_label=folder,
-                                        source_label=subfolder,
-                                    ),
+                                    Annotation({'authenticity': folder, 'source': subfolder}),
                                 )
                             else:
                                 yield FileVideoInstance(
@@ -142,10 +139,7 @@ class FaceForensicsDataset(Dataset):
                                         self.modality,
                                         instance,
                                     ),
-                                    Annotation(
-                                        authenticity_label=folder,
-                                        source_label=subfolder,
-                                    ),
+                                    Annotation({'authenticity': folder, 'source': subfolder}),
                                 )
 
     def _instance_in_split(self, instance_path: str) -> bool:
