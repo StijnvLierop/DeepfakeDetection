@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.31.1 (2026-01-24)
+
+### Bug Fixes
+
+- Module import in tests
+  ([`4411934`](https://github.com/StijnvLierop/DeepfakeDetection/commit/44119348de6409bf4ebf4c4a3d02c98e0aa2677f))
+
+### Refactoring
+
+- Made labels more generic and added mapping function to dataset
+  ([`3091c3c`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3091c3c929595291c1f219349ed5779b0b4e1c26))
+
+
 ## v0.31.0 (2026-01-23)
 
 ### Bug Fixes
