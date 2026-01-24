@@ -1,5 +1,5 @@
 import logging
-from typing import Sequence, Tuple, Mapping, Optional, Union
+from typing import Sequence, Tuple, Mapping, Optional
 
 import numpy as np
 

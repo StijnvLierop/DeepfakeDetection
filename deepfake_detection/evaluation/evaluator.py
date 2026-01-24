@@ -64,7 +64,7 @@ class Evaluator:
             if inst.annotation:
                 row.update(
                     {
-                        l: inst.annotation.get_label(l) for l in inst.annotation.labels
+                        label: inst.annotation.get_label(label) for label in inst.annotation.labels
                     }
                 )
 

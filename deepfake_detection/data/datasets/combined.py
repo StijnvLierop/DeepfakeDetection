@@ -1,4 +1,3 @@
-import itertools
 from typing import Iterable, Sized, Optional, List
 
 import bisect
