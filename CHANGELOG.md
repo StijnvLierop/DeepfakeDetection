@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.32.3 (2026-01-25)
+
+### Bug Fixes
+
+- Find submodules
+  ([`8e89d0e`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8e89d0e4f8204fd5dcf74c10d1e49d4ab533e12f))
+
+
 ## v0.32.2 (2026-01-25)
 
 ### Bug Fixes
