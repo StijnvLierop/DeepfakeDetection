@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.32.2 (2026-01-25)
+
+### Bug Fixes
+
+- Change pymodule to package
+  ([`8fea52a`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8fea52ab0d5b2536386410deb8d30563bcf0f4e2))
+
+
 ## v0.32.1 (2026-01-25)
 
 ### Bug Fixes
