@@ -119,16 +119,8 @@ def test_load_dataset_recursive():
             }
         }
     }
-    
-    # If I want to test it as is:
-    config_as_is = {
-        "class": "deepfake_detection.data.datasets.ListDataset",
-        "params": {
-            "instances": [],
-            "dataset_name": "class" # This will trigger load_dataset("class")
-        }
-    }
-    pass
+    ds = load_dataset(config)
+    assert isinstance(ds, ListDataset)
 
 
 def test_load_dataset_with_sample():
@@ -244,7 +236,7 @@ def test_filter_config_to_func_eq_false():
     # Execute
     filter_func = filter_config_to_func(filter_config)
     # Verify
-    assert False == filter_func(instance)
+    assert ~filter_func(instance)
 
 
 def test_filter_config_to_func_ne():
@@ -259,7 +251,7 @@ def test_filter_config_to_func_ne():
     # Execute
     filter_func = filter_config_to_func(filter_config)
     # Verify
-    assert True == filter_func(instance)
+    assert filter_func(instance)
 
 
 def test_filter_config_to_func_in():
@@ -274,7 +266,7 @@ def test_filter_config_to_func_in():
     # Execute
     filter_func = filter_config_to_func(filter_config)
     # Verify
-    assert True == filter_func(instance)
+    assert filter_func(instance)
 
 
 def test_filter_config_to_func_lt():
@@ -289,7 +281,7 @@ def test_filter_config_to_func_lt():
     # Execute
     filter_func = filter_config_to_func(filter_config)
     # Verify
-    assert True == filter_func(instance)
+    assert filter_func(instance)
 
 
 def test_load_model_from_dict():

@@ -1,4 +1,4 @@
-from typing import Mapping, Union, Optional
+from typing import Mapping, Union
 
 
 class Annotation:

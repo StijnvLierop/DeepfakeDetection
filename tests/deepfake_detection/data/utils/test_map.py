@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock
-import pytest
 
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.instance import Instance
