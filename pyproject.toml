@@ -32,6 +32,7 @@ dependencies = [
     "diffusers>=0.36.0",
     "umap-learn>=0.5.11",
     "tbb>=2021.6.0",
+    "timm>=1.0.24",
 ]
 license = {text = "MIT"}
 

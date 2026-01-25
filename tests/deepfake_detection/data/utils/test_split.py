@@ -1,7 +1,7 @@
 import collections
 
 from deepfake_detection.data.dataset import Dataset
-from data.utils.split import split_dataset
+from deepfake_detection.data.utils.split import split_dataset
 
 
 def test_split_dataset_size(dummy_dataset: Dataset):

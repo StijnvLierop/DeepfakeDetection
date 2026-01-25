@@ -2,7 +2,7 @@ from collections import Counter
 
 import pytest
 
-from data.utils.sample import sample_n_per_class
+from deepfake_detection.data.utils.sample import sample_n_per_class
 
 
 def test_sample_n_per_class(dummy_dataset):
