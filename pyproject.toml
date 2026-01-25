@@ -44,6 +44,10 @@ test = [
 [tool.setuptools]
 packages = ["deepfake_detection"]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["deepfake_detection*"]
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
 optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
