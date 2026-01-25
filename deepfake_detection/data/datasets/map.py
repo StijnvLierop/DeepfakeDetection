@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Sized
 
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.data.dataset import Dataset
@@ -19,11 +19,11 @@ class MappedDataset(Dataset):
         self.mapping_func = mapping_func
 
     def __getitem__(self, idx):
-        return self.mapping_func(self.dataset[idx])
-
-    def __iter__(self):
-        for instance in self.dataset:
-            yield self.mapping_func(instance)
+        instance = self.dataset[idx]
+        return self.mapping_func(instance.deepcopy())
 
     def __len__(self):
-        return len(self.dataset)
+        if isinstance(self.dataset, Sized):
+            return len(self.dataset)
+        else:
+            raise ValueError("Cannot determine length of unsized dataset.")

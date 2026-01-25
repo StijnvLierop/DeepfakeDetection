@@ -34,21 +34,26 @@ class Annotation:
         Convenience method to set the value of a particular label.
 
         :param label: The label to set the value of.
-        :param value: The value to set. If a mapping is provided, each value will be replaced by the
-                      corresponding value in the mapping. A '*' functions as a wildcard,
-                      and will be used when no key is specified.
+        :param value: The value to set. Can be a single value to replace a particular label value or a
+                      mapping for more fine-grained changes.
+                      If a mapping is provided, each value will be replaced by the
+                      corresponding value in the mapping. A '*' functions as a wildcard and will be used
+                      when no key is specified. If the label is not found in the mapping and no wildcard is
+                      provided, the original value will be kept.
         """
         if isinstance(value, Mapping):
+            if label not in self.labels:
+                return
             current_value = self.labels[label]
-            if current_value in value.keys():
-                new_value = value[current_value]
-            elif '*' in value.keys():
-                new_value = value['*']
-            else:
-                raise ValueError(f"Label '{label}' not found in mapping and no wildcard '*' is provided.")
-            self.labels[label] = new_value
+            if current_value in value:
+                self.labels[label] = value[current_value]
+            elif '*' in value:
+                self.labels[label] = value['*']
         else:
             self.labels[label] = value
 
     def __repr__(self) -> str:
         return str(self.labels)
+
+    def copy(self):
+        return Annotation(self.labels.copy())

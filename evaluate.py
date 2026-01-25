@@ -4,7 +4,6 @@ import os.path
 from pathlib import Path
 from typing import List, Optional
 
-import confidence
 from datasets import tqdm
 from sklearn.metrics import (
     accuracy_score,
@@ -44,17 +43,17 @@ def evaluate(dataset_config: str, model_config: str, output_dir: str, prediction
                              If specified, the function will use these predictions instead of generating new ones.
     """
     # Load datasets
-    dataset = load_dataset(confidence.loadf(dataset_config))
+    dataset = load_dataset(dataset_config)
 
     # Load model
-    model = load_model(confidence.loadf(model_config)["model"])
+    model = load_model(model_config)
 
     # Log evaluation information
     logging.info(
-        f"Evaluating {model.name} model on dataset: {dataset.name}"
+        f"Evaluating {model.name} model on dataset: {dataset.dataset_name}"
     )
 
-    logging.info(f"Evaluating {dataset.name}...")
+    logging.info(f"Evaluating {dataset.dataset_name}...")
 
     # Make or retrieve cached predictions
     if predictions_file:
@@ -64,7 +63,7 @@ def evaluate(dataset_config: str, model_config: str, output_dir: str, prediction
         # Make predictions
         predictions = []
         for instance in tqdm(
-                dataset, desc=f"Making predictions for {dataset.name}", total=len(dataset)
+                dataset, desc=f"Making predictions for {dataset.dataset_name}", total=len(dataset)
         ):
             prediction = model.predict(instance)
             predictions.append(prediction)
@@ -119,15 +118,15 @@ def evaluate_model_on_dataset(
 
     # Save metrics to file
     overall_results.to_df().to_csv(
-        os.path.join(output_dir, f"{dataset.name}_{model.name}_overall_metrics.csv")
+        os.path.join(output_dir, f"{dataset.dataset_name}_{model.name}_overall_metrics.csv")
     )
     per_generator_results.to_df().to_csv(
-        os.path.join(output_dir, f"{dataset.name}_{model.name}_subset_metrics.csv")
+        os.path.join(output_dir, f"{dataset.dataset_name}_{model.name}_subset_metrics.csv")
     )
 
     logging.info(
-        f"Exported evaluation results to '{dataset.name}_{model.name}_overall_metrics.csv'"
-        f" and '{dataset.name}_{model.name}_subset_metrics.csv'"
+        f"Exported evaluation results to '{dataset.dataset_name}_{model.name}_overall_metrics.csv'"
+        f" and '{dataset.dataset_name}_{model.name}_subset_metrics.csv'"
     )
 
 

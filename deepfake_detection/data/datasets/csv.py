@@ -40,10 +40,10 @@ class CSVDataset(MapStyleDatasetMixin, Dataset):
         return len(self.data)
 
     def __getitem__(self, idx: int) -> Instance:
-
         if isinstance(idx, slice):
             instances = []
-            for i in range(len(self.dataset[idx])):
+            # Calculate range for slice
+            for i in range(*idx.indices(len(self))):
                 instances.append(self.__getitem__(i))
             return instances
 
