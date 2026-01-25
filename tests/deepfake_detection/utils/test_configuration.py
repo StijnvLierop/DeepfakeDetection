@@ -199,12 +199,6 @@ def test_load_dataset_combined():
         }
     }
     dataset = load_dataset(config)
-
-    # Order in build_dataset: map, then filter, then sample.
-    # 1. Map: all labels become "mapped".
-    # 2. Filter: only 2 instances remain (keep=True). Both have label="mapped".
-    # 3. Sample: 1 instance per label "mapped". Total 1.
-    
     assert 1 == len(dataset)
     assert "mapped" == dataset[0].annotation.get_label("label")
 
@@ -221,7 +215,7 @@ def test_filter_config_to_func_eq():
     # Execute
     filter_func = filter_config_to_func(filter_config)
     # Verify
-    assert True == filter_func(instance)
+    assert filter_func(instance)
 
 
 def test_filter_config_to_func_eq_false():
