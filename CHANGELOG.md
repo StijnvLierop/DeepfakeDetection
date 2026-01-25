@@ -1,6 +1,28 @@
 # CHANGELOG
 
 
+## v0.32.0 (2026-01-25)
+
+### Bug Fixes
+
+- Remove duplicate tests
+  ([`7891308`](https://github.com/StijnvLierop/DeepfakeDetection/commit/789130861888bb0798edb3b09c24fbf8de726090))
+
+- Ruff checks
+  ([`6756c49`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6756c4994ecd0ddd20003071b0dbf46aa8911c83))
+
+- Ruff checks
+  ([`84b7d06`](https://github.com/StijnvLierop/DeepfakeDetection/commit/84b7d067604d0353642ac89ad6de0a49a5803770))
+
+- Unit tests
+  ([`5a4b58c`](https://github.com/StijnvLierop/DeepfakeDetection/commit/5a4b58cd820180cd5cd56ae8fc409d3ca9fa2bc0))
+
+### Features
+
+- Add more flexible dataset loading with filter, mapping and sampling functions customizable in yaml
+  ([`946bcb5`](https://github.com/StijnvLierop/DeepfakeDetection/commit/946bcb59781173fe84d79c11d64fe6e07f188da1))
+
+
 ## v0.31.1 (2026-01-24)
 
 ### Bug Fixes
