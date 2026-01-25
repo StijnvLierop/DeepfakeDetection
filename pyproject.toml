@@ -41,8 +41,9 @@ test = [
     "pytest>=8.4.1",
 ]
 
-[tool.setuptools]
-packages = ["deepfake_detection"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["deepfake_detection*"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
