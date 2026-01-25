@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.32.1 (2026-01-25)
+
+### Bug Fixes
+
+- Pyptoject.toml
+  ([`24dbe52`](https://github.com/StijnvLierop/DeepfakeDetection/commit/24dbe52b7e5050e085b161223dfe1a9fbaea4351))
+
+
 ## v0.32.0 (2026-01-25)
 
 ### Bug Fixes
