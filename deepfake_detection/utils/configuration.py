@@ -1,86 +1,161 @@
+import functools
+import operator
 import pydoc
-from typing import Any, Iterable
+from typing import Callable, Union
 
-import confidence
+import yaml
 
+from deepfake_detection.data.dataset import Dataset
+from deepfake_detection.data.datasets import FilteredDataset, MappedDataset
 from deepfake_detection.models import Model
 
 
-def load_dataset(config: confidence.Configuration) -> Any:
+# Define filter operants
+OPS = {
+    "==": operator.eq,
+    "!=": operator.ne,
+    "<": operator.lt,
+    "<=": operator.le,
+    ">": operator.gt,
+    ">=": operator.ge,
+    "in": lambda x, s: x in s,
+}
+
+
+def filter_config_to_func(filter_config: dict) -> Callable:
+    """
+    This function takes a filter configuration dictionary and returns a function that implements the configured filter.
+
+    A filter is always defined by three keys:
+    - 'label': the label in annotation to look at when filtering.
+    - 'op': the operator to use for filtering.
+    - 'value': the value to filter on.
+
+    :param filter_config: Filter configuration dictionary.
+    :return: Function that implements the configured filter.
+    """
+    op = OPS[filter_config["op"]]
+    def filter_func(instance):
+        return op(instance.annotation.get_label(filter_config["label"]), filter_config["value"])
+    return filter_func
+
+
+def func_config_to_func(config: dict) -> Callable:
+    """
+    This function takes a function configuration dictionary and returns a function that implements the configured function.
+
+    The configuration should contain a 'func' key and optional 'params' specific for the function, e.g.:
+    func: add_label
+    params:
+        label: 'example_label'
+        value: 'example_value'
+
+    :param config: Configuration dictionary.
+    :return: Function that implements the configured function.
+    """
+    # Retrieve the configured function
+    func = pydoc.locate(config['func'])
+    if func is None:
+        raise ValueError(f"Function {config['func']} not found.")
+
+    # Partially initialize function with configured parameters
+    func = functools.partial(func, **config["params"])
+
+    return func
+
+
+def load_dataset(config: Union[str, dict]) -> Dataset:
+    """
+    This function loads a dataset from a given .yaml file or configuration dictionary.
+
+    :param config: The mapping should contain the classpath of the dataset to
+                   use and the necessary parameters to initialize that dataset. E.g.
+
+                   class: deepfake_detection.models.detection.FileImageDataset
+                   params:
+                       dataset_name: ExampleDataset
+                       path: /path/to/dataset/
+                       ...
+    """
+    # Read configuration if needed
+    if isinstance(config, str):
+        with open(config, "r") as f:
+            config = yaml.safe_load(f)
+    return build_dataset(config)
+
+
+def build_dataset(config: dict) -> Dataset:
     """
     This function initializes a dataset from a provided configuration mapping.
 
-    :param config: Configuration mapping. The mapping should contain the classpath of the dataset to
-                   use and the necessary parameters to initialize that dataset. E.g.
+    The configuration should contain a 'class' key specifying the dataset class and optional 'params'
+    specific for the dataset, e.g.:
+    class: deepfake_detection.models.detection.FileImageDataset
+    params:
+        dataset_name: ExampleDataset
+        path: /path/to/dataset/
+        ...
 
-                   class: deepfake_detection.data.datasets.FileImageDataset
-                   params:
-                       name: TestDataset
-                       path: /path/to/dataset/folder/
-                       ...
+    In addition, optional 'map', 'filter' and 'sample' configurations can be provided which will be
+    applied to the dataset in this order.
+
+    :param config: Configuration mapping.
+    :return: Dataset instance.
     """
 
-    # Handle primitives
-    if isinstance(config, (str, int, float, bool)) or config is None:
-        return config
+    def _recursive_load(value):
+        if isinstance(value, dict):
+            if "class" in value:
+                return build_dataset(value)
+            return {k: _recursive_load(v) for k, v in value.items()}
+        elif isinstance(value, list):
+            return [_recursive_load(v) for v in value]
+        else:
+            return value
 
-    # If dict like object
-    if isinstance(config, dict) or hasattr(config, "keys"):
+    # Find the configured class
+    cls = pydoc.locate(config["class"])
 
-        # Detect if we are dealing with a function (with parameters)
-        if "func" in config:
+    # Find params
+    params = config.get("params", {}).copy()
 
-            # Load config as dict
-            config = dict(config)
+    # Extract optional mapping/filtering/sampling configuration
+    filter_cfg = params.pop("filter", config.get("filter"))
+    sample_cfg = params.pop("sample", config.get("sample"))
+    map_cfg = params.pop("map", config.get("map", []))
 
-            # Look for the function
-            func_path = config.pop("func")
-            target_func = pydoc.locate(func_path)
-            if target_func is None:
-                raise ImportError(f"Function not found: {func_path}")
+    # If a param is another dataset, load this first recursively
+    params = {k: _recursive_load(v) for k, v in params.items()}
 
-            # Get function arguments
-            init_args = config.pop("params") if "params" in config else config
+    # Initialize Dataset class
+    dataset = cls(**params)
 
-            # Recursively process arguments
-            processed_args = {k: load_dataset(v) for k, v in init_args.items()}
+    # If map config, wrap MappedDataset around Dataset
+    if map_cfg:
+        # Loop over configured functions
+        for func in map_cfg:
+            map_func = func_config_to_func(func)
+            dataset = MappedDataset(dataset, map_func)
 
-            return target_func(**processed_args)
+    # If filter config, wrap FilteredDataset around Dataset
+    if filter_cfg:
+        filter_func = filter_config_to_func(filter_cfg)
+        dataset = FilteredDataset(dataset, filter_func)
 
-        # If a class key is present, we initialize the dataset class
-        if "class" in config:
+    # If sample config, wrap FilteredDataset around Dataset
+    if sample_cfg:
+        sample_func = func_config_to_func(sample_cfg)
+        dataset = sample_func(dataset)
 
-            # Load config as dict
-            config = dict(config)
-
-            # Look for the dataset class
-            cls_path = config.pop("class")
-            cls = pydoc.locate(str(cls_path))
-            if cls is None:
-                raise ImportError(f"Dataset class not found: {cls_path}")
-
-            # Get function arguments
-            init_args = config.pop("params") if "params" in config else config
-
-            # Recursively process arguments
-            processed_args = {k: load_dataset(v) for k, v in init_args.items()}
-            return cls(**processed_args)
-
-        return {k: load_dataset(v) for k, v in config.items()}
-
-    # Handle iterables
-    if isinstance(config, Iterable):
-        return [load_dataset(item) for item in list(config)]
-
-    else:
-        return config
+    return dataset
 
 
-def load_model(config: confidence.Configuration) -> Model:
+def load_model(config: Union[str, dict]) -> Model:
     """
-    This function initializes a model from a provided configuration mapping.
+    This function loads a model from a given .yaml file or configuration dictionary.
 
-    :param config: Configuration mapping. The mapping should contain the classpath of the model to
+    :param config: Configuration dictionary or path to a .yaml file.
+                   The mapping should contain the classpath of the model to
                    use and the necessary parameters to initialize that model. E.g.
 
                    class: deepfake_detection.models.detection.CNNDetect
@@ -89,14 +164,16 @@ def load_model(config: confidence.Configuration) -> Model:
                        ckpt: /path/to/model/checkpoint/
                        ...
     """
-    # Convert configuration to dictionary
-    model_dict = dict(config)
+    # Read configuration if needed
+    if isinstance(config, str):
+        with open(config, "r") as f:
+            config = yaml.safe_load(f)
 
     # Find model class specified in config
-    model_class = pydoc.locate(str(model_dict["class"]))
+    model_class = pydoc.locate(str(config["class"]))
 
     # If class found, initialize dataset
     if model_class is not None:
-        return model_class(**model_dict["params"])
+        return model_class(**config.get("params", {}))
     else:
-        raise ValueError(f"Dataset class not found: {model_dict['class']}")
+        raise ValueError(f"Dataset class not found: {config['class']}")

@@ -6,6 +6,7 @@ from typing import Optional
 
 from PIL import Image
 import cv2
+import copy
 
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.utils.hashing import hash_image_to_int
@@ -29,6 +30,9 @@ class Instance(ABC):
         if not isinstance(other, Instance):
             return ValueError("Other object is not of type Instance.")
         return self.__hash__() == other.__hash__()
+
+    def deepcopy(self):
+        return copy.deepcopy(self)
 
     @abstractmethod
     def __hash__(self):

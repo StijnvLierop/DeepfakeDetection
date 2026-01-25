@@ -9,7 +9,7 @@ from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
 def sample_n_per_class(
     dataset: Dataset,
     n: int,
-    label: Optional[str] = "source",
+    label: Optional[str],
     random_seed: Optional[Union[int, None]] = None,
 ) -> MapStyleDatasetMixin:
     """

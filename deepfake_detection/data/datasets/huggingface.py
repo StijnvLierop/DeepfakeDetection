@@ -57,10 +57,10 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
             )
 
     def __getitem__(self, idx):
-
         if isinstance(idx, slice):
             instances = []
-            for i in range(len(self.dataset[idx])):
+            # Calculate range for slice
+            for i in range(*idx.indices(len(self))):
                 instances.append(self.__getitem__(i))
             return instances
 
