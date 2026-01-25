@@ -42,7 +42,7 @@ test = [
 ]
 
 [tool.setuptools]
-py-modules = ["deepfake_detection"]
+packages = ["deepfake_detection"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
