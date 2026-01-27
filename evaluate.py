@@ -125,7 +125,7 @@ def evaluate_model_on_dataset(dataset: Dataset,
     # Get per-subset results
     if subset_labels:
         for subset_label in subset_labels:
-            per_generator_results = evaluator.run(
+            per_subset_results = evaluator.run(
                 [balanced_accuracy_score, accuracy_score, average_precision_score, roc_auc_score],
                 label_type=label,
                 group_by=subset_label,
