@@ -28,7 +28,12 @@ from deepfake_detection.utils.io import (
 logging.basicConfig(level=logging.INFO)
 
 
-def evaluate(dataset_config: str, model_config: str, output_dir: str, predictions_file: Optional[str] = None) -> None:
+def evaluate(dataset_config: str,
+             model_config: str,
+             output_dir: str,
+             label: str,
+             predictions_file: Optional[str] = None,
+             subset_labels: Optional[List[str]] = None) -> None:
     """
     Evaluates a model on specified datasets and generates metrics and visualizations.
 
@@ -39,8 +44,11 @@ def evaluate(dataset_config: str, model_config: str, output_dir: str, prediction
     :param dataset_config: File path to the dataset configuration.
     :param model_config: File path to the model configuration. Should contain the configuration for a single model class.
     :param output_dir: Directory path where to store model predictions and evaluation results.
+    :param label: Label to use for calculating metrics.
     :param predictions_file: Optional file path to a file containing model predictions.
                              If specified, the function will use these predictions instead of generating new ones.
+    :param subset_labels: Optional list of subset labels to report metrics for per subset.
+                          If left empty, metrics are only calculated for the full dataset.
     """
     # Load datasets
     dataset = load_dataset(dataset_config)
@@ -74,12 +82,15 @@ def evaluate(dataset_config: str, model_config: str, output_dir: str, prediction
         logging.info(f"Saved predictions to {predictions_file}")
 
     # Calculate metrics / make plots and write to output dir
-    evaluate_model_on_dataset(dataset, model, predictions, output_dir)
+    evaluate_model_on_dataset(dataset, model, predictions, output_dir, label, subset_labels)
 
 
-def evaluate_model_on_dataset(
-    dataset: Dataset, model: Model, predictions: List[Prediction], output_dir: str
-) -> None:
+def evaluate_model_on_dataset(dataset: Dataset,
+                              model: Model,
+                              predictions: List[Prediction],
+                              output_dir: str,
+                              label: str,
+                              subset_labels: Optional[List[str]] = None) -> None:
     """
     Evaluates the performance of a prediction model on a given dataset by computing classification metrics,
     generating outputs, and saving the metrics to a file in the specified directory.
@@ -88,6 +99,9 @@ def evaluate_model_on_dataset(
     :param model: The model to evaluate.
     :param predictions: A list of prediction objects corresponding to the dataset.
     :param output_dir: The directory path where the evaluation metrics are to be saved.
+    :param label: Label to use for calculating metrics.
+    :param subset_labels: Optional list of subset labels to report metrics for per subset.
+                          If left empty, metrics are only calculated for the full dataset.
     """
     # Make evaluator
     evaluator = Evaluator(list(dataset), predictions)
@@ -103,31 +117,30 @@ def evaluate_model_on_dataset(
             f1_score,
             roc_auc_score,
         ],
-        label_type="authenticity_label",
+        label_type=label,
     )
+    overall_df = overall_results.to_df()
+    combined_df = overall_df
 
     # Get per-subset results
-    per_generator_results = evaluator.run(
-        [balanced_accuracy_score, accuracy_score, average_precision_score, roc_auc_score],
-        label_type="authenticity_label",
-        group_by="source_label",
-    )
+    if subset_labels:
+        for subset_label in subset_labels:
+            per_generator_results = evaluator.run(
+                [balanced_accuracy_score, accuracy_score, average_precision_score, roc_auc_score],
+                label_type=label,
+                group_by=subset_label,
+            )
+        combined_df = overall_df.join(per_subset_results.to_df(), how="outer")
 
     # Make output directory
     os.makedirs(output_dir, exist_ok=True)
 
     # Save metrics to file
-    overall_results.to_df().to_csv(
-        os.path.join(output_dir, f"{dataset.dataset_name}_{model.name}_overall_metrics.csv")
-    )
-    per_generator_results.to_df().to_csv(
-        os.path.join(output_dir, f"{dataset.dataset_name}_{model.name}_subset_metrics.csv")
+    combined_df.to_csv(
+        os.path.join(output_dir, f"{dataset.dataset_name}_{model.name}_metrics.csv")
     )
 
-    logging.info(
-        f"Exported evaluation results to '{dataset.dataset_name}_{model.name}_overall_metrics.csv'"
-        f" and '{dataset.dataset_name}_{model.name}_subset_metrics.csv'"
-    )
+    logging.info(f"Exported evaluation results to '{dataset.dataset_name}_{model.name}_metrics.csv'")
 
 
 if __name__ == "__main__":
@@ -161,6 +174,21 @@ if __name__ == "__main__":
         type=str,
         required=False,
         help="Path to a file containing model predictions.",
+    )
+    parser.add_argument(
+        "-l",
+        "--label",
+        type=str,
+        required=True,
+        help="Label to use for calculating metrics."
+    )
+    parser.add_argument(
+        "-s",
+        "--subset-labels",
+        type=list,
+        required=False,
+        help="Optional list of subset labels to calculate metrics for separately."
+             "If left empty, metrics are only calculated for the full dataset."
     )
     args = vars(parser.parse_args())
 
