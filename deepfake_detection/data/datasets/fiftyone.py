@@ -22,7 +22,7 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
         self,
         dataset: Dataset,
         predictions: Optional[Sequence[Prediction]] = None,
-        cache_dir: Optional[Path] = None,
+        cache_dir: Optional[str] = None,
     ):
         """
         :param dataset: The deepfake_detection.data.Dataset to import.
@@ -114,7 +114,7 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 def to_fiftyone_dataset(
     dataset: Dataset,
     predictions: Optional[Sequence[Prediction]] = None,
-    cache_dir: Optional[Path] = None,
+    cache_dir: Optional[str] = None,
     embedding_model: Optional[Model] = None,
     batch_size: int = 128,
 ) -> fo.Dataset:

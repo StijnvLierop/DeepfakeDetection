@@ -22,8 +22,14 @@ class CombinedDataset(MapStyleDatasetMixin, Dataset):
         # Convert to list to ensure stable ordering and indexing
         self.datasets = list(datasets)
 
-        # Calculate cumulative sizes for fast lookup
-        self.cumulative_sizes = self._calculate_cumulative_sizes()
+        # Check if we can support Map-Style features (__len__ and __getitem__)
+        self.is_map_style = all(isinstance(d, Sized) for d in self.datasets)
+
+        # Calculate cumulative sizes based on dataset type
+        if self.is_map_style:
+            self.cumulative_sizes = self._calculate_cumulative_sizes()
+        else:
+            self.cumulative_sizes = []
 
     def _calculate_cumulative_sizes(self) -> List[int]:
         sizes = []
@@ -35,21 +41,23 @@ class CombinedDataset(MapStyleDatasetMixin, Dataset):
             sizes.append(current_total)
         return sizes
 
-    def __len__(self):
+    def __len__(self) -> int:
+        # Only return length of MapStyle datasets
+        if not self.is_map_style:
+            raise TypeError("CombinedDataset contains IterableDatasets and has no length.")
         return self.cumulative_sizes[-1] if self.cumulative_sizes else 0
 
     def __getitem__(self, idx):
+        # Method only works for MapStyle datasets
+        if not self.is_map_style:
+            raise TypeError("Cannot index a CombinedDataset containing IterableDatasets.")
+
         if idx < 0:
-            if -idx <= len(self):
-                idx = len(self) + idx
-            else:
-                raise IndexError("index out of range")
+            idx = len(self) + idx
+        if idx >= len(self) or idx < 0:
+            raise IndexError("Index out of range")
 
-        # Use binary search (bisect) to find which dataset the index belongs to
-        # bisect_right returns the index in cumulative_sizes where idx would be inserted
         dataset_idx = bisect.bisect_right(self.cumulative_sizes, idx)
-
-        # Calculate the local index within that specific dataset
         if dataset_idx == 0:
             local_idx = idx
         else:

@@ -22,8 +22,8 @@ def test_sample_n_per_class_authenticity(dummy_dataset):
 
 
 def test_sample_n_per_class_repeatable_when_random_seed(dummy_dataset):
-    dataset_1 = sample_n_per_class(dummy_dataset, n=1, random_seed=42, label='source')
-    dataset_2 = sample_n_per_class(dummy_dataset, n=1, random_seed=42, label='source')
+    dataset_1 = sample_n_per_class(dummy_dataset, n=1, random_state=42, label='source')
+    dataset_2 = sample_n_per_class(dummy_dataset, n=1, random_state=42, label='source')
     assert list(dataset_1) == list(dataset_2)
 
 

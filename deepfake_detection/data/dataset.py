@@ -32,24 +32,26 @@ class Dataset(ABC, Iterable[Instance]):
                 break
             yield batch
 
-    def count_labels(self, attribute: str) -> Counter:
+    def count_labels(self, label: Optional[str] = None) -> Counter:
         """
-        Returns a Counter containing counts for every label in a given attribute.
+        Returns a Counter containing counts for every value of a given label.
 
-        :param attribute: The attribute to count. Must be a key in 'Annotation'.
+        :param label: The label to count. Must be a key in 'Annotation'.
+                      If not provided, total number of samples will be returned.
         """
-        counts = Counter(instance.annotation.get_label(attribute)
-                         if instance.annotation else '<no annotation>' for instance in self)
+        counts = Counter(instance.annotation.get_label(label)
+                         if (instance.annotation and label is not None) else '<no label>' for instance in self)
         return counts
             
-    def info(self, attribute: str = 'authenticity') -> str:
+    def info(self, label: Optional[str] = None) -> str:
         """
-        Returns a string representing the number of samples per label in the dataset.
+        Returns a string representing the number of samples (per label) in the dataset.
 
-        :param attribute: The attribute to count. Must be a key in 'Annotation'.
+        :param label: The attribute to count. Must be a key in 'Annotation'.
+                      If not provided, total number of samples will be returned.
         """
         # Calculate counts
-        counts = self.count_labels(attribute)
+        counts = self.count_labels(label)
 
         # Format the header
         header = f"Dataset: {self.dataset_name}\n"

@@ -177,6 +177,7 @@ class Evaluator:
         threshold: float = 0.5,
         target_class: Optional[str] = None,
         group_by: Optional[str] = None,
+        negative_class_label: Optional[str] = None,
     ) -> EvaluationResult:
         """
         Executes one or multiple given evaluation functions across the dataset or per group.
@@ -188,10 +189,17 @@ class Evaluator:
         :param target_class: If specified, will only return scores for this class label.
                              Otherwise, will return macro average of all labels.
         :param group_by: The metadata key to group by (e.g., 'source', 'model_version').
+        :param negative_class_label: If provided, will include samples from the negative class in the subset evaluation
+                                     so that the evaluation result can contain subset metrics that need two classes to
+                                     be calculated.
         """
         # Transform metrics to list if only one provided
         if not isinstance(metrics, list):
             metrics = [metrics]
+
+        # Identify negative and positive class samples
+        neg_indices = self._metadata_index[self._metadata_index[label_type] == negative_class_label].index.tolist()
+        pos_indices = self._metadata_index[self._metadata_index[label_type] != negative_class_label].index.tolist()
 
         # Prepare Slices
         if group_by:
@@ -200,21 +208,52 @@ class Evaluator:
                 raise ValueError(f"Key '{group_by}' not found.")
             grouped_indices = self._metadata_index.groupby(group_by).indices
         else:
-            # If no group_by, we have one slice called "overall"
-            grouped_indices = {"overall": self._metadata_index.index.tolist()}
+            # If no group_by, we have one slice called "all"
+            grouped_indices = {"all": self._metadata_index.index.tolist()}
 
         # Create dictionary to store results
         final_results = {}
 
         # Iterate through slices and calculate metrics for each slice
         for slice_name, indices in grouped_indices.items():
+
+            # Make slices
             slice_inst = [self.instances[i] for i in indices]
             slice_pred = [self.predictions[i] for i in indices]
+
+            # Get unique classes in this slice
+            y_true_all = [inst.annotation.get_label(label_type) for inst in slice_inst]
+            unique_classes = np.unique(y_true_all)
+
+            # If the slice is single-class and we want a metric that requires two classes, add negative class samples
+            if len(unique_classes) < 2 and negative_class_label:
+                # Get label of slice
+                label_of_slice = self._metadata_index.loc[indices[0], label_type]
+
+                # When looking at positive class, add negative class samples
+                if label_of_slice != negative_class_label:
+                    slice_inst.extend([self.instances[i] for i in neg_indices])
+                    slice_pred.extend([self.predictions[i] for i in neg_indices])
+                # When looking at negative class, add positive class samples
+                elif label_of_slice == negative_class_label:
+                    slice_inst.extend([self.instances[i] for i in pos_indices])
+                    slice_pred.extend([self.predictions[i] for i in pos_indices])
+
+            # Get unique classes in this slice
+            y_true_all = [inst.annotation.get_label(label_type) for inst in slice_inst]
+            unique_classes = np.unique(y_true_all)
+
+            # Filter metrics based on slice composition
+            if len(unique_classes) < 2:
+                # If only one class is present, we cannot run probability/ranking metrics
+                active_metrics = [m for m in metrics if not self._is_probability_metric(m)]
+            else:
+                active_metrics = metrics
 
             # If a target class is provided, calculate one vs rest score
             if target_class:
                 scores = self._calculate_one_vs_rest(
-                    slice_inst, slice_pred, target_class, label_type, metrics, threshold
+                    slice_inst, slice_pred, target_class, label_type, active_metrics, threshold
                 )
             # Otherwise calculate macro average of all classes
             else:

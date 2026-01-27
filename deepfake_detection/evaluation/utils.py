@@ -10,7 +10,7 @@ from deepfake_detection.models.prediction import Prediction
 def get_labels(
     instances: Sequence[Instance],
     predictions: Sequence[Prediction],
-    label_type: str = "authenticity",
+    label_type: str,
 ) -> Sequence[str]:
     """
     Returns a set of unique labels among the ground-truth annotations
