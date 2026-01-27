@@ -26,7 +26,7 @@ def test_get_labels(instances, source_predictions):
 
 def test_get_labels_warning_when_no_overlap_in_labels(instances, source_predictions):
     with pytest.warns():
-        get_labels(instances, source_predictions)
+        get_labels(instances, source_predictions, label_type="authenticity")
 
 
 def test_to_arrays(instances, source_predictions):

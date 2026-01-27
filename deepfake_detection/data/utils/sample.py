@@ -10,7 +10,7 @@ def sample_n_per_class(
     dataset: Dataset,
     n: int,
     label: Optional[str],
-    random_seed: Optional[Union[int, None]] = None,
+    random_state: Optional[Union[int, None]] = None,
 ) -> MapStyleDatasetMixin:
     """
     Samples n instances from each source class in the given dataset.
@@ -19,7 +19,7 @@ def sample_n_per_class(
     :param dataset: The dataset to sample from.
     :param n: The number of instances to sample from each class.
     :param label: The label in 'Annotation' to use for sampling.
-    :param random_seed: The random seed to use for sampling.
+    :param random_state: The random seed to use for sampling.
     :return: A sampled dataset.
     """
     # Raise error if n is not a positive integer
@@ -27,7 +27,7 @@ def sample_n_per_class(
         raise ValueError("n must be a positive integer.")
 
     # Set random seed
-    rng = np.random.default_rng(random_seed)
+    rng = np.random.default_rng(random_state)
 
     # Map labels to indices
     label_to_indices = {}

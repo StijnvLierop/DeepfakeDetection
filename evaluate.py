@@ -4,6 +4,7 @@ import os.path
 from pathlib import Path
 from typing import List, Optional
 
+import pandas as pd
 from datasets import tqdm
 from sklearn.metrics import (
     accuracy_score,
@@ -33,7 +34,8 @@ def evaluate(dataset_config: str,
              output_dir: str,
              label: str,
              predictions_file: Optional[str] = None,
-             subset_labels: Optional[List[str]] = None) -> None:
+             subset_labels: Optional[List[str]] = None,
+             neg_label: Optional[str] = None) -> None:
     """
     Evaluates a model on specified datasets and generates metrics and visualizations.
 
@@ -49,6 +51,8 @@ def evaluate(dataset_config: str,
                              If specified, the function will use these predictions instead of generating new ones.
     :param subset_labels: Optional list of subset labels to report metrics for per subset.
                           If left empty, metrics are only calculated for the full dataset.
+    :param neg_label: Optional negative label to use for calculating subset metrics that need two classes.
+                      If not provided, these metrics will not be included in the evaluation.
     """
     # Load datasets
     dataset = load_dataset(dataset_config)
@@ -82,7 +86,7 @@ def evaluate(dataset_config: str,
         logging.info(f"Saved predictions to {predictions_file}")
 
     # Calculate metrics / make plots and write to output dir
-    evaluate_model_on_dataset(dataset, model, predictions, output_dir, label, subset_labels)
+    evaluate_model_on_dataset(dataset, model, predictions, output_dir, label, subset_labels, neg_label)
 
 
 def evaluate_model_on_dataset(dataset: Dataset,
@@ -90,7 +94,8 @@ def evaluate_model_on_dataset(dataset: Dataset,
                               predictions: List[Prediction],
                               output_dir: str,
                               label: str,
-                              subset_labels: Optional[List[str]] = None) -> None:
+                              subset_labels: Optional[List[str]] = None,
+                              neg_label: Optional[str] = None) -> None:
     """
     Evaluates the performance of a prediction model on a given dataset by computing classification metrics,
     generating outputs, and saving the metrics to a file in the specified directory.
@@ -102,13 +107,14 @@ def evaluate_model_on_dataset(dataset: Dataset,
     :param label: Label to use for calculating metrics.
     :param subset_labels: Optional list of subset labels to report metrics for per subset.
                           If left empty, metrics are only calculated for the full dataset.
+    :param neg_label: Optional negative label to use for calculating subset metrics that need two classes.
+                      If not provided, these metrics will not be included in the evaluation.
     """
     # Make evaluator
     evaluator = Evaluator(list(dataset), predictions)
 
-    # Get overall evaluation results
-    overall_results = evaluator.run(
-        [
+    # Define metrics
+    metrics = [
             balanced_accuracy_score,
             accuracy_score,
             average_precision_score,
@@ -116,28 +122,36 @@ def evaluate_model_on_dataset(dataset: Dataset,
             recall_score,
             f1_score,
             roc_auc_score,
-        ],
-        label_type=label,
-    )
+        ]
+
+    # Get overall evaluation results
+    overall_results = evaluator.run(metrics, label_type=label)
     overall_df = overall_results.to_df()
+    overall_df['evaluation'] = ['all']
+    overall_df['label'] = overall_df.index
     combined_df = overall_df
 
     # Get per-subset results
     if subset_labels:
         for subset_label in subset_labels:
             per_subset_results = evaluator.run(
-                [balanced_accuracy_score, accuracy_score, average_precision_score, roc_auc_score],
+                metrics,
                 label_type=label,
                 group_by=subset_label,
+                negative_class_label=neg_label
             )
-        combined_df = overall_df.join(per_subset_results.to_df(), how="outer")
+            per_subset_results = per_subset_results.to_df()
+            per_subset_results['evaluation'] = subset_label
+            per_subset_results['label'] = per_subset_results.index
+            combined_df = pd.concat([overall_df, per_subset_results], axis=0, ignore_index=True)
 
     # Make output directory
     os.makedirs(output_dir, exist_ok=True)
 
     # Save metrics to file
     combined_df.to_csv(
-        os.path.join(output_dir, f"{dataset.dataset_name}_{model.name}_metrics.csv")
+        os.path.join(output_dir, f"{dataset.dataset_name}_{model.name}_metrics.csv"),
+        index=False,
     )
 
     logging.info(f"Exported evaluation results to '{dataset.dataset_name}_{model.name}_metrics.csv'")
@@ -185,10 +199,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "-s",
         "--subset-labels",
-        type=list,
+        type=str,
+        nargs="+",
         required=False,
         help="Optional list of subset labels to calculate metrics for separately."
              "If left empty, metrics are only calculated for the full dataset."
+    )
+    parser.add_argument(
+        "-n",
+        "--neg-label",
+        type=str,
+        required=False,
+        help="Optional negative label to use for calculating subset metrics that need two classes."
+             "If not provided, these metrics will not be included in the evaluation."
     )
     args = vars(parser.parse_args())
 
