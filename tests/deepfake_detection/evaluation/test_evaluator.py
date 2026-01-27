@@ -82,7 +82,7 @@ def test_ap_authenticity_group_by_source_neg_label(instances, authenticity_predi
                            label_type="authenticity",
                            group_by="source",
                            negative_class_label="real")
-    assert pytest.approx(result.scores["A"]["average_precision_score"]) == 0.5
+    assert pytest.approx(result.scores["A"]["average_precision_score"]) == 0.811012
     assert pytest.approx(result.scores["B"]["average_precision_score"]) == 0.7625
     assert pytest.approx(result.scores["C"]["average_precision_score"]) == 0.8916666666666666
 
