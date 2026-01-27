@@ -197,8 +197,9 @@ class Evaluator:
         if not isinstance(metrics, list):
             metrics = [metrics]
 
-        # Identify negative class samples
+        # Identify negative and positive class samples
         neg_indices = self._metadata_index[self._metadata_index[label_type] == negative_class_label].index.tolist()
+        pos_indices = self._metadata_index[self._metadata_index[label_type] != negative_class_label].index.tolist()
 
         # Prepare Slices
         if group_by:
@@ -225,15 +226,27 @@ class Evaluator:
             unique_classes = np.unique(y_true_all)
 
             # If the slice is single-class and we want a metric that requires two classes, add negative class samples
-            if len(unique_classes) < 2 and negative_class_label and slice_name != negative_class_label:
-                slice_inst.extend([self.instances[i] for i in neg_indices])
-                slice_pred.extend([self.predictions[i] for i in neg_indices])
+            if len(unique_classes) < 2 and negative_class_label:
+                # Get label of slice
+                label_of_slice = self._metadata_index.loc[indices[0], label_type]
+
+                # When looking at positive class, add negative class samples
+                if label_of_slice != negative_class_label:
+                    slice_inst.extend([self.instances[i] for i in neg_indices])
+                    slice_pred.extend([self.predictions[i] for i in neg_indices])
+                # When looking at negative class, add positive class samples
+                elif label_of_slice == negative_class_label:
+                    slice_inst.extend([self.instances[i] for i in pos_indices])
+                    slice_pred.extend([self.predictions[i] for i in pos_indices])
+
+            # Get unique classes in this slice
+            y_true_all = [inst.annotation.get_label(label_type) for inst in slice_inst]
+            unique_classes = np.unique(y_true_all)
 
             # Filter metrics based on slice composition
-            elif len(unique_classes) < 2:
+            if len(unique_classes) < 2:
                 # If only one class is present, we cannot run probability/ranking metrics
                 active_metrics = [m for m in metrics if not self._is_probability_metric(m)]
-
             else:
                 active_metrics = metrics
 
