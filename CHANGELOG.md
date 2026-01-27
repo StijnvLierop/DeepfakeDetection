@@ -1,6 +1,38 @@
 # CHANGELOG
 
 
+## v0.32.4 (2026-01-27)
+
+### Bug Fixes
+
+- Dataset_name in predictions filename
+  ([`a94841b`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a94841b16097ae93ded56f1cf629a0ccd1739f03))
+
+- Positive samples are added to real class subset evaluation case
+  ([`0d551dd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0d551dd6c0cead455965c7890dbcb84c4449ff18))
+
+- Remove unused import
+  ([`924c931`](https://github.com/StijnvLierop/DeepfakeDetection/commit/924c9317bac9b2faa4f3fde91d118af287d4d8d6))
+
+- Subset evaluation now allows for addition of extra negative samples so metrics make sense
+  ([`0f03532`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0f035322758e215fc34bcf8753f9efe8844ce68b))
+
+- Tests
+  ([`a47f43d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a47f43daae2a8dd8b8daa74f025cb771a78ba244))
+
+- Unknown variable error
+  ([`e05bc2f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/e05bc2f932410025a03904a7667fe989ecc2ff9a))
+
+### Refactoring
+
+- Evaluation results are now output in a single .csv file and labels and subset labels can be
+  customized
+  ([`db3696f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/db3696f0a0e9b01ccc4b96908aff26824052fbbd))
+
+- Providing a label with dataset.info() is now optional
+  ([`c1a3317`](https://github.com/StijnvLierop/DeepfakeDetection/commit/c1a33171c229cd16230e29ef85babfff7ba8efaf))
+
+
 ## v0.32.3 (2026-01-25)
 
 ### Bug Fixes
