@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.32.5 (2026-01-28)
+
+### Bug Fixes
+
+- Module imports
+  ([`2ac5504`](https://github.com/StijnvLierop/DeepfakeDetection/commit/2ac550468e629b5eda78a8e95c74ad74d6c812fe))
+
+- Split_datasets now runs lazily
+  ([`8ca2105`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8ca2105db4f187d91b370e986eaa2dbd8915e8cd))
+
+### Refactoring
+
+- Only read labels when necessary
+  ([`8376eea`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8376eead23246e736761be0ec74dba4f60ffe59a))
+
+
 ## v0.32.4 (2026-01-27)
 
 ### Bug Fixes
