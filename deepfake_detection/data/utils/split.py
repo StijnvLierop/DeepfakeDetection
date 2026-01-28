@@ -3,8 +3,8 @@ from typing import Optional, Tuple
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from data.dataset import MapStyleDatasetMixin
-from data.datasets import SubsetDataset
+from deepfake_detection.data.dataset import MapStyleDatasetMixin
+from deepfake_detection.data.datasets import SubsetDataset
 
 
 def split_dataset(
