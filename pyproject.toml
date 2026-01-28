@@ -21,7 +21,7 @@ dependencies = [
     "imagehash>=4.3.2",
     "tqdm>=4.67.1",
     "torch>=2.7.1",
-    "fiftyone>=1.11.0",
+    "fiftyone==1.11.1",
     "torchvision>=0.22.1",
     "datasets>=4.4.2",
     "typing-extensions>=4.10",

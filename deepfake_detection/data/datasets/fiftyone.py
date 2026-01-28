@@ -141,6 +141,10 @@ def to_fiftyone_dataset(
             else:
                 embeddings.extend([e.embedding for e in embeds])
 
+    # Delete the existing dataset if it exists
+    if fo.dataset_exists(dataset.dataset_name):
+        fo.delete_dataset(dataset.dataset_name)
+
     # Create dataset importer object
     dataset_importer = FiftyOneDatasetImporter(dataset, predictions, cache_dir)
 
