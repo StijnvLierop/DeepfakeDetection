@@ -3,18 +3,18 @@ from typing import Optional, Tuple
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from deepfake_detection.data.dataset import Dataset
-from deepfake_detection.data.datasets import ListDataset
+from data.dataset import MapStyleDatasetMixin
+from data.datasets import SubsetDataset
 
 
 def split_dataset(
-    dataset: Dataset,
+    dataset: MapStyleDatasetMixin,
     test_size: Optional[float] = None,
     random_state: Optional[int] = None,
     shuffle: Optional[bool] = True,
     stratify: Optional[bool] = True,
     label: Optional[str] = "source",
-) -> Tuple[ListDataset, ListDataset]:
+) -> Tuple[SubsetDataset, SubsetDataset]:
     """
     Splits a dataset into training and test sets.
 
@@ -30,7 +30,7 @@ def split_dataset(
     # Create index array
     index_array = np.arange(0, len(dataset))
 
-    # Get labels
+    # Get labels (only needed if stratify=True)
     labels = [i.annotation.get_label(label) for i in dataset] if stratify else None
 
     # Create split
@@ -42,19 +42,11 @@ def split_dataset(
         stratify=labels,
     )
 
-    # Index instances using splits
-    train_instances = [
-        instance for (instance, idx) in zip(dataset, index_array) if idx in train_set
-    ]
-    test_instances = [
-        instance for (instance, idx) in zip(dataset, index_array) if idx in test_set
-    ]
-
     # Set new dataset names
     dataset1_name = dataset.dataset_name + "_split1" if dataset.dataset_name else "split1"
     dataset2_name = dataset.dataset_name + "_split2" if dataset.dataset_name else "split2"
 
     return (
-        ListDataset(dataset_name=dataset1_name, instances=train_instances),
-        ListDataset(dataset_name=dataset2_name, instances=test_instances),
+        SubsetDataset(dataset=dataset, dataset_name=dataset1_name, indices=train_set),
+        SubsetDataset(dataset=dataset, dataset_name=dataset2_name, indices=test_set),
     )

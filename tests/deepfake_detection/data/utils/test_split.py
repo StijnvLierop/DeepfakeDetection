@@ -31,7 +31,7 @@ def test_split_dataset_leakage(dummy_dataset: Dataset):
 
 def test_split_dataset_data_unaltered(dummy_dataset: Dataset):
     train_set, test_set = split_dataset(dummy_dataset, test_size=0.2, random_state=42)
-    assert set(train_set.instances + test_set.instances) == set(dummy_dataset)
+    assert set(list(train_set) + list(test_set)) == set(dummy_dataset)
 
 
 def test_split_dataset_stratified_authenticity_label(dummy_dataset: Dataset):

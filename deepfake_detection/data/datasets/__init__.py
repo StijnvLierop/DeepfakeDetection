@@ -14,6 +14,7 @@ from deepfake_detection.data.datasets.filter import FilteredDataset
 from deepfake_detection.data.datasets.map import MappedDataset
 from deepfake_detection.data.datasets.combined import CombinedDataset
 from deepfake_detection.data.datasets.csv import CSVDataset
+from deepfake_detection.data.datasets.subset import SubsetDataset
 
 
 __all__ = [
@@ -31,4 +32,5 @@ __all__ = [
     "FilteredDataset",
     "MappedDataset",
     "CSVDataset",
+    "SubsetDataset",
 ]
