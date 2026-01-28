@@ -31,7 +31,10 @@ def split_dataset(
     index_array = np.arange(0, len(dataset))
 
     # Get labels (only needed if stratify=True)
-    labels = [i.annotation.get_label(label) for i in dataset] if stratify else None
+    if stratify:
+        labels = [i.annotation.get_label(label) for i in dataset]
+    else:
+        labels = None
 
     # Create split
     train_set, test_set = train_test_split(
