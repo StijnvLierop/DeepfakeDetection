@@ -4,7 +4,6 @@ from deepfake_detection.data.datasets.fileimagesequencedataset import (
     FileImageSequenceDataset,
 )
 from deepfake_detection.data.datasets.filevideodataset import FileVideoDataset
-from deepfake_detection.data.datasets.genimagedataset import GenImageDataset
 from deepfake_detection.data.datasets.list import ListDataset
 from deepfake_detection.data.datasets.cnndetect import CNNDetectDataset
 from deepfake_detection.data.datasets.diffusiondataset import DiffusionDataset
@@ -22,7 +21,6 @@ __all__ = [
     "FileImageDataset",
     "FileImageSequenceDataset",
     "FileVideoDataset",
-    "GenImageDataset",
     "ListDataset",
     "CNNDetectDataset",
     "DiffusionDataset",
