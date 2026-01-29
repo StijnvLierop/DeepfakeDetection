@@ -8,7 +8,7 @@ from deepfake_detection.data.datasets import ListDataset, MappedDataset, Filtere
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.instance import ImageInstance
 from deepfake_detection.models import Model
-from deepfake_detection.models.detection.cnndetect import CNNDetect
+from deepfake_detection.models.detection.cnnspot import CNNDetect
 
 
 def test_func_config_to_func_success():
@@ -281,7 +281,7 @@ def test_filter_config_to_func_lt():
 def test_load_model_from_dict():
     # Setup
     config = {
-        "class": "deepfake_detection.models.detection.cnndetect.CNNDetect",
+        "class": "deepfake_detection.models.detection.cnnspot.CNNDetect",
         "params": {
             "name": "MyCNNDetect",
             "device": "cpu"
@@ -299,7 +299,7 @@ def test_load_model_from_dict():
 def test_load_model_from_yaml_file():
     # Setup
     config_dict = {
-        "class": "deepfake_detection.models.detection.cnndetect.CNNDetect",
+        "class": "deepfake_detection.models.detection.cnnspot.CNNDetect",
         "params": {
             "name": "YamlCNNDetect"
         }

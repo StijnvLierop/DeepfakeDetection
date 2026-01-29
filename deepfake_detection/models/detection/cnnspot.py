@@ -12,9 +12,9 @@ from deepfake_detection.models.custom_networks.resnet_cnndetect import resnet50
 from deepfake_detection.models import Prediction
 
 
-class CNNDetect(TrainableMixin, Model):
+class CNNSpot(TrainableMixin, Model):
     """
-    Implementation of the CNNDetect model by Peter Wang et al. (2020).
+    Implementation of the CNNSpot model by Peter Wang et al. (2020).
 
     More info about the model can be found here: https://github.com/PeterWang512/CNNDetection/tree/master.
     """
@@ -23,7 +23,7 @@ class CNNDetect(TrainableMixin, Model):
         self,
         ckpt: Optional[str] = None,
         device: str = "cuda",
-        name: str = "CNNDetect",
+        name: str = "CNNSpot",
         *args,
         **kwargs,
     ):
