@@ -1,6 +1,33 @@
 # CHANGELOG
 
 
+## v0.34.0 (2026-01-29)
+
+### Bug Fixes
+
+- Import error
+  ([`3c49421`](https://github.com/StijnvLierop/DeepfakeDetection/commit/3c49421c6fe41eb37a047ebc6253edb7b3861366))
+
+- Import error
+  ([`6f743bd`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6f743bdd941af55630dd6c0312231df85c576d37))
+
+- Test formatting
+  ([`0da0761`](https://github.com/StijnvLierop/DeepfakeDetection/commit/0da0761d32ea8d7f16fc214226aeec401b03d8bc))
+
+- Test formatting
+  ([`8222d3f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8222d3f7316b77fbfef877b7453254632b5c85af))
+
+### Chores
+
+- Rename CNNDetect to CNNSpot
+  ([`8a58b08`](https://github.com/StijnvLierop/DeepfakeDetection/commit/8a58b08422c38d6f691be06bdc91539ab56fb186))
+
+### Features
+
+- Add logical operators to the filter function
+  ([`18dce8d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/18dce8de12cedd2c0be388364e5e2d276d788c93))
+
+
 ## v0.33.1 (2026-01-29)
 
 ### Bug Fixes
