@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.32.6 (2026-01-29)
+
+### Bug Fixes
+
+- Display.py
+  ([`a586582`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a5865825d3645e3f38aa1dcb5c6e9e7c5aeae590))
+
+- Ruff checks
+  ([`1e47da5`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1e47da55b852b5231037b41e232f79e22aa64aec))
+
+### Refactoring
+
+- Split dataset stratify default set to False
+  ([`7496bd1`](https://github.com/StijnvLierop/DeepfakeDetection/commit/7496bd12b20cb84a046e17518db7697f2e6874b3))
+
+
 ## v0.32.5 (2026-01-28)
 
 ### Bug Fixes
