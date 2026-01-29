@@ -4,9 +4,8 @@ import os
 
 import numpy as np
 from PIL import Image
-from mlflow.metrics import precision_score, recall_score
 from tqdm import tqdm
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import balanced_accuracy_score, precision_score, recall_score
 import pandas as pd
 
 from deepfake_detection.data.instance import ImageInstance
@@ -67,7 +66,9 @@ def evaluate_robustness(model: str, dataset: str, output_dir: str):
 
         # Evaluate predictions
         evaluator = Evaluator(dataset, predictions)
-        metrics = evaluator.run(metrics=[balanced_accuracy_score],
+        metrics = evaluator.run(metrics=[balanced_accuracy_score,
+                                         precision_score,
+                                         recall_score],
                                 label_type='authenticity'
                                 )
 
