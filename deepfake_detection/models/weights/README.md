@@ -31,3 +31,8 @@ FatFormer
 ```Python
 https://drive.google.com/file/d/1Q_Kgq4ygDf8XEHgAf-SgDN6Ru_IOTLkj/view
 ```
+
+AIDE
+```Python
+https://drive.google.com/drive/folders/1qx76UFvDpgCxaPLBCmsA2WY-SSzeJrd4
+```
