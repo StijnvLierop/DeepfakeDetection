@@ -2,10 +2,13 @@ import argparse
 from typing import Optional
 
 import fiftyone as fo
+import mimetypes
 
 from deepfake_detection.data.datasets.fiftyone import to_fiftyone_dataset
 from deepfake_detection.utils.configuration import load_dataset, load_model
 
+
+mimetypes.add_type("image/webp", ".webp")
 
 def display(dataset: str, cache_dir: str, model: Optional[str] = None):
     # Load dataset
@@ -16,7 +19,9 @@ def display(dataset: str, cache_dir: str, model: Optional[str] = None):
         model = load_model(model)
 
     # Convert to FiftyOne dataset
-    fo_dataset = to_fiftyone_dataset(dataset, cache_dir=cache_dir, embedding_model=model)
+    fo_dataset = to_fiftyone_dataset(dataset,
+                                     cache_dir=cache_dir,
+                                     embedding_model=model)
 
     # Launch FiftyOne app
     session = fo.launch_app(fo_dataset)

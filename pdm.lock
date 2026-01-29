@@ -5,7 +5,7 @@
 groups = ["default", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:519c26953ff0bff607c4ee014458f2b33b40439e770e412203e0301936c98e71"
+content_hash = "sha256:1dd09c6b58b12bc0e96c30d0572133d1113b3ac26f2a79b1b6be6556a958a04a"
 
 [[metadata.targets]]
 requires_python = "==3.10.*"
@@ -928,7 +928,7 @@ files = [
 
 [[package]]
 name = "fiftyone"
-version = "1.11.0"
+version = "1.11.1"
 requires_python = ">=3.9"
 summary = "FiftyOne: the open-source tool for building high-quality datasets and computer vision models"
 groups = ["default"]
@@ -978,12 +978,12 @@ dependencies = [
     "tabulate",
     "tqdm",
     "universal-analytics-python3<2,>=1.0.1",
-    "voxel51-eta<0.16,>=0.15.1",
+    "voxel51-eta<0.16,>=0.15.2",
     "xmltodict",
 ]
 files = [
-    {file = "fiftyone-1.11.0-py3-none-any.whl", hash = "sha256:e950e32ee529d520e2ea433cc0e7a61bcb092e797f2b0235abf1bd4868aeec56"},
-    {file = "fiftyone-1.11.0.tar.gz", hash = "sha256:13bc586c1ebd14cb5d9f70e15f7625f4ef158efd5772d82339326539ab49198c"},
+    {file = "fiftyone-1.11.1-py3-none-any.whl", hash = "sha256:457274b2a1f8d2178f5968960ec23bb58f3e9e8d448ae5bdc857149960394cba"},
+    {file = "fiftyone-1.11.1.tar.gz", hash = "sha256:83dd83b11bb7c9c82fd4b278186f3d892a3c7349d8b6acfb1ceb427e75fb6bfb"},
 ]
 
 [[package]]
@@ -4174,7 +4174,7 @@ files = [
 
 [[package]]
 name = "voxel51-eta"
-version = "0.15.1"
+version = "0.15.3"
 requires_python = ">=3.9"
 summary = "Extensible Toolkit for Analytics"
 groups = ["default"]
@@ -4201,8 +4201,8 @@ dependencies = [
     "urllib3",
 ]
 files = [
-    {file = "voxel51_eta-0.15.1-py2.py3-none-any.whl", hash = "sha256:2357063b9df41e703652c640ac97d78956b6b12cf5baeca06d45176ca5012c87"},
-    {file = "voxel51_eta-0.15.1.tar.gz", hash = "sha256:df70eff91efac49fa40d7bf877a4d7ea0af26e7a614e0bb899fa98107659cb97"},
+    {file = "voxel51_eta-0.15.3-py2.py3-none-any.whl", hash = "sha256:4ad0e8dda5abf5f53add6c2136acf2f4f711fb1d5082f23911e4f54a0fffe7b9"},
+    {file = "voxel51_eta-0.15.3.tar.gz", hash = "sha256:a557a418cbb0acaecce9c72a55bcf8c0b1e42661db8da6fc747117e9b574a902"},
 ]
 
 [[package]]

@@ -12,7 +12,7 @@ def split_dataset(
     test_size: Optional[float] = None,
     random_state: Optional[int] = None,
     shuffle: Optional[bool] = True,
-    stratify: Optional[bool] = True,
+    stratify: Optional[bool] = False,
     label: Optional[str] = "source",
 ) -> Tuple[SubsetDataset, SubsetDataset]:
     """
