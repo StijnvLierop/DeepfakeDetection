@@ -292,7 +292,7 @@ def test_load_model_from_dict():
     # Verify
     assert isinstance(model, Model)
     assert isinstance(model, CNNSpot)
-    assert "MyCNNDetect" == model.name
+    assert "MyCNNSpot" == model.name
     assert "cpu" == model.device
 
 
@@ -310,7 +310,7 @@ def test_load_model_from_yaml_file():
         model = load_model("dummy_path.yaml")
     # Verify
     assert isinstance(model, CNNSpot)
-    assert "YamlCNNDetect" == model.name
+    assert "YamlCNNSpot" == model.name
 
 
 def test_load_model_class_not_found():
