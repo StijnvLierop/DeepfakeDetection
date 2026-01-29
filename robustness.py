@@ -76,7 +76,7 @@ def evaluate_robustness(model: str, dataset: str, output_dir: str):
         results[intensity] = {metric: val['all'] for metric, val in metrics.to_df().to_dict().items()}
 
     # Export results
-    output_file = os.path.join(output_dir, "robustness_results.csv")
+    output_file = os.path.join(output_dir, f"{model.name}_robustness_results.csv")
     df = pd.DataFrame.from_dict(results, orient='index')
     df.index.name = 'JPEG quality factor'
     df.to_csv(output_file, index=True)
