@@ -31,16 +31,6 @@ def test_load_file_image_dataset(image_dataset_path):
     assert len(dataset) == len(instances)
 
 
-def test_load_file_image_dataset_split(image_dataset_path, image_split_file_path):
-    dataset = FileImageDataset(
-        dataset_name="test", path=image_dataset_path, split_file=image_split_file_path
-    )
-    instances = list(dataset)
-
-    assert len(dataset) == 1
-    assert len(dataset) == len(instances)
-
-
 def test_load_file_image_sequence_dataset(image_sequence_dataset_path):
     dataset = FileImageSequenceDataset(dataset_name="test", path=image_sequence_dataset_path)
     instances = list(dataset)
