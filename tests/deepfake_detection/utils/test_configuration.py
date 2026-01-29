@@ -8,7 +8,7 @@ from deepfake_detection.data.datasets import ListDataset, MappedDataset, Filtere
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.instance import ImageInstance
 from deepfake_detection.models import Model
-from deepfake_detection.models.detection.cnnspot import CNNDetect
+from deepfake_detection.models.detection.cnnspot import CNNSpot
 
 
 def test_func_config_to_func_success():
@@ -281,9 +281,9 @@ def test_filter_config_to_func_lt():
 def test_load_model_from_dict():
     # Setup
     config = {
-        "class": "deepfake_detection.models.detection.cnnspot.CNNDetect",
+        "class": "deepfake_detection.models.detection.cnnspot.CNNSpot",
         "params": {
-            "name": "MyCNNDetect",
+            "name": "MyCNNSpot",
             "device": "cpu"
         }
     }
@@ -291,7 +291,7 @@ def test_load_model_from_dict():
     model = load_model(config)
     # Verify
     assert isinstance(model, Model)
-    assert isinstance(model, CNNDetect)
+    assert isinstance(model, CNNSpot)
     assert "MyCNNDetect" == model.name
     assert "cpu" == model.device
 
@@ -299,9 +299,9 @@ def test_load_model_from_dict():
 def test_load_model_from_yaml_file():
     # Setup
     config_dict = {
-        "class": "deepfake_detection.models.detection.cnnspot.CNNDetect",
+        "class": "deepfake_detection.models.detection.cnnspot.CNNSpot",
         "params": {
-            "name": "YamlCNNDetect"
+            "name": "YamlCNNSpot"
         }
     }
     yaml_content = yaml.dump(config_dict)
@@ -309,7 +309,7 @@ def test_load_model_from_yaml_file():
     with patch("builtins.open", mock_open(read_data=yaml_content)):
         model = load_model("dummy_path.yaml")
     # Verify
-    assert isinstance(model, CNNDetect)
+    assert isinstance(model, CNNSpot)
     assert "YamlCNNDetect" == model.name
 
 
