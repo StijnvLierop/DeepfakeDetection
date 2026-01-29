@@ -489,7 +489,6 @@ class DCT_base_Rec_Module(nn.Module):
             stride=window_size
         )
 
-        lm, mh = 2.82, 2
         level_f = [
             Filter(window_size, 0, window_size * 2)
         ]
