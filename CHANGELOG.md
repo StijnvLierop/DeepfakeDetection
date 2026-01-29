@@ -1,6 +1,24 @@
 # CHANGELOG
 
 
+## v0.33.1 (2026-01-29)
+
+### Bug Fixes
+
+- Remove unused imports
+  ([`12a9058`](https://github.com/StijnvLierop/DeepfakeDetection/commit/12a90584348fbd88f055938dd0678ffb24f8d46a))
+
+### Chores
+
+- Remove genimagedataset class as this functionality is now supported by fileimagedataset
+  ([`6f9992a`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6f9992a4b2955891aace08e35281d20aa9fb0b53))
+
+### Refactoring
+
+- Made fileimagedataset more flexible in terms of directory structure
+  ([`e935ccb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/e935ccb8a1a37e4a2da058ced9da581de79f0fa9))
+
+
 ## v0.33.0 (2026-01-29)
 
 ### Features
