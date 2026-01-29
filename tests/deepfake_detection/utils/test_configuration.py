@@ -1,4 +1,4 @@
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
 import pytest
 import yaml
 
@@ -8,7 +8,7 @@ from deepfake_detection.data.datasets import ListDataset, MappedDataset, Filtere
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.instance import ImageInstance
 from deepfake_detection.models import Model
-from deepfake_detection.models.detection.cnndetect import CNNDetect
+from deepfake_detection.models.detection.cnnspot import CNNSpot
 
 
 def test_func_config_to_func_success():
@@ -281,9 +281,9 @@ def test_filter_config_to_func_lt():
 def test_load_model_from_dict():
     # Setup
     config = {
-        "class": "deepfake_detection.models.detection.cnndetect.CNNDetect",
+        "class": "deepfake_detection.models.detection.cnnspot.CNNSpot",
         "params": {
-            "name": "MyCNNDetect",
+            "name": "MyCNNSpot",
             "device": "cpu"
         }
     }
@@ -291,17 +291,17 @@ def test_load_model_from_dict():
     model = load_model(config)
     # Verify
     assert isinstance(model, Model)
-    assert isinstance(model, CNNDetect)
-    assert "MyCNNDetect" == model.name
+    assert isinstance(model, CNNSpot)
+    assert "MyCNNSpot" == model.name
     assert "cpu" == model.device
 
 
 def test_load_model_from_yaml_file():
     # Setup
     config_dict = {
-        "class": "deepfake_detection.models.detection.cnndetect.CNNDetect",
+        "class": "deepfake_detection.models.detection.cnnspot.CNNSpot",
         "params": {
-            "name": "YamlCNNDetect"
+            "name": "YamlCNNSpot"
         }
     }
     yaml_content = yaml.dump(config_dict)
@@ -309,8 +309,8 @@ def test_load_model_from_yaml_file():
     with patch("builtins.open", mock_open(read_data=yaml_content)):
         model = load_model("dummy_path.yaml")
     # Verify
-    assert isinstance(model, CNNDetect)
-    assert "YamlCNNDetect" == model.name
+    assert isinstance(model, CNNSpot)
+    assert "YamlCNNSpot" == model.name
 
 
 def test_load_model_class_not_found():
@@ -453,3 +453,97 @@ def test_build_dataset_recursive():
     assert 2 == len(dataset.datasets)
     assert "ds1" == dataset.datasets[0].dataset_name
     assert "ds2" == dataset.datasets[1].dataset_name
+
+
+def test_simple_filter():
+    """Tests a standard single-condition filter."""
+    config = {"label": "score", "op": ">", "value": 5}
+    filter_func = filter_config_to_func(config)
+
+    # Mock an instance with label 'score' = 10
+    mock_instance = MagicMock()
+    mock_instance.annotation.get_label.return_value = 10
+
+    assert filter_func(mock_instance) is True
+
+    # Mock an instance with label 'score' = 2
+    mock_instance.annotation.get_label.return_value = 2
+    assert filter_func(mock_instance) is False
+
+
+def test_logical_and():
+    """Tests AND logic: both conditions must be true."""
+    config = {
+        "and": [
+            {"label": "class", "op": "==", "value": "fake"},
+            {"label": "score", "op": ">", "value": 0.5}
+        ]
+    }
+    filter_func = filter_config_to_func(config)
+
+    # Case 1: Both True
+    inst = MagicMock()
+    inst.annotation.get_label.side_effect = lambda label: {"class": "fake", "score": 0.8}[label]
+    assert filter_func(inst) is True
+
+    # Case 2: One False
+    inst.annotation.get_label.side_effect = lambda label: {"class": "fake", "score": 0.2}[label]
+    assert filter_func(inst) is False
+
+
+def test_logical_or():
+    """Tests OR logic: at least one condition must be true."""
+    config = {
+        "or": [
+            {"label": "source", "op": "==", "value": "A"},
+            {"label": "source", "op": "==", "value": "B"}
+        ]
+    }
+    filter_func = filter_config_to_func(config)
+
+    # Case: Match A
+    inst = MagicMock()
+    inst.annotation.get_label.return_value = "A"
+    assert filter_func(inst) is True
+
+    # Case: Match neither
+    inst.annotation.get_label.return_value = "C"
+    assert filter_func(inst) is False
+
+
+def test_nested_logic():
+    """Tests complex nesting: (A AND B) OR C."""
+    config = {
+        "or": [
+            {
+                "and": [
+                    {"label": "type", "op": "==", "value": "image"},
+                    {"label": "valid", "op": "==", "value": True}
+                ]
+            },
+            {"label": "override", "op": "==", "value": True}
+        ]
+    }
+    filter_func = filter_config_to_func(config)
+
+    # Case: The AND block is True
+    inst = MagicMock()
+    inst.annotation.get_label.side_effect = lambda label: {"type": "image", "valid": True, "override": False}[label]
+    assert filter_func(inst) is True
+
+    # Case: Everything False
+    inst.annotation.get_label.side_effect = lambda label: {"type": "video", "valid": False, "override": False}[label]
+    assert filter_func(inst) is False
+
+
+def test_operator_in():
+    """Tests the 'in' lambda operator specifically."""
+    config = {"label": "tag", "op": "in", "value": ["cat", "dog"]}
+    filter_func = filter_config_to_func(config)
+
+    inst = MagicMock()
+    inst.annotation.get_label.return_value = "cat"
+    assert filter_func(inst) is True
+
+    inst.annotation.get_label.return_value = "bird"
+    assert filter_func(inst) is False
