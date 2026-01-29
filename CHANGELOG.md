@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.33.0 (2026-01-29)
+
+### Features
+
+- Add adide model (inference)
+  ([`d38a94d`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d38a94d7075e91cd298ac5c9eca120860a649d04))
+
+
 ## v0.32.6 (2026-01-29)
 
 ### Bug Fixes
