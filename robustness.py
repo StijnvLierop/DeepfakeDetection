@@ -67,9 +67,7 @@ def evaluate_robustness(model: str, dataset: str, output_dir: str):
 
         # Evaluate predictions
         evaluator = Evaluator(dataset, predictions)
-        metrics = evaluator.run(metrics=[balanced_accuracy_score,
-                                         precision_score,
-                                         recall_score],
+        metrics = evaluator.run(metrics=[balanced_accuracy_score],
                                 label_type='authenticity'
                                 )
 
