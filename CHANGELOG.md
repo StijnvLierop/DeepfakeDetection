@@ -1,6 +1,22 @@
 # CHANGELOG
 
 
+## v0.35.0 (2026-01-29)
+
+### Bug Fixes
+
+- Add correct metrics
+  ([`1fd8f5a`](https://github.com/StijnvLierop/DeepfakeDetection/commit/1fd8f5ac4d91c77f6cba8100eedf56ea7e6ee20d))
+
+- Formatting
+  ([`18c7b04`](https://github.com/StijnvLierop/DeepfakeDetection/commit/18c7b04620244b84cf619f91782bc3bfc131b9cf))
+
+### Features
+
+- Add compression robustness evaluation script
+  ([`20ff291`](https://github.com/StijnvLierop/DeepfakeDetection/commit/20ff291aadd1695e22d1c0af1d0207ab71a4b71b))
+
+
 ## v0.34.0 (2026-01-29)
 
 ### Bug Fixes
