@@ -45,16 +45,16 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
 
         # If labels are provided, ensure the nr is the same as label values
         if self.labels:
-            if len(self.labels) != len(label_values):
-                raise ValueError("Length of provided labels list is not the same as the number of extracted label values!"
-                                 f"{self.labels} != {label_values}")
+            if len(self.labels) < len(label_values):
+                raise ValueError("Length of provided labels list is not equal or longer as the number of extracted label values!"
+                                 f"{self.labels} < {label_values}")
         else:
             self.labels = range(len(label_values))
 
         # Return instance
         return FileImageInstance(
             instance_path,
-            Annotation(labels={str(label): str(value) for label, value in zip(self.labels, label_values)}),
+            Annotation(labels={str(label): str(value) for label, value in zip(self.labels[:len(label_values)], label_values)}),
         )
 
     def __len__(self):
