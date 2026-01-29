@@ -52,7 +52,7 @@ def evaluate_robustness(model: str, dataset: str, output_dir: str):
         print(f"{idx}/{len(intensities)}: Processing intensity {intensity}...")
 
         # Loop over dataset samples
-        pbar = tqdm(dataset, desc=f'Making predictions...')
+        pbar = tqdm(dataset, desc='Making predictions...')
         predictions = []
         for batch in dataset.iter(batch_size=10):
 
