@@ -1,4 +1,4 @@
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, MagicMock
 import pytest
 import yaml
 
@@ -453,3 +453,97 @@ def test_build_dataset_recursive():
     assert 2 == len(dataset.datasets)
     assert "ds1" == dataset.datasets[0].dataset_name
     assert "ds2" == dataset.datasets[1].dataset_name
+
+
+def test_simple_filter():
+    """Tests a standard single-condition filter."""
+    config = {"label": "score", "op": ">", "value": 5}
+    filter_func = filter_config_to_func(config)
+
+    # Mock an instance with label 'score' = 10
+    mock_instance = MagicMock()
+    mock_instance.annotation.get_label.return_value = 10
+
+    assert filter_func(mock_instance) is True
+
+    # Mock an instance with label 'score' = 2
+    mock_instance.annotation.get_label.return_value = 2
+    assert filter_func(mock_instance) is False
+
+
+def test_logical_and():
+    """Tests AND logic: both conditions must be true."""
+    config = {
+        "and": [
+            {"label": "class", "op": "==", "value": "fake"},
+            {"label": "score", "op": ">", "value": 0.5}
+        ]
+    }
+    filter_func = filter_config_to_func(config)
+
+    # Case 1: Both True
+    inst = MagicMock()
+    inst.annotation.get_label.side_effect = lambda l: {"class": "fake", "score": 0.8}[l]
+    assert filter_func(inst) is True
+
+    # Case 2: One False
+    inst.annotation.get_label.side_effect = lambda l: {"class": "fake", "score": 0.2}[l]
+    assert filter_func(inst) is False
+
+
+def test_logical_or():
+    """Tests OR logic: at least one condition must be true."""
+    config = {
+        "or": [
+            {"label": "source", "op": "==", "value": "A"},
+            {"label": "source", "op": "==", "value": "B"}
+        ]
+    }
+    filter_func = filter_config_to_func(config)
+
+    # Case: Match A
+    inst = MagicMock()
+    inst.annotation.get_label.return_value = "A"
+    assert filter_func(inst) is True
+
+    # Case: Match neither
+    inst.annotation.get_label.return_value = "C"
+    assert filter_func(inst) is False
+
+
+def test_nested_logic():
+    """Tests complex nesting: (A AND B) OR C."""
+    config = {
+        "or": [
+            {
+                "and": [
+                    {"label": "type", "op": "==", "value": "image"},
+                    {"label": "valid", "op": "==", "value": True}
+                ]
+            },
+            {"label": "override", "op": "==", "value": True}
+        ]
+    }
+    filter_func = filter_config_to_func(config)
+
+    # Case: The AND block is True
+    inst = MagicMock()
+    inst.annotation.get_label.side_effect = lambda l: {"type": "image", "valid": True, "override": False}[l]
+    assert filter_func(inst) is True
+
+    # Case: Everything False
+    inst.annotation.get_label.side_effect = lambda l: {"type": "video", "valid": False, "override": False}[l]
+    assert filter_func(inst) is False
+
+
+def test_operator_in():
+    """Tests the 'in' lambda operator specifically."""
+    config = {"label": "tag", "op": "in", "value": ["cat", "dog"]}
+    filter_func = filter_config_to_func(config)
+
+    inst = MagicMock()
+    inst.annotation.get_label.return_value = "cat"
+    assert filter_func(inst) is True
+
+    inst.annotation.get_label.return_value = "bird"
+    assert filter_func(inst) is False

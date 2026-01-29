@@ -31,9 +31,25 @@ def filter_config_to_func(filter_config: dict) -> Callable:
     - 'op': the operator to use for filtering.
     - 'value': the value to filter on.
 
+    Filters can be combined using logical operators 'and', 'or' and 'not'.
+
     :param filter_config: Filter configuration dictionary.
     :return: Function that implements the configured filter.
     """
+    # Handle logical operators
+    if "and" in filter_config:
+        funcs = [filter_config_to_func(f) for f in filter_config["and"]]
+        return lambda x: all(f(x) for f in funcs)
+
+    if "or" in filter_config:
+        funcs = [filter_config_to_func(f) for f in filter_config["or"]]
+        return lambda x: any(f(x) for f in funcs)
+
+    if "not" in filter_config:
+        func = filter_config_to_func(filter_config["not"])
+        return lambda x: not func(x)
+
+    # Create filter function
     op = OPS[filter_config["op"]]
     def filter_func(instance):
         return op(instance.annotation.get_label(filter_config["label"]), filter_config["value"])
