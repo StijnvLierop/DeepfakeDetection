@@ -483,11 +483,11 @@ def test_logical_and():
 
     # Case 1: Both True
     inst = MagicMock()
-    inst.annotation.get_label.side_effect = lambda label: {"class": "fake", "score": 0.8}[l]
+    inst.annotation.get_label.side_effect = lambda label: {"class": "fake", "score": 0.8}[label]
     assert filter_func(inst) is True
 
     # Case 2: One False
-    inst.annotation.get_label.side_effect = lambda label: {"class": "fake", "score": 0.2}[l]
+    inst.annotation.get_label.side_effect = lambda label: {"class": "fake", "score": 0.2}[label]
     assert filter_func(inst) is False
 
 
@@ -528,11 +528,11 @@ def test_nested_logic():
 
     # Case: The AND block is True
     inst = MagicMock()
-    inst.annotation.get_label.side_effect = lambda label: {"type": "image", "valid": True, "override": False}[l]
+    inst.annotation.get_label.side_effect = lambda label: {"type": "image", "valid": True, "override": False}[label]
     assert filter_func(inst) is True
 
     # Case: Everything False
-    inst.annotation.get_label.side_effect = lambda label: {"type": "video", "valid": False, "override": False}[l]
+    inst.annotation.get_label.side_effect = lambda label: {"type": "video", "valid": False, "override": False}[label]
     assert filter_func(inst) is False
 
 
