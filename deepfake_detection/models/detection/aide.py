@@ -1,4 +1,4 @@
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Callable
 
 import open_clip
 import torch
@@ -20,8 +20,6 @@ class AIDE(TrainableMixin, Model):
 
     def __init__(self,
                  ckpt: Optional[str] = None,
-                 resnet_ckpt: Optional[str] = None,
-                 convnext_ckpt: Optional[str] = None,
                  name: str = "AIDE",
                  device: str = "cuda",
                  *args,
@@ -30,13 +28,11 @@ class AIDE(TrainableMixin, Model):
         super().__init__(*args, **kwargs)
         self.device = device
 
-        # Load checkpoints (ckpt is main checkpoint that should be loaded during inference)
-        self.ckpt = ckpt
-        self.resnet_ckpt = resnet_ckpt
-        self.convnext_ckpt = convnext_ckpt
-
         # Initialize DCT module
         self.dct_module = DCT_base_Rec_Module().requires_grad_(False).to(self.device)
+
+        # Load checkpoints (ckpt is main checkpoint that should be loaded during inference)
+        self.ckpt = ckpt
 
         # Define model layers
         self.hpf = HPF().to(self.device)
@@ -49,15 +45,17 @@ class AIDE(TrainableMixin, Model):
             nn.Linear(3072, 256),
         ).to(self.device)
 
-    def forward(self, x):
+    def forward(self, inputs, labels=None):
         """
         Forward func for https://github.com/shilinyan99/AIDE/blob/main/models/AIDE.py.
         """
-        x_minmin = x[:, 0]
-        x_maxmax = x[:, 1]
-        x_minmin1 = x[:, 2]
-        x_maxmax1 = x[:, 3]
-        tokens = x[:, 4]
+        inputs = self.preprocess_gpu(inputs)
+
+        x_minmin = inputs[:, 0]
+        x_maxmax = inputs[:, 1]
+        x_minmin1 = inputs[:, 2]
+        x_maxmax1 = inputs[:, 3]
+        tokens = inputs[:, 4]
 
         x_minmin = self.hpf(x_minmin)
         x_maxmax = self.hpf(x_maxmax)
@@ -86,9 +84,15 @@ class AIDE(TrainableMixin, Model):
 
         x_1 = (x_min + x_max + x_min1 + x_max1) / 4
         x = torch.cat([x_0, x_1], dim=1)
-        x = self.fc(x)
+        logits = self.fc(x)
 
-        return {'logits': x, 'output': torch.softmax(x, dim=1)}
+        if labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
+            loss = loss_fct(logits.view(-1, 2), labels.view(-1))
+        else:
+            loss = None
+
+        return {'logits': logits, 'loss': loss, 'output': torch.softmax(logits, dim=1)}
 
 
     def load_model(self, ckpt: Optional[str] = None, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None) -> None:
@@ -125,24 +129,44 @@ class AIDE(TrainableMixin, Model):
         if ckpt is not None:
             self.load_state_dict(torch.load(ckpt, map_location='cpu')['model'], strict=False)
 
-    def preprocess(self, x: torch.Tensor) -> torch.Tensor:
+    def get_transform_cpu(self, instance: ImageInstance) -> torch.Tensor:
+        """
+        Transform func for dataloader.
+        """
+        transform = transforms.Compose([transforms.ToTensor()])
+        return transform(instance.data)
 
+    def preprocess_gpu(self, x_list: List[torch.Tensor]) -> torch.Tensor:
+        """
+        Preprocesses a list of CPU tensors to a single GPU batch tensor (or CPU tensor if no GPU available).
+        """
+        # Define transform func
         transform_func = transforms.Compose([
             transforms.Resize([256, 256]),
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
-        x_minmin, x_maxmax, x_minmin1, x_maxmax1 = self.dct_module(x.to(self.device))
+        # Loop over (differently-sized) tensors
+        processed = []
+        for x in x_list:
 
-        x_0 = transform_func(x.to(self.device))
-        x_minmin = transform_func(x_minmin)
-        x_maxmax = transform_func(x_maxmax)
-        x_minmin1 = transform_func(x_minmin1)
-        x_maxmax1 = transform_func(x_maxmax1)
+            # Move to GPU
+            x = x.to(self.device)
 
-        input_tensor = torch.stack([x_minmin, x_maxmax, x_minmin1, x_maxmax1, x_0], dim=0)
+            # Run DCT on high-res images
+            x_minmin, x_maxmax, x_minmin1, x_maxmax1 = self.dct_module(x)
 
-        return input_tensor
+            # Resize and Normalize all 5 streams at once
+            x_0 = transform_func(x)
+            x_mm = transform_func(x_minmin)
+            x_mx = transform_func(x_maxmax)
+            x_mm1 = transform_func(x_minmin1)
+            x_mx1 = transform_func(x_maxmax1)
+
+            # Stack streams for this one image: [5, 3, 256, 256]
+            processed.append(torch.stack([x_mm, x_mx, x_mm1, x_mx1, x_0], dim=0))
+
+        return torch.stack(processed, dim=0)
 
 
     def predict_batch(self, instances: List[Union[ImageInstance, FileImageInstance]]) -> List[Prediction]:
@@ -152,12 +176,11 @@ class AIDE(TrainableMixin, Model):
             self.load_model(ckpt=self.ckpt)
 
         # Transform inputs
-        to_tensor_transform = transforms.Compose([transforms.ToTensor()])
-        inputs = torch.stack([self.preprocess(to_tensor_transform(instance.data)) for instance in instances],
-                             dim=0).to(self.device)
+        inputs = [self.get_transform_cpu(instance) for instance in instances]
 
         # Run inference
         with torch.no_grad():
+            # GPU preprocessing is included in forward func
             out = self.forward(inputs)
 
         # Return predictions

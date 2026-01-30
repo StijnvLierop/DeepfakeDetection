@@ -192,4 +192,4 @@ def load_model(config: Union[str, dict]) -> Model:
     if model_class is not None:
         return model_class(**config.get("params", {}))
     else:
-        raise ValueError(f"Dataset class not found: {config['class']}")
+        raise ValueError(f"Model class not found: {config['class']}")

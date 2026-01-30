@@ -1,3 +1,5 @@
+from typing import Union, Callable, Any
+
 import torch
 from torchvision.transforms import v2
 
@@ -11,7 +13,7 @@ class TorchDataset(torch.utils.data.Dataset):
 
     def __init__(self,
                  dataset: MapStyleDatasetMixin,
-                 transform: v2.Compose,
+                 transform: Union[v2.Compose, Callable[[Any], torch.Tensor]],
                  label: str,
                  pos_label: str):
         super().__init__()
@@ -23,7 +25,7 @@ class TorchDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int):
         instance = self.dataset[idx]
         return {
-            "inputs": self.transforms(instance.data),
+            "inputs": self.transforms(instance),
             "label": torch.tensor(instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.uint8),
         }
 
@@ -38,7 +40,7 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
 
     def __init__(self,
                  dataset: Dataset,
-                 transform: v2.Compose,
+                 transform: Union[v2.Compose, Callable[[Any], torch.Tensor]],
                  label: str,
                  pos_label: str):
         super().__init__()
@@ -53,7 +55,7 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
     def __iter__(self):
         for instance in self.dataset:
             yield {
-                "inputs": self.transforms(instance.data),
+                "inputs": self.transforms(instance),
                 "label": torch.tensor(
                     instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.int8
                 ),
