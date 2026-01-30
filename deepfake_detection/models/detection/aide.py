@@ -1,4 +1,4 @@
-from typing import Union, List, Optional, Callable
+from typing import Union, List, Optional
 
 import open_clip
 import torch
