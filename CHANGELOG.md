@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.35.1 (2026-01-30)
+
+### Bug Fixes
+
+- Formatting
+  ([`56b227b`](https://github.com/StijnvLierop/DeepfakeDetection/commit/56b227bd7d8e29772557ac4a9dfa1cb5599c92ff))
+
+### Refactoring
+
+- Make aide trainable
+  ([`a6df32f`](https://github.com/StijnvLierop/DeepfakeDetection/commit/a6df32f007ccd1e8f731e23a68bdce7c70ee59cf))
+
+
 ## v0.35.0 (2026-01-29)
 
 ### Bug Fixes
