@@ -36,3 +36,8 @@ AIDE
 ```Python
 https://drive.google.com/drive/folders/1qx76UFvDpgCxaPLBCmsA2WY-SSzeJrd4
 ```
+
+TruFor
+```Python
+https://huggingface.co/spaces/jatin-tech/Tru_Image_Classifier/tree/main/weights
+```
