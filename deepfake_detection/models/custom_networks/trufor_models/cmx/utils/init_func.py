@@ -4,7 +4,6 @@
 # @Author  : yuchangqian
 # @Contact : changqian_yu@163.com
 # @File    : init_func.py.py
-import torch
 import torch.nn as nn
 
 def __init_weight(feature, conv_init, norm_layer, bn_eps, bn_momentum,
@@ -33,7 +32,6 @@ def init_weight(module_list, conv_init, norm_layer, bn_eps, bn_momentum,
 def group_weight(weight_group, module, norm_layer, lr):
     group_decay = []
     group_no_decay = []
-    count = 0
     for m in module.modules():
         if isinstance(m, nn.Linear):
             group_decay.append(m.weight)

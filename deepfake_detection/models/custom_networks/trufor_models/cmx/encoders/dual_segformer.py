@@ -355,7 +355,6 @@ class RGBXTransformer(nn.Module):
         """
         B = x_rgb.shape[0]
         outs = []
-        outs_fused = []
 
         # stage 1
         x_rgb, H, W = self.patch_embed1(x_rgb)
