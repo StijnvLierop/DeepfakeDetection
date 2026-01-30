@@ -320,7 +320,7 @@ def test_load_model_class_not_found():
         "params": {}
     }
     # Execute & Verify
-    with pytest.raises(ValueError, match="Dataset class not found: non_existent_model_class_xyz"):
+    with pytest.raises(ValueError, match="Model class not found: non_existent_model_class_xyz"):
         load_model(config)
 
 

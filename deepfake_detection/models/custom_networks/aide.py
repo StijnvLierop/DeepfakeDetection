@@ -478,7 +478,7 @@ class DCT_base_Rec_Module(nn.Module):
 
         self._DCT_patch = nn.Parameter(torch.tensor(DCT_mat(window_size)).float(), requires_grad=False)
         self._DCT_patch_T = nn.Parameter(torch.transpose(torch.tensor(DCT_mat(window_size)).float(), 0, 1),
-                                         requires_grad=False)
+                                         requires_grad=False).contiguous()
 
         self.unfold = nn.Unfold(
             kernel_size=(window_size, window_size), stride=stride
@@ -507,8 +507,10 @@ class DCT_base_Rec_Module(nn.Module):
         C, W, H = x.shape
         x_unfold = self.unfold(x.unsqueeze(0)).squeeze(0)
 
+        self._DCT_patch_T = self._DCT_patch_T.to(x.device)
+        self._DCT_patch = self._DCT_patch.to(x.device)
         _, L = x_unfold.shape
-        x_unfold = x_unfold.transpose(0, 1).reshape(L, C, window_size, window_size)
+        x_unfold = x_unfold.transpose(0, 1).reshape(L, C, window_size, window_size).to(x.device)
         x_dct = self._DCT_patch @ x_unfold @ self._DCT_patch_T
 
         y_list = []

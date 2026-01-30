@@ -5,7 +5,7 @@
 groups = ["default", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:1dd09c6b58b12bc0e96c30d0572133d1113b3ac26f2a79b1b6be6556a958a04a"
+content_hash = "sha256:d05a92361c53ac41dae81a4a3ba7d7dd9f64c324fbd68771e57efe9ce72e87bb"
 
 [[metadata.targets]]
 requires_python = "==3.10.*"
@@ -2241,6 +2241,27 @@ files = [
     {file = "nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:b90bed3df379fa79afbd21be8e04a0314336b8ae16768b58f2d34cb1d04cd7d2"},
     {file = "nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl", hash = "sha256:6574241a3ec5fdc9334353ab8c479fe75841dbe8f4532a8fc97ce63503330ba1"},
     {file = "nvidia_nvtx_cu12-12.6.77-py3-none-win_amd64.whl", hash = "sha256:2fb11a4af04a5e6c84073e6404d26588a34afd35379f0855a99797897efa75c0"},
+]
+
+[[package]]
+name = "open-clip-torch"
+version = "3.2.0"
+requires_python = ">=3.9"
+summary = "Open reproduction of consastive language-image pretraining (CLIP) and related."
+groups = ["default"]
+dependencies = [
+    "ftfy",
+    "huggingface-hub",
+    "regex",
+    "safetensors",
+    "timm>=1.0.17",
+    "torch>=2.0",
+    "torchvision",
+    "tqdm",
+]
+files = [
+    {file = "open_clip_torch-3.2.0-py3-none-any.whl", hash = "sha256:e1f5b3ecbadb6d8ea64b1f887db23efee9739e7c0d0075a8a2a3cabae8fed8d1"},
+    {file = "open_clip_torch-3.2.0.tar.gz", hash = "sha256:62b7743012ccc40fb7c64819fa762fba0a13dd74585ac733babe58c2974c2506"},
 ]
 
 [[package]]
