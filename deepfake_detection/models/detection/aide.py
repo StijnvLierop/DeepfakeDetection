@@ -21,29 +21,27 @@ class AIDE(TrainableMixin, Model):
     def __init__(self,
                  ckpt: Optional[str] = None,
                  name: str = "AIDE",
-                 device: str = "cuda",
                  *args,
                  **kwargs):
         Model.__init__(self, name=name)
         super().__init__(*args, **kwargs)
-        self.device = device
 
         # Initialize DCT module
-        self.dct_module = DCT_base_Rec_Module().requires_grad_(False).to(self.device)
+        self.dct_module = DCT_base_Rec_Module().requires_grad_(False)
 
         # Load checkpoints (ckpt is main checkpoint that should be loaded during inference)
         self.ckpt = ckpt
 
         # Define model layers
-        self.hpf = HPF().to(self.device)
-        self.model_min = ResNet(Bottleneck, [3, 4, 6, 3]).to(self.device)
-        self.model_max = ResNet(Bottleneck, [3, 4, 6, 3]).to(self.device)
-        self.fc = Mlp(2048 + 256, 1024, 2).to(self.device)
+        self.hpf = HPF()
+        self.model_min = ResNet(Bottleneck, [3, 4, 6, 3])
+        self.model_max = ResNet(Bottleneck, [3, 4, 6, 3])
+        self.fc = Mlp(2048 + 256, 1024, 2)
         self.openclip_convnext_xxl = None
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)).to(self.device)
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.convnext_proj = nn.Sequential(
             nn.Linear(3072, 256),
-        ).to(self.device)
+        )
 
     def forward(self, inputs, labels=None):
         """
@@ -119,7 +117,6 @@ class AIDE(TrainableMixin, Model):
         self.openclip_convnext_xxl.head.global_pool = nn.Identity()
         self.openclip_convnext_xxl.head.flatten = nn.Identity()
         self.openclip_convnext_xxl.eval()
-        self.openclip_convnext_xxl.to(self.device)
 
         # Turn off grads for convnext
         for param in self.openclip_convnext_xxl.parameters():
@@ -146,12 +143,18 @@ class AIDE(TrainableMixin, Model):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
+        # Check current main model device (GPU)
+        device = next(self.fc.parameters()).device
+
+        # Ensure the internal module is on the same device
+        self.dct_module = self.dct_module.to(device, non_blocking=True)
+
         # Loop over (differently-sized) tensors
         processed = []
         for x in x_list:
 
-            # Move to GPU
-            x = x.to(self.device)
+            # Move x to device
+            x = x.to(device)
 
             # Run DCT on high-res images
             x_minmin, x_maxmax, x_minmin1, x_maxmax1 = self.dct_module(x)
