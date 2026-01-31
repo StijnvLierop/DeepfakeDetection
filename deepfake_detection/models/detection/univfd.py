@@ -18,15 +18,19 @@ class UnivFD(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/WisconsinAIVision/UniversalFakeDetect.
     """
 
-    def __init__(
-        self, ckpt: Optional[str] = None, device: str = "cuda", name: str = "UnivFD", *args, **kwargs
-    ):
-        Model.__init__(self, name)
+    def __init__(self,
+                 ckpt: Optional[str] = None,
+                 name: str = "UnivFD",
+                 load_model: bool = True,
+                 *args,
+                 **kwargs):
         super().__init__(*args, **kwargs)
+
         self.clip_encoder = None
-        self.fc = torch.nn.Linear(768, 1).to(device)
+        self.fc = torch.nn.Linear(768, 1)
         self.ckpt = ckpt
-        self.device = device
+
+        Model.__init__(self, name=name, load_model=load_model)
 
         # Define loss function for training
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
@@ -34,7 +38,6 @@ class UnivFD(TrainableMixin, Model):
     def load_model(self):
         # Load clip encoder
         self.clip_encoder, _ = clip.load("ViT-L/14", device="cpu")
-        self.clip_encoder.to(self.device)
         self.clip_encoder.requires_grad_(False)
 
         # Load fully connected layer
@@ -42,6 +45,7 @@ class UnivFD(TrainableMixin, Model):
             state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
             self.fc.load_state_dict(state_dict)
         else:
+            print("No checkpoint provided, initializing model with random weights.")
             torch.nn.init.normal_(self.fc.weight.data, 0.0, 0.02)
 
     def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Any:
@@ -62,16 +66,11 @@ class UnivFD(TrainableMixin, Model):
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
-        # If model not yet loaded, load model
-        if self.clip_encoder is None:
-            self.load_model()
-        self.clip_encoder.eval()
 
         # Get model inputs
-        transform_func = self.get_input_transform_func(resize=False)
         model_inputs = torch.stack(
-            [transform_func(i.data) for i in instances], dim=0
-        ).to(self.device)
+            [self.transform_input(i, resize=False) for i in instances], dim=0
+        ).to(next(self.fc.parameters()).device)
 
         # Run inference
         with torch.no_grad():
@@ -83,7 +82,7 @@ class UnivFD(TrainableMixin, Model):
                                                                   out['embeddings'].cpu().tolist())]
 
     @staticmethod
-    def get_input_transform_func(resize: bool = False) -> v2.Compose:
+    def transform_input(instance: ImageInstance, resize: bool = False) -> torch.Tensor:
         transforms = [
             v2.CenterCrop(224),
             v2.ToImage(),
@@ -101,4 +100,4 @@ class UnivFD(TrainableMixin, Model):
                 ),
             )
         transforms = v2.Compose(transforms)
-        return transforms
+        return transforms(instance.data)

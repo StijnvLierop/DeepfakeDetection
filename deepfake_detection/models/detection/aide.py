@@ -21,29 +21,29 @@ class AIDE(TrainableMixin, Model):
     def __init__(self,
                  ckpt: Optional[str] = None,
                  name: str = "AIDE",
-                 device: str = "cuda",
+                 load_model: bool = True,
                  *args,
                  **kwargs):
-        Model.__init__(self, name=name)
         super().__init__(*args, **kwargs)
-        self.device = device
 
         # Initialize DCT module
-        self.dct_module = DCT_base_Rec_Module().requires_grad_(False).to(self.device)
+        self.dct_module = DCT_base_Rec_Module().requires_grad_(False)
 
         # Load checkpoints (ckpt is main checkpoint that should be loaded during inference)
         self.ckpt = ckpt
 
         # Define model layers
-        self.hpf = HPF().to(self.device)
-        self.model_min = ResNet(Bottleneck, [3, 4, 6, 3]).to(self.device)
-        self.model_max = ResNet(Bottleneck, [3, 4, 6, 3]).to(self.device)
-        self.fc = Mlp(2048 + 256, 1024, 2).to(self.device)
+        self.hpf = HPF()
+        self.model_min = ResNet(Bottleneck, [3, 4, 6, 3])
+        self.model_max = ResNet(Bottleneck, [3, 4, 6, 3])
+        self.fc = Mlp(2048 + 256, 1024, 2)
         self.openclip_convnext_xxl = None
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)).to(self.device)
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.convnext_proj = nn.Sequential(
             nn.Linear(3072, 256),
-        ).to(self.device)
+        )
+
+        Model.__init__(self, name=name, load_model=load_model)
 
     def forward(self, inputs, labels=None):
         """
@@ -95,7 +95,7 @@ class AIDE(TrainableMixin, Model):
         return {'logits': logits, 'loss': loss, 'output': torch.softmax(logits, dim=1)}
 
 
-    def load_model(self, ckpt: Optional[str] = None, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None) -> None:
+    def load_model(self, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None) -> None:
 
         # If resnet weights are provided, load them
         if resnet_ckpt is not None:
@@ -119,17 +119,16 @@ class AIDE(TrainableMixin, Model):
         self.openclip_convnext_xxl.head.global_pool = nn.Identity()
         self.openclip_convnext_xxl.head.flatten = nn.Identity()
         self.openclip_convnext_xxl.eval()
-        self.openclip_convnext_xxl.to(self.device)
 
         # Turn off grads for convnext
         for param in self.openclip_convnext_xxl.parameters():
             param.requires_grad = False
 
         # Load weights
-        if ckpt is not None:
-            self.load_state_dict(torch.load(ckpt, map_location='cpu')['model'], strict=False)
+        if self.ckpt is not None:
+            self.load_state_dict(torch.load(self.ckpt, map_location='cpu')['model'], strict=False)
 
-    def get_transform_cpu(self, instance: ImageInstance) -> torch.Tensor:
+    def transform_input(self, instance: ImageInstance) -> torch.Tensor:
         """
         Transform func for dataloader.
         """
@@ -146,12 +145,18 @@ class AIDE(TrainableMixin, Model):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
+        # Check current main model device (GPU)
+        device = next(self.fc.parameters()).device
+
+        # Ensure the internal module is on the same device
+        self.dct_module = self.dct_module.to(device, non_blocking=True)
+
         # Loop over (differently-sized) tensors
         processed = []
         for x in x_list:
 
-            # Move to GPU
-            x = x.to(self.device)
+            # Move x to device
+            x = x.to(device)
 
             # Run DCT on high-res images
             x_minmin, x_maxmax, x_minmin1, x_maxmax1 = self.dct_module(x)
@@ -171,12 +176,8 @@ class AIDE(TrainableMixin, Model):
 
     def predict_batch(self, instances: List[Union[ImageInstance, FileImageInstance]]) -> List[Prediction]:
 
-        # If model not yet loaded, load model
-        if self.openclip_convnext_xxl is None:
-            self.load_model(ckpt=self.ckpt)
-
         # Transform inputs
-        inputs = [self.get_transform_cpu(instance) for instance in instances]
+        inputs = [self.transform_input(instance) for instance in instances]
 
         # Run inference
         with torch.no_grad():

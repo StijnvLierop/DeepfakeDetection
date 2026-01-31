@@ -19,24 +19,23 @@ class FreqNet(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/chuangchuangtan/FreqNet-DeepfakeDetection.
     """
 
-    def __init__(
-        self, ckpt: Optional[str] = None, device: str = "cuda", *args, **kwargs
-    ):
+    def __init__(self,
+                 ckpt: Optional[str] = None,
+                 name: str = 'FreqNet',
+                 load_model: bool = True):
         """
         :param: ckpt: Path to the checkpoint file of the CNNDetect model.
-        :param device: Device to use for inference.
         """
-        super().__init__(*args, **kwargs)
         self.model = None
         self.ckpt = ckpt
-        self.device = device
+        super().__init__(name=name, load_model=load_model)
 
         # Define loss function for training
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
 
     def load_model(self):
         # Load architecture
-        self.model = FreqNetCNN().to(self.device)
+        self.model = FreqNetCNN()
 
         # Get weights
         if self.ckpt:
@@ -68,20 +67,11 @@ class FreqNet(TrainableMixin, Model):
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
-
-        # Set model to eval mode for inference
-        self.model.eval()
-
-        # Get transform func
-        transform_func = self.get_input_transform_func(resize=True, crop=True)
 
         # Transform instances to tensor
         model_inputs = torch.stack(
-            [transform_func(i.data) for i in instances], dim=0
-        ).to(self.device)
+            [self.transform_input(i.data, resize=True, crop=True) for i in instances], dim=0
+        ).to(next(self.model.parameters()).device)
 
         # Run inference
         with torch.no_grad():
@@ -104,7 +94,7 @@ class FreqNet(TrainableMixin, Model):
         return {"loss": loss, "logits": logits}
 
     @staticmethod
-    def get_input_transform_func(resize: bool = False, crop: bool = True) -> v2.Compose:
+    def transform_input(instance: ImageInstance, resize: bool = False, crop: bool = True) -> torch.Tensor:
         # Define base transforms
         transforms = [
             v2.ToImage(),
@@ -128,4 +118,4 @@ class FreqNet(TrainableMixin, Model):
 
         # Compose all transformations
         transforms = v2.Compose(transforms)
-        return transforms
+        return transforms(instance.data)
