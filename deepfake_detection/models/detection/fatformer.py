@@ -17,17 +17,18 @@ class FatFormer(Model):
     More info about the model can be found here: https://github.com/Michel-liu/FatFormer/tree/main.
     """
 
-    def __init__(
-        self, ckpt: Optional[str] = None, device: str = "cuda", name: str = "FatFormer"
-    ):
+    def __init__(self,
+                 ckpt: Optional[str] = None,
+                 device: str = "cuda",
+                 name: str = "FatFormer",
+                 load_model: bool = True):
         """
         :param: ckpt: Path to the checkpoint file of the CNNDetect model.
-        :param device: Device to use for inference.
         """
-        super().__init__(name=name)
         self.model = None
         self.ckpt = ckpt
         self.device = device
+        super().__init__(name=name, load_model=load_model)
 
     def load_model(self):
         self.model = CLIPModel(name="ViT-L/14").to(self.device)
@@ -44,16 +45,11 @@ class FatFormer(Model):
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
-        self.model.eval()
 
         # Get model inputs
-        transform_func = self.get_input_transform_func()
         model_inputs = torch.stack(
-            [transform_func(i.data) for i in instances], dim=0
-        ).to(self.device)
+            [self.transform_input(i) for i in instances], dim=0
+        ).to(next(self.model.parameters()).device)
 
         # Run inference
         with torch.no_grad():
@@ -64,7 +60,7 @@ class FatFormer(Model):
         return [Prediction(classification={"fake": o, "real": 1 - o}) for o in out]
 
     @staticmethod
-    def get_input_transform_func() -> v2.Compose:
+    def transform_input(instance: ImageInstance) -> torch.Tensor:
         transforms = [
             v2.Resize(
                 (256, 256), interpolation=v2.InterpolationMode.BILINEAR, antialias=True
@@ -75,4 +71,4 @@ class FatFormer(Model):
             v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
         transforms = v2.Compose(transforms)
-        return transforms
+        return transforms(instance.data)

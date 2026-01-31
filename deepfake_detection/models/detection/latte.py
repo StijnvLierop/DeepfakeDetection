@@ -20,8 +20,11 @@ class Latte(Model):
     More info about the model can be found here: https://github.com/AnaMVasilcoiu/LATTE-Diffusion-Detector.
     """
 
-    def __init__(self, ckpt: str, device: str = "cuda"):
-        super().__init__("Latte")
+    def __init__(self,
+                 ckpt: str,
+                 name: str = "Latte",
+                 load_model: bool = True,
+                 device: str = "cuda"):
         # Set params
         self.ckpt = ckpt
         self.device = device
@@ -34,6 +37,8 @@ class Latte(Model):
         self.tokenizer = None
         self.text_encoder = None
         self.noise_scheduler = None
+
+        super().__init__(name=name, load_model=load_model)
 
     def load_model(self):
         # Load classifier
@@ -137,9 +142,6 @@ class Latte(Model):
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
-        # Load model when not yet loaded
-        if self.classifier is None:
-            self.load_model()
 
         # Set classifier to eval mode for inference
         self.classifier.eval()

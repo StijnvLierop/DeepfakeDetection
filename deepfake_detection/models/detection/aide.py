@@ -21,9 +21,9 @@ class AIDE(TrainableMixin, Model):
     def __init__(self,
                  ckpt: Optional[str] = None,
                  name: str = "AIDE",
+                 load_model: bool = True,
                  *args,
                  **kwargs):
-        Model.__init__(self, name=name)
         super().__init__(*args, **kwargs)
 
         # Initialize DCT module
@@ -42,6 +42,8 @@ class AIDE(TrainableMixin, Model):
         self.convnext_proj = nn.Sequential(
             nn.Linear(3072, 256),
         )
+
+        Model.__init__(self, name=name, load_model=load_model)
 
     def forward(self, inputs, labels=None):
         """
@@ -93,7 +95,7 @@ class AIDE(TrainableMixin, Model):
         return {'logits': logits, 'loss': loss, 'output': torch.softmax(logits, dim=1)}
 
 
-    def load_model(self, ckpt: Optional[str] = None, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None) -> None:
+    def load_model(self, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None) -> None:
 
         # If resnet weights are provided, load them
         if resnet_ckpt is not None:
@@ -123,10 +125,10 @@ class AIDE(TrainableMixin, Model):
             param.requires_grad = False
 
         # Load weights
-        if ckpt is not None:
-            self.load_state_dict(torch.load(ckpt, map_location='cpu')['model'], strict=False)
+        if self.ckpt is not None:
+            self.load_state_dict(torch.load(self.ckpt, map_location='cpu')['model'], strict=False)
 
-    def get_transform_cpu(self, instance: ImageInstance) -> torch.Tensor:
+    def transform_input(self, instance: ImageInstance) -> torch.Tensor:
         """
         Transform func for dataloader.
         """
@@ -174,12 +176,8 @@ class AIDE(TrainableMixin, Model):
 
     def predict_batch(self, instances: List[Union[ImageInstance, FileImageInstance]]) -> List[Prediction]:
 
-        # If model not yet loaded, load model
-        if self.openclip_convnext_xxl is None:
-            self.load_model(ckpt=self.ckpt)
-
         # Transform inputs
-        inputs = [self.get_transform_cpu(instance) for instance in instances]
+        inputs = [self.transform_input(instance) for instance in instances]
 
         # Run inference
         with torch.no_grad():

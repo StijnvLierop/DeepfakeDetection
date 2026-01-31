@@ -22,27 +22,25 @@ class CNNSpot(TrainableMixin, Model):
     def __init__(
         self,
         ckpt: Optional[str] = None,
-        device: str = "cuda",
         name: str = "CNNSpot",
+        load_model: bool = True,
         *args,
         **kwargs,
     ):
         """
         :param: ckpt: Path to the checkpoint file of the CNNDetect model.
-        :param device: Device to use for inference.
         """
-        Model.__init__(self, name)
-        super().__init__(*args, **kwargs)
         self.model = None
         self.ckpt = ckpt
-        self.device = device
+        super().__init__(*args, **kwargs)
+        Model.__init__(self, name=name, load_model=load_model)
 
         # Define loss function for training
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
 
     def load_model(self):
         # Load architecture
-        self.model = resnet50(num_classes=1).to(self.device)
+        self.model = resnet50(num_classes=1)
 
         # Get weights
         if self.ckpt:
@@ -74,20 +72,14 @@ class CNNSpot(TrainableMixin, Model):
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
-
-        # Set model to eval mode for inference
-        self.model.eval()
-
-        # Get transform func
-        transform_func = self.get_input_transform_func(resize=False)
 
         # Transform instances to tensor
         model_inputs = torch.stack(
-            [transform_func(i.data) for i in instances], dim=0
-        ).to(self.device)
+            [self.transform_input(i, resize=False) for i in instances], dim=0
+        )
+
+        # Move tensor to model device
+        model_inputs = model_inputs.to(next(self.model.parameters()).device)
 
         # Run inference
         with torch.no_grad():
@@ -123,7 +115,7 @@ class CNNSpot(TrainableMixin, Model):
                 'output': logits.sigmoid().flatten()}
 
     @staticmethod
-    def get_input_transform_func(resize: bool = False) -> v2.Compose:
+    def transform_input(instance: ImageInstance, resize: bool = False) -> torch.Tensor:
         transforms = [
             v2.Lambda(lambda x: x.convert('RGB') if hasattr(x, 'convert') else x),
             v2.ToImage(),
@@ -139,4 +131,4 @@ class CNNSpot(TrainableMixin, Model):
                 ),
             )
         transforms = v2.Compose(transforms)
-        return transforms
+        return transforms(instance.data)

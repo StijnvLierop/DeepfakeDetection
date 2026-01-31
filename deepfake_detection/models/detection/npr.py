@@ -1,4 +1,4 @@
-from typing import Union, List, Any
+from typing import Union, List, Any, Optional
 from collections import OrderedDict
 
 import torch
@@ -22,51 +22,54 @@ class NPR(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/chuangchuangtan/NPR-DeepfakeDetection.
     """
 
-    def __init__(
-        self, ckpt: str, device: str = "cuda", name: str = "NPR", *args, **kwargs
-    ):
-        Model.__init__(self, name)
-        super().__init__(*args, **kwargs)
+    def __init__(self,
+                 ckpt: Optional[str] = None,
+                 name: str = "NPR",
+                 load_model: bool = True,
+                 *args,
+                 **kwargs):
         self.model = None
         self.ckpt = ckpt
-        self.device = device
+
+        super().__init__(*args, **kwargs)
+        Model.__init__(self, name=name, load_model=load_model)
+
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
 
     def load_model(self):
-        self.model = resnet50(num_classes=1).to(self.device)
-        self.load_weights(self.ckpt)
+        self.model = resnet50(num_classes=1)
+        self.load_weights()
         self.model.eval()
 
-    def load_weights(self, ckpt):
-        # Load state dict
-        state_dict = torch.load(ckpt, map_location="cpu", weights_only=True)
+    def load_weights(self):
+        # If weights were provided
+        if self.ckpt:
+            # Load state dict
+            state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
 
-        # Remove 'module.' prefix in state dict keys (if present)
-        if "model" in state_dict:
-            new_state_dict = OrderedDict()
-            for k, v in state_dict["model"].items():
-                name = k.replace("module.", "")
-                new_state_dict[name] = v
+            # Remove 'module.' prefix in state dict keys (if present)
+            if "model" in state_dict:
+                new_state_dict = OrderedDict()
+                for k, v in state_dict["model"].items():
+                    name = k.replace("module.", "")
+                    new_state_dict[name] = v
+            else:
+                new_state_dict = state_dict
+
+            # Load weights
+            self.model.load_state_dict(new_state_dict, strict=True)
         else:
-            new_state_dict = state_dict
-
-        # Load weights
-        self.model.load_state_dict(new_state_dict, strict=True)
+            print("No checkpoint provided, initializing model with random weights.")
 
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
-        # If model not yet loaded, load model
-        if self.model is None:
-            self.load_model()
 
-        # Transform instance to tensor
-        transform_func = self.get_input_transform_func(
-            resize=False, crop=True, translate_and_duplicate=True
-        )
+        # Transform inputs
         model_inputs = torch.stack(
-            [transform_func(i.data) for i in instances], dim=0
-        ).to(self.device)
+            [self.transform_input(i, resize=False, crop=True, translate_and_duplicate=True)
+             for i in instances], dim=0
+        ).to(next(self.model.parameters()).device)
 
         # Run inference
         with torch.no_grad():
@@ -102,9 +105,9 @@ class NPR(TrainableMixin, Model):
                 'output': logits.sigmoid().flatten()}
 
     @staticmethod
-    def get_input_transform_func(
-        resize: bool = False, crop: bool = True, translate_and_duplicate: bool = False
-    ) -> v2.Compose:
+    def transform_input(instance: ImageInstance, resize: bool = False,
+                        crop: bool = True, translate_and_duplicate: bool = False
+    ) -> torch.Tensor:
         # Define base transforms
         transforms = [
             v2.ToImage(),
@@ -136,4 +139,4 @@ class NPR(TrainableMixin, Model):
 
         # Compose all transformations
         transforms = v2.Compose(transforms)
-        return transforms
+        return transforms(instance.data)
