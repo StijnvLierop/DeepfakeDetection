@@ -281,10 +281,9 @@ def test_filter_config_to_func_lt():
 def test_load_model_from_dict():
     # Setup
     config = {
-        "class": "deepfake_detection.models.detection.cnnspot.CNNSpot",
+        "class": "deepfake_detection.models.detection.CNNSpot",
         "params": {
-            "name": "MyCNNSpot",
-            "device": "cpu"
+            "name": "MyCNNSpot"
         }
     }
     # Execute
@@ -293,7 +292,6 @@ def test_load_model_from_dict():
     assert isinstance(model, Model)
     assert isinstance(model, CNNSpot)
     assert "MyCNNSpot" == model.name
-    assert "cpu" == model.device
 
 
 def test_load_model_from_yaml_file():

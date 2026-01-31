@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
+import torch
 from datasets import tqdm
 from sklearn.metrics import (
     accuracy_score,
@@ -33,6 +34,7 @@ def evaluate(dataset_config: str,
              model_config: str,
              output_dir: str,
              label: str,
+             device: str,
              predictions_file: Optional[str] = None,
              subset_labels: Optional[List[str]] = None,
              neg_label: Optional[str] = None) -> None:
@@ -53,12 +55,17 @@ def evaluate(dataset_config: str,
                           If left empty, metrics are only calculated for the full dataset.
     :param neg_label: Optional negative label to use for calculating subset metrics that need two classes.
                       If not provided, these metrics will not be included in the evaluation.
+    :param device: Device to use for model inference. Defaults to 'cuda'.
     """
     # Load datasets
     dataset = load_dataset(dataset_config)
 
     # Load model
     model = load_model(model_config)
+
+    # Transfer model to device (if applicable)
+    if isinstance(model, torch.nn.Module):
+        model = model.to(device)
 
     # Log evaluation information
     logging.info(
@@ -212,6 +219,14 @@ if __name__ == "__main__":
         required=False,
         help="Optional negative label to use for calculating subset metrics that need two classes."
              "If not provided, these metrics will not be included in the evaluation."
+    )
+    parser.add_argument(
+        "-dev",
+        "--device",
+        type=str,
+        required=False,
+        default="cuda" if torch.cuda.is_available() else "cpu",
+        help="Device to use for model inference. Defaults to 'cuda' if available, otherwise 'cpu'."
     )
     args = vars(parser.parse_args())
 
