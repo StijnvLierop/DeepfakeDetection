@@ -15,8 +15,9 @@ class Prediction:
         represented as a sequence of floats.
     :param text: A free-form text field, which can for example be used for
         image captioning, machine translation, summarization, etc.
-    :param image: A matrix representing an image. To be used e.g. in
-        segmentation tasks, where predictions are made at the pixel level.
+    :param images: A dictionary of one or multiple matrices representing an image.
+        To be used e.g. in segmentation tasks or for heatmaps, where predictions
+        are made at the pixel level.
     :param meta: A mapping where additional metadata about this prediction
         can be stored. Code should not depend on the presence of
         certain meta attributes, but they can be used to improve
@@ -40,7 +41,7 @@ class Prediction:
         #: A free-form text field, which can for example be used for image
         #: captioning, machine translation, summarization, etc.
         self.text: str = text
-        #: One or multiple matrix annotations representing images.
+        #: A dictionary of one or multiple matrix annotations representing images.
         self.images: Mapping[str, np.ndarray] = images
         #: A dictionary that holds additional relevant metadata for a
         #: Prediction.
