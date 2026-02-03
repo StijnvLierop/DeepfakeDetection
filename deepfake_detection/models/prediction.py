@@ -28,7 +28,7 @@ class Prediction:
         classification: Mapping[str, float] = None,
         embedding: Sequence[float] = None,
         text: str = None,
-        image: np.ndarray = None,
+        images: Mapping[str, np.ndarray] = None,
         meta: MutableMapping[str, Any] = None,
     ):
         #: A mapping of class labels to the corresponding confidence scores as
@@ -40,9 +40,8 @@ class Prediction:
         #: A free-form text field, which can for example be used for image
         #: captioning, machine translation, summarization, etc.
         self.text: str = text
-        #: A matrix annotation representing an image. To be used in for
-        #: annotations at the pixel level.
-        self.image: np.ndarray = image
+        #: One or multiple matrix annotations representing images.
+        self.images: Mapping[str, np.ndarray] = images
         #: A dictionary that holds additional relevant metadata for a
         #: Prediction.
         self.meta: MutableMapping[str, Any] = meta or dict()
@@ -79,7 +78,9 @@ class Prediction:
             self._compare_classification(other.classification, epsilon)
             and self._compare_embedding(other.embedding, epsilon)
             and self.text == other.text
-            and np.array_equal(self.image, other.image)
+            and all([np.array_equal(ri, oi) for ri, oi in zip(self.images.values(), other.images.values())])
+            if (self.images is not None and other.images is not None)
+            else self.images == other.images
         )
 
     def __hash__(self):
@@ -88,7 +89,7 @@ class Prediction:
                 self.classification,
                 self.embedding,
                 self.text,
-                str(self.image),
+                str(self.images),
                 str(self.meta),
             )
         )
@@ -102,7 +103,7 @@ class Prediction:
             f"classification={self.classification}, "
             f"embedding={self.embedding}, "
             f"text={self.text}, "
-            f"image={self.image}, "
+            f"image={self.images.keys() if self.images is not None else None}, "
             f"meta={self.meta}"
             f")"
         )

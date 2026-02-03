@@ -41,7 +41,7 @@ def encode_prediction(obj: Prediction) -> Dict[str, Any]:
         "classification": obj.classification,
         "embedding": obj.embedding,
         "text": obj.text,
-        "image": obj.image.tolist() if (obj.image is not None) else None,
+        "images": {k: v.tolist() for k,v in obj.images.items()} if (obj.images is not None) else None,
         "meta": encode_meta(obj.meta),
     }
 
@@ -76,12 +76,12 @@ def decode_prediction(obj: Mapping[str, Any]) -> Prediction:
     :param obj: JSON-encoded representation of a `Prediction` object
     :return: Deserialized `Prediction` object
     """
-    image = None if obj.get("image") is None else np.array(obj["image"])
+    images = None if obj.get("images") is None else {k: np.array(v) for k, v in obj["images"].items()}
     return Prediction(
         classification=obj["classification"],
         embedding=obj["embedding"],
         text=obj["text"],
-        image=image,
+        images=images,
         meta=obj.get("meta"),
     )
 
