@@ -133,7 +133,7 @@ class AIDE(TrainableMixin, Model):
         Transform func for dataloader.
         """
         transform = transforms.Compose([transforms.ToTensor()])
-        return transform(instance.data)
+        return transform(instance.data.convert('RGB'))
 
     def preprocess_gpu(self, x_list: List[torch.Tensor]) -> torch.Tensor:
         """

@@ -39,14 +39,12 @@ class NPR(TrainableMixin, Model):
     def load_model(self):
         self.model = resnet50(num_classes=1)
         self.load_weights()
-        self.model.eval()
 
     def load_weights(self):
         # If weights were provided
         if self.ckpt:
             # Load state dict
             state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
-
             # Remove 'module.' prefix in state dict keys (if present)
             if "model" in state_dict:
                 new_state_dict = OrderedDict()
@@ -54,6 +52,11 @@ class NPR(TrainableMixin, Model):
                     name = k.replace("module.", "")
                     new_state_dict[name] = v
             else:
+                # Check if keys are prefixed with "model." and remove these prefixes if present
+                if any(k.startswith("model.") for k in state_dict.keys()):
+                    state_dict = {
+                        k.replace("model.", ""): v for k, v in state_dict.items()
+                    }
                 new_state_dict = state_dict
 
             # Load weights
@@ -64,6 +67,9 @@ class NPR(TrainableMixin, Model):
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
+
+        # Turn on eval mode
+        self.model.eval()
 
         # Transform inputs
         model_inputs = torch.stack(

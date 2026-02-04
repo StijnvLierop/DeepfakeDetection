@@ -151,7 +151,7 @@ class Latte(Model):
 
         # Transform instances to tensor
         model_inputs = torch.stack(
-            [transform_func(image=np.array(i.data))["image"] for i in instances], dim=0
+            [transform_func(image=np.array(i.data.convert('RGB')))["image"] for i in instances], dim=0
         ).to(self.device)
 
         # Run inference
