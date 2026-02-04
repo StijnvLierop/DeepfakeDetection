@@ -39,7 +39,6 @@ class NPR(TrainableMixin, Model):
     def load_model(self):
         self.model = resnet50(num_classes=1)
         self.load_weights()
-        self.model.eval()
 
     def load_weights(self):
         # If weights were provided
@@ -68,6 +67,9 @@ class NPR(TrainableMixin, Model):
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
     ) -> List[Prediction]:
+
+        # Turn on eval mode
+        self.model.eval()
 
         # Transform inputs
         model_inputs = torch.stack(
