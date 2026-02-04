@@ -15,8 +15,8 @@ class CNNDetectDataset(MapStyleDatasetMixin, Dataset):
     More info about the dataset can be found here: https://github.com/PeterWang512/CNNDetection
     """
 
-    def __init__(self, path: str):
-        super().__init__(dataset_name="CNNDetect")
+    def __init__(self, path: str, dataset_name: str = "CNNDetect"):
+        super().__init__(dataset_name=dataset_name)
         self.path = path
 
         # Index dataset
