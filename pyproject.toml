@@ -35,6 +35,7 @@ dependencies = [
     "timm>=1.0.24",
     "open-clip-torch>=3.2.0",
     "mlflow>=3.9.0",
+    "setuptools>=82.0.1",
 ]
 license = {text = "MIT"}
 
