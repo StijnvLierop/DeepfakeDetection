@@ -19,18 +19,20 @@ class TruFor(Model):
                  ckpt: Optional[str] = None,
                  name: str = "TruFor",
                  device: str = "cuda"):
-        super().__init__(name=name)
         self.device = device
         self.ckpt = ckpt
 
         # Define model
         self.model = EncoderDecoder(cfg=default_config()).to(self.device)
 
+        super().__init__(name=name, load_model=True)
+
+
     def load_model(self):
         # If weights are provided, load them
         if self.ckpt is not None:
-            state_dict = torch.load(self.ckpt, map_location=self.device)
-            self.model.load_state_dict(state_dict)
+            state_dict = torch.load(self.ckpt, map_location=self.device, weights_only=False)
+            self.model.load_state_dict(state_dict['state_dict'])
         else:
             print("No checkpoint provided, initializing model with random weights.")
 
