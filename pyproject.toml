@@ -42,6 +42,7 @@ license = {text = "MIT"}
 [dependency-groups]
 test = [
     "pytest>=8.4.1",
+    "ruff>=0.11.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -70,8 +71,21 @@ match = "(main|master)"
 prerelease_token = "rc"
 prerelease = false
 
+[tool.pytest.ini_options]
+filterwarnings = ["ignore"]
+
+[[tool.pdm.source]]
+name = "torch-cuda"
+url = "https://download.pytorch.org/whl/cu124"
+include_packages = ["torch", "torchvision", "torchaudio"]
+
 [tool.pdm]
 distribution = true
+
+[tool.pdm.scripts]
+lint = "ruff check ."
+test = "pytest -s -vv --import-mode=append tests/"
+all = {composite = ["lint", "test"]}
 
 [changelog.default_templates]
 changelog_file = ""

@@ -1,0 +1,196 @@
+# Full example dataset config showcasing all supported features.
+# Transformations are applied in order: map → filter → sample.
+
+class: deepfake_detection.data.datasets.CombinedDataset
+params:
+  dataset_name: FullExampleDataset
+  datasets:
+
+    # ── File-based image dataset ──────────────────────────────────────────────
+    - class: deepfake_detection.data.datasets.FileImageDataset
+      params:
+        dataset_name: RealImages
+        path: /data/real_images/
+        # labels: null  # auto-extracted from folder hierarchy when omitted
+
+      # 1. map  — list of functions applied sequentially to every instance
+      map:
+        - func: deepfake_detection.data.utils.map.map_label_values
+          params:
+            label: real_or_fake   # label key to transform
+            value: real           # map all other values to this (wildcard behaviour)
+
+      # 2. filter  — keep only instances matching this predicate
+      # Atomic filter: label / op / value
+      filter:
+        label: real_or_fake
+        op: "=="
+        value: real
+
+      # 3. sample  — downsample / balance after filtering
+      sample:
+        func: deepfake_detection.data.utils.sample.sample_n_per_class
+        params:
+          n: 1000           # instances per class
+          label: real_or_fake
+          random_state: 42
+
+    # ── Video dataset with split file ─────────────────────────────────────────
+    - class: deepfake_detection.data.datasets.FileVideoDataset
+      params:
+        dataset_name: FaceForensicsVideos
+        path: /data/faceforensics/videos/
+        split_file: /data/faceforensics/splits/train.json
+
+      # map with multiple functions — each receives the instance returned by
+      # the previous function
+      map:
+        - func: deepfake_detection.data.utils.map.map_label_values
+          params:
+            label: authenticity
+            value: fake
+
+      # Compound filter using logical operators (and / or / not)
+      filter:
+        and:
+          - label: authenticity
+            op: "in"
+            value: [real, fake]
+          - not:
+              label: source
+              op: "=="
+              value: youtube
+
+      sample:
+        func: deepfake_detection.data.utils.sample.sample_n_per_class
+        params:
+          n: 500
+          label: authenticity
+          random_state: 0
+
+    # ── FaceForensics++ with compression and split ────────────────────────────
+    - class: deepfake_detection.data.datasets.FaceForensicsDataset
+      params:
+        dataset_name: FF++
+        path: /data/faceforensics/
+        modality: images       # "images" | "videos"
+        compression: c23       # "c23" | "c40" | "raw" | null
+        split: train           # requires split_dict_file
+        split_dict_file: /data/faceforensics/splits/splits.json
+
+      filter:
+        or:
+          - label: source
+            op: "=="
+            value: Deepfakes
+          - label: source
+            op: "=="
+            value: Face2Face
+
+    # ── CSV dataset ───────────────────────────────────────────────────────────
+    - class: deepfake_detection.data.datasets.CSVDataset
+      params:
+        dataset_name: CSVImages
+        csv_path: /data/annotations.csv
+        data_folder: /data/images/
+        instance_col: filepath         # CSV column containing file paths
+        label_cols:
+          label: real_or_fake          # maps CSV column "label" → instance label "real_or_fake"
+          category: semantic           # maps CSV column "category" → instance label "semantic"
+
+      filter:
+        and:
+          - label: real_or_fake
+            op: "!="
+            value: unknown
+          - label: semantic
+            op: "in"
+            value: [face, portrait]
+
+      sample:
+        func: deepfake_detection.data.utils.sample.sample_n_per_class
+        params:
+          n: 200
+          label: real_or_fake
+          random_state: 7
+
+    # ── Hugging Face dataset (local or remote) ────────────────────────────────
+    - class: deepfake_detection.data.datasets.HuggingfaceDataset
+      params:
+        dataset_name: HFDataset
+        dataset: /data/hf_dataset/   # or a Hub identifier like "username/dataset"
+        instance_col: image
+        label_cols:
+          label: real_or_fake
+
+      filter:
+        label: real_or_fake
+        op: "in"
+        value: [real, fake]
+
+    # ── CNNDetect dataset ─────────────────────────────────────────────────────
+    - class: deepfake_detection.data.datasets.CNNDetectDataset
+      params:
+        dataset_name: CNNDetect
+        path: /data/cnndetect/
+
+      # Nested logical filter: (authenticity == fake) AND (source != progan OR semantic == face)
+      filter:
+        and:
+          - label: authenticity
+            op: "=="
+            value: fake
+          - or:
+              - label: source
+                op: "!="
+                value: progan
+              - label: semantic
+                op: "=="
+                value: face
+
+      sample:
+        func: deepfake_detection.data.utils.sample.sample_n_per_class
+        params:
+          n: 300
+          label: source
+          random_state: 1
+
+    # ── Diffusion dataset ─────────────────────────────────────────────────────
+    - class: deepfake_detection.data.datasets.DiffusionDataset
+      params:
+        dataset_name: DiffusionImages
+        path: /data/diffusion/
+
+      map:
+        - func: deepfake_detection.data.utils.map.map_label_values
+          params:
+            label: authenticity
+            value: fake   # normalize any non-standard label to "fake"
+
+      filter:
+        label: authenticity
+        op: "=="
+        value: fake
+
+    # ── Image-sequence dataset ────────────────────────────────────────────────
+    - class: deepfake_detection.data.datasets.FileImageSequenceDataset
+      params:
+        dataset_name: ImageSequences
+        path: /data/sequences/
+        split_file: /data/sequences/splits/train.json
+
+      filter:
+        and:
+          - label: authenticity
+            op: "in"
+            value: [real, fake]
+          - label: source
+            op: "!="
+            value: exclude_source
+
+      sample:
+        func: deepfake_detection.data.utils.sample.sample_n_per_class
+        params:
+          n: 100
+          label: authenticity
+          random_state: 99

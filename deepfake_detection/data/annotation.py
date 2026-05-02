@@ -27,7 +27,7 @@ class Annotation:
         if label in self.labels:
             return self.labels[label]
         else:
-            raise ValueError(f"Invalid label type. Must be one of {self.labels.keys()}")
+            raise ValueError(f"Invalid label type: {label}. Must be one of {self.labels.keys()}")
 
     def set_label(self, label: str, value: Union[str, Mapping[str, str]]):
         """

@@ -294,21 +294,21 @@ def test_load_model_from_dict():
     assert "MyCNNSpot" == model.name
 
 
-def test_load_model_from_yaml_file():
+@patch("deepfake_detection.models.detection.cnnspot.CNNSpot")
+def test_load_model_from_yaml_file(mock_cnnspot):
     # Setup
     config_dict = {
         "class": "deepfake_detection.models.detection.cnnspot.CNNSpot",
-        "params": {
-            "name": "YamlCNNSpot"
-        }
+        "params": {"name": "YamlCNNSpot"}
     }
     yaml_content = yaml.dump(config_dict)
-    # Execute
+
+    # Execute - Patching 'open' only within this context
     with patch("builtins.open", mock_open(read_data=yaml_content)):
-        model = load_model("dummy_path.yaml")
-    # Verify
-    assert isinstance(model, CNNSpot)
-    assert "YamlCNNSpot" == model.name
+        load_model("dummy_path.yaml")
+
+    # Assert
+    mock_cnnspot.assert_called_once_with(name="YamlCNNSpot")
 
 
 def test_load_model_class_not_found():

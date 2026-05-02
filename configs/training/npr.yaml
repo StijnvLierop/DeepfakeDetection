@@ -1,0 +1,63 @@
+model:
+  class: deepfake_detection.models.detection.NPR
+  params:
+    name: NPR
+    load_model: true
+    # ckpt: /path/to/pretrained.pth # omit to train from scratch
+
+training:
+  label: authenticity
+  pos_label: fake
+
+  num_train_epochs: 1000
+  per_device_train_batch_size: 32
+  dataloader_num_workers: 8
+
+  output_dir: checkpoints/npr/
+
+  # Upstream NPR code trains in full precision.
+  fp16: false
+
+  gradient_accumulation_steps: 1
+  # Upstream NPR uses manual epoch LR decay (not cosine scheduler).
+  lr_scheduler_type: constant
+  warmup_steps: 0
+  seed: 100
+
+  # Mirrors train.py --delr_freq behavior: every N epochs, multiply LR by gamma.
+  lr_decay:
+    enabled: true
+    every_n_epochs: 20
+    gamma: 0.9
+
+  # Let augmentations handle train-time spatial ops; keep model transform simple.
+  train_transform_params:
+    resize: false
+    crop: false
+    translate_and_duplicate: false
+  eval_transform_params:
+    resize: true
+    crop: true
+    translate_and_duplicate: false
+
+  augmentations:
+    - class: torchvision.transforms.v2.Resize
+      params:
+        size: [256, 256]
+    - class: torchvision.transforms.v2.RandomCrop
+      params:
+        size: [224, 224]
+    - class: torchvision.transforms.v2.RandomHorizontalFlip
+      params:
+        p: 0.5
+
+  optimizer:
+    class: torch.optim.Adam
+    params:
+      lr: 0.0001
+      betas: [0.9, 0.999]
+
+  mlflow:
+    tracking_uri: mlflow.db
+    experiment_name: deepfake_training
+    run_name: npr_run

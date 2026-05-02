@@ -82,7 +82,7 @@ class UnivFD(TrainableMixin, Model):
                                                                   out['embeddings'].cpu().tolist())]
 
     @staticmethod
-    def transform_input(instance: ImageInstance, resize: bool = False) -> torch.Tensor:
+    def transform_input(instance: ImageInstance, resize: bool = True) -> torch.Tensor:
         transforms = [
             v2.CenterCrop(224),
             v2.ToImage(),
