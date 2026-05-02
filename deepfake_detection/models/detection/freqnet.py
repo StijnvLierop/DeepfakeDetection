@@ -19,18 +19,21 @@ class FreqNet(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/chuangchuangtan/FreqNet-DeepfakeDetection.
     """
 
-    def __init__(self,
-                 ckpt: Optional[str] = None,
-                 name: str = 'FreqNet',
-                 load_model: bool = True):
+    def __init__(
+        self,
+        ckpt: Optional[str] = None,
+        name: str = 'FreqNet',
+        load_model: bool = True,
+        *args,
+        **kwargs,
+    ):
         """
-        :param: ckpt: Path to the checkpoint file of the CNNDetect model.
+        :param ckpt: Path to the checkpoint file of the FreqNet model.
         """
+        super().__init__(*args, **kwargs)
         self.model = None
         self.ckpt = ckpt
-        super().__init__(name=name, load_model=load_model)
-
-        # Define loss function for training
+        Model.__init__(self, name=name, load_model=load_model)
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
 
     def load_model(self):
@@ -70,7 +73,7 @@ class FreqNet(TrainableMixin, Model):
 
         # Transform instances to tensor
         model_inputs = torch.stack(
-            [self.transform_input(i.data, resize=True, crop=True) for i in instances], dim=0
+            [self.transform_input(i, resize=True, crop=True) for i in instances], dim=0
         ).to(next(self.model.parameters()).device)
 
         # Run inference

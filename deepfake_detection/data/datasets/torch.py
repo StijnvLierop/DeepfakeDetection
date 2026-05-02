@@ -26,7 +26,7 @@ class TorchDataset(torch.utils.data.Dataset):
         instance = self.dataset[idx]
         return {
             "inputs": self.transforms(instance),
-            "label": torch.tensor(instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.uint8),
+            "labels": torch.tensor(instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.long),
         }
 
     def __len__(self):
@@ -56,7 +56,7 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
         for instance in self.dataset:
             yield {
                 "inputs": self.transforms(instance),
-                "label": torch.tensor(
-                    instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.int8
+                "labels": torch.tensor(
+                    instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.long
                 ),
             }

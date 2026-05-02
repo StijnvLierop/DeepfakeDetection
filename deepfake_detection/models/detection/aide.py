@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Union, List, Optional
 
 import open_clip
@@ -20,6 +21,8 @@ class AIDE(TrainableMixin, Model):
 
     def __init__(self,
                  ckpt: Optional[str] = None,
+                 resnet_ckpt: Optional[str] = None,
+                 convnext_ckpt: Optional[str] = None,
                  name: str = "AIDE",
                  load_model: bool = True,
                  *args,
@@ -31,6 +34,8 @@ class AIDE(TrainableMixin, Model):
 
         # Load checkpoints (ckpt is main checkpoint that should be loaded during inference)
         self.ckpt = ckpt
+        self.resnet_ckpt = resnet_ckpt
+        self.convnext_ckpt = convnext_ckpt
 
         # Define model layers
         self.hpf = HPF()
@@ -87,7 +92,8 @@ class AIDE(TrainableMixin, Model):
         logits = self.fc(x)
 
         if labels is not None:
-            loss_fct = nn.CrossEntropyLoss()
+            label_smoothing = float(getattr(self, "label_smoothing", 0.0))
+            loss_fct = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
             loss = loss_fct(logits.view(-1, 2), labels.view(-1))
         else:
             loss = None
@@ -95,7 +101,47 @@ class AIDE(TrainableMixin, Model):
         return {'logits': logits, 'loss': loss, 'output': torch.softmax(logits, dim=1)}
 
 
+    def _load_aide_checkpoint(self, ckpt_path: str):
+        """
+        Load AIDE checkpoints from both original and HuggingFace Trainer formats.
+        """
+        path = Path(ckpt_path)
+        if not path.exists():
+            raise FileNotFoundError(f"AIDE checkpoint not found: {ckpt_path}")
+
+        # HF Trainer frequently saves safe tensors, while original AIDE uses torch checkpoint dicts.
+        if path.suffix == ".safetensors":
+            try:
+                from safetensors.torch import load_file as load_safetensors_file
+            except ImportError as exc:
+                raise ImportError(
+                    "Loading .safetensors checkpoints requires safetensors. "
+                    "Install it with `pip install safetensors`."
+                ) from exc
+            state_dict = load_safetensors_file(str(path))
+        else:
+            payload = torch.load(path, map_location="cpu")
+            if isinstance(payload, dict) and "model" in payload and isinstance(payload["model"], dict):
+                # Original AIDE checkpoints keep model weights under "model".
+                state_dict = payload["model"]
+            elif isinstance(payload, dict) and "state_dict" in payload and isinstance(payload["state_dict"], dict):
+                state_dict = payload["state_dict"]
+            elif isinstance(payload, dict) and "model_state_dict" in payload and isinstance(payload["model_state_dict"], dict):
+                state_dict = payload["model_state_dict"]
+            else:
+                # HF Trainer / plain torch state_dict checkpoint.
+                state_dict = payload
+
+        if not isinstance(state_dict, dict):
+            raise ValueError(f"Unsupported checkpoint format for AIDE: {ckpt_path}")
+
+        return state_dict
+
     def load_model(self, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None) -> None:
+        if resnet_ckpt is None:
+            resnet_ckpt = self.resnet_ckpt
+        if convnext_ckpt is None:
+            convnext_ckpt = self.convnext_ckpt
 
         # If resnet weights are provided, load them
         if resnet_ckpt is not None:
@@ -113,8 +159,10 @@ class AIDE(TrainableMixin, Model):
             self.model_max.load_state_dict(model_max_dict)
 
         # Load openclip model
-        self.openclip_convnext_xxl, _, _ = open_clip.create_model_and_transforms("convnext_xxlarge",
-                                                                                 pretrained=convnext_ckpt)
+        self.openclip_convnext_xxl, _, _ = open_clip.create_model_and_transforms(
+            "convnext_xxlarge",
+            pretrained=convnext_ckpt
+        )
         self.openclip_convnext_xxl = self.openclip_convnext_xxl.visual.trunk
         self.openclip_convnext_xxl.head.global_pool = nn.Identity()
         self.openclip_convnext_xxl.head.flatten = nn.Identity()
@@ -126,7 +174,19 @@ class AIDE(TrainableMixin, Model):
 
         # Load weights
         if self.ckpt is not None:
-            self.load_state_dict(torch.load(self.ckpt, map_location='cpu')['model'], strict=False)
+            state_dict = self._load_aide_checkpoint(self.ckpt)
+            self.load_state_dict(state_dict, strict=False)
+
+    @property
+    def data_collator(self):
+        return self._collate_fn
+
+    @staticmethod
+    def _collate_fn(features):
+        return {
+            "inputs": [f["inputs"] for f in features],
+            "labels": torch.stack([f["labels"] for f in features]),
+        }
 
     def transform_input(self, instance: ImageInstance) -> torch.Tensor:
         """

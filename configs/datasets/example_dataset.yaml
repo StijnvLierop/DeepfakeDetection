@@ -1,0 +1,4 @@
+class: deepfake_detection.data.datasets.FileImageDataset
+params:
+  dataset_name: TrainDataset
+  path: /path/to/train/

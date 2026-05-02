@@ -1,0 +1,40 @@
+model:
+  class: deepfake_detection.models.detection.Latte
+  params:
+    name: Latte
+    load_model: true
+    # ckpt: /path/to/latte_checkpoint.pth  # omit to train from scratch
+
+training:
+  label: authenticity
+  pos_label: fake
+
+  num_train_epochs: 20
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  dataloader_num_workers: 2
+
+  output_dir: checkpoints/latte/
+
+  fp16: true
+
+  # Accumulate 12 steps to match the original effective batch size of 48
+  gradient_accumulation_steps: 12
+  lr_scheduler_type: cosine
+  warmup_steps: 0
+
+  augmentations:
+    - class: torchvision.transforms.v2.RandomHorizontalFlip
+      params:
+        p: 0.5
+
+  optimizer:
+    class: torch.optim.AdamW
+    params:
+      lr: 0.0001
+      weight_decay: 4.0e-5
+
+  mlflow:
+    tracking_uri: mlflow.db
+    experiment_name: deepfake_training
+    run_name: latte_run1

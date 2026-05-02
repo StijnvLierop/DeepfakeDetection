@@ -1,6 +1,7 @@
 from typing import Union, List, Optional, Any
 
 import torch
+import torch.nn as nn
 from torchvision.transforms import v2
 from safetensors.torch import load_file
 
@@ -39,11 +40,12 @@ class CNNSpot(TrainableMixin, Model):
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
 
     def load_model(self):
-        # Load architecture
-        self.model = resnet50(num_classes=1)
-
-        # Get weights
+        # Load architecture and weights from checkpoint
         if self.ckpt:
+
+            # Load architecture for checkpoint restoration
+            self.model = resnet50(num_classes=1)
+
             # For loading newly trained models
             if self.ckpt.endswith(".safetensors"):
                 state_dict = load_file(self.ckpt)
@@ -67,7 +69,9 @@ class CNNSpot(TrainableMixin, Model):
                 self.model.load_state_dict(state_dict["model"])
 
         else:
-            print("No checkpoint provided, initializing model with random weights.")
+            self.model = resnet50(pretrained=True)
+            self.model.fc = nn.Linear(2048, 1)
+            nn.init.normal_(self.model.fc.weight.data, 0.0, 0.02)
 
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]

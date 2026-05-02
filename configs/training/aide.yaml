@@ -1,0 +1,71 @@
+model:
+  class: deepfake_detection.models.detection.AIDE
+  params:
+    name: AIDE
+    load_model: true
+    # ckpt: /path/to/aide_checkpoint.pth  # full model checkpoint; omit to train from scratch
+    # Set both expert initializations to reproduce the original AIDE setup.
+    # resnet_ckpt: /path/to/resnet50.pth
+    # convnext_ckpt: /path/to/open_clip_pytorch_model.bin
+
+training:
+  label: authenticity
+  pos_label: fake
+
+  num_train_epochs: 100
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
+  dataloader_num_workers: 2
+  # pin_memory is incompatible with AIDE's variable-size list inputs on CUDA
+  dataloader_pin_memory: false
+  # Match the original train loader behavior
+  dataloader_drop_last: true
+
+  output_dir: checkpoints/aide/
+
+  # Original AIDE script uses use_amp=False by default
+  fp16: false
+
+  # Accumulate 8 steps to match the original effective batch size of 64
+  gradient_accumulation_steps: 8
+  # Cosine schedule with no warmup, min_lr=1e-6
+  lr_scheduler_type: cosine
+  warmup_steps: 0
+  label_smoothing: 0.1
+
+  # Augmentations from the original AIDE training script
+  # (rand-m9-mstd0.5-inc1 RandAugment + random erasing; no blur/JPEG compression)
+  augmentations:
+    - class: torchvision.transforms.v2.RandomHorizontalFlip
+      params:
+        p: 0.5
+    - class: deepfake_detection.models.training.augmentations.timmRandAugment.TimmRandAugment
+      params:
+        config_str: rand-m9-mstd0.5-inc1
+        interpolation: bicubic
+
+  # Tensor-domain augmentations applied after model.transform_input.
+  post_augmentations:
+    - class: torchvision.transforms.v2.RandomErasing
+      params:
+        p: 0.25
+        value: random  # remode=pixel in original
+
+  # lr = blr * (batch_size * grad_accum) / 256 = 5e-4 * 64 / 256 = 1.25e-4
+  optimizer:
+    class: torch.optim.AdamW
+    params:
+      lr: 0.000125
+      betas: [0.9, 0.999]
+      eps: 1.0e-8
+      weight_decay: 0.0
+
+  callbacks:
+    - class: deepfake_detection.models.training.callbacks.minLrClampCallback.MinLrClampCallback
+      params:
+        min_lr: 1.0e-6
+
+  mlflow:
+    tracking_uri: mlflow.db
+    experiment_name: deepfake_training
+    run_name: aide_run1

@@ -1,0 +1,57 @@
+model:
+  class: deepfake_detection.models.detection.UnivFD
+  params:
+    name: UnivFD
+    load_model: true
+    # ckpt: /path/to/pretrained_fc.pth  # omit to train from scratch
+
+training:
+  label: authenticity
+  pos_label: fake
+
+  num_train_epochs: 100
+  per_device_train_batch_size: 256
+  per_device_eval_batch_size: 256
+  dataloader_num_workers: 4
+
+  output_dir: checkpoints/univfd/
+
+  # Mixed precision — set false for CPU-only runs
+  fp16: true
+
+  gradient_accumulation_steps: 1
+  lr_scheduler_type: constant
+  warmup_steps: 0
+
+  # Augmentations from the original UnivFD training script
+  augmentations:
+    - class: torchvision.transforms.v2.Resize
+      params:
+        size: 256
+    - class: torchvision.transforms.v2.RandomCrop
+      params:
+        size: 224
+    - class: torchvision.transforms.v2.RandomHorizontalFlip
+      params:
+        p: 0.5
+    - class: deepfake_detection.models.training.augmentations.blur.RandomGaussianBlur
+      params:
+        sigma: [0.0, 3.0]
+        prob: 0.5
+    - class: deepfake_detection.models.training.augmentations.compression.RandomPILJpegCompression
+      params:
+        quality_range: [30, 100]
+        prob: 0.5
+        methods: [cv2, pil]
+
+  # Only the linear head is trained; CLIP encoder is frozen
+  optimizer:
+    class: torch.optim.AdamW
+    params:
+      lr: 0.0001
+      betas: [0.9, 0.999]
+
+  mlflow:
+    tracking_uri: mlflow.db
+    experiment_name: deepfake_training
+    run_name: univfd_run1

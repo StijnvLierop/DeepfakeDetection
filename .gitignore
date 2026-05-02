@@ -8,4 +8,5 @@ deepfake_detection/models/weights/**
 .pdm-python
 .python-version
 .venv
+.claude
 *.db

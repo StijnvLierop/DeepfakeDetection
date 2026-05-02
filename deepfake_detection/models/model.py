@@ -57,6 +57,10 @@ class TrainableMixin(torch.nn.Module, ABC):
     Extension of the model class that defines methods to make a model trainable.
     """
 
+    @property
+    def data_collator(self):
+        return None
+
     @abstractmethod
     def forward(self, inputs: Any, labels: Optional[Any] = None, **kwargs) -> Dict:
         """
