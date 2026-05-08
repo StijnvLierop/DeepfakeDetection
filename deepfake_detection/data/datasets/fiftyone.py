@@ -131,7 +131,6 @@ def to_fiftyone_dataset(
     """
     # If an embedding model is specified
     if embedding_model:
-
         # Compute embeddings
         embeddings = []
         for batch in dataset.iter(batch_size=batch_size):
@@ -163,4 +162,3 @@ def to_fiftyone_dataset(
         )
 
     return dataset
-

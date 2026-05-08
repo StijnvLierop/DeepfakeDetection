@@ -22,7 +22,7 @@ class FreqNet(TrainableMixin, Model):
     def __init__(
         self,
         ckpt: Optional[str] = None,
-        name: str = 'FreqNet',
+        name: str = "FreqNet",
         load_model: bool = True,
         *args,
         **kwargs,
@@ -97,7 +97,9 @@ class FreqNet(TrainableMixin, Model):
         return {"loss": loss, "logits": logits}
 
     @staticmethod
-    def transform_input(instance: ImageInstance, resize: bool = False, crop: bool = True) -> torch.Tensor:
+    def transform_input(
+        instance: ImageInstance, resize: bool = False, crop: bool = True
+    ) -> torch.Tensor:
         # Define base transforms
         transforms = [
             v2.ToImage(),

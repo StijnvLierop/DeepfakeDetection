@@ -17,11 +17,13 @@ class FatFormer(Model):
     More info about the model can be found here: https://github.com/Michel-liu/FatFormer/tree/main.
     """
 
-    def __init__(self,
-                 ckpt: Optional[str] = None,
-                 device: str = "cuda",
-                 name: str = "FatFormer",
-                 load_model: bool = True):
+    def __init__(
+        self,
+        ckpt: Optional[str] = None,
+        device: str = "cuda",
+        name: str = "FatFormer",
+        load_model: bool = True,
+    ):
         """
         :param: ckpt: Path to the checkpoint file of the CNNDetect model.
         """

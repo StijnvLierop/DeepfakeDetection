@@ -79,7 +79,12 @@ class Prediction:
             self._compare_classification(other.classification, epsilon)
             and self._compare_embedding(other.embedding, epsilon)
             and self.text == other.text
-            and all([np.array_equal(ri, oi) for ri, oi in zip(self.images.values(), other.images.values())])
+            and all(
+                [
+                    np.array_equal(ri, oi)
+                    for ri, oi in zip(self.images.values(), other.images.values())
+                ]
+            )
             if (self.images is not None and other.images is not None)
             else self.images == other.images
         )

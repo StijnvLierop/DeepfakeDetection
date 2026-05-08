@@ -9,7 +9,9 @@ class ListDataset(MapStyleDatasetMixin, Dataset):
     A dataset class for datasets that can be initialized using a sequence of instances.
     """
 
-    def __init__(self, instances: Sequence[Instance], dataset_name: Optional[str] = None):
+    def __init__(
+        self, instances: Sequence[Instance], dataset_name: Optional[str] = None
+    ):
         super().__init__(dataset_name=dataset_name)
         self.instances = instances
 

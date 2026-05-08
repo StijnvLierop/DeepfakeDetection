@@ -10,6 +10,7 @@ class TranslateDuplicate(torch.nn.Module):
 
     Function from https://github.com/chuangchuangtan/NPR-DeepfakeDetection.
     """
+
     def __init__(self, cropSize: int, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cropSize = cropSize

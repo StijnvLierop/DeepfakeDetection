@@ -12,7 +12,10 @@ class SubsetDataset(MapStyleDatasetMixin, Dataset):
     :param indices: The indices of the original dataset to include in the subset.
     :return: A subset dataset.
     """
-    def __init__(self, dataset: MapStyleDatasetMixin, indices: np.ndarray, dataset_name: str):
+
+    def __init__(
+        self, dataset: MapStyleDatasetMixin, indices: np.ndarray, dataset_name: str
+    ):
         super().__init__(dataset_name=dataset_name)
         self.dataset = dataset
         self.indices = indices

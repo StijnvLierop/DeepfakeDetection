@@ -103,7 +103,11 @@ def _build_torch_dataset(dataset_cfg: dict, transform, label: str, pos_label: st
     return TorchIterableDataset(dataset, transform, label, pos_label)
 
 
-def train(config_path: str, train_dataset_config: str, val_dataset_config: Optional[str] = None) -> None:
+def train(
+    config_path: str,
+    train_dataset_config: str,
+    val_dataset_config: Optional[str] = None,
+) -> None:
     """Run the full training pipeline from a YAML config and dataset config paths."""
 
     # Load the main training config
@@ -120,7 +124,9 @@ def train(config_path: str, train_dataset_config: str, val_dataset_config: Optio
     # Instantiate and validate the model
     model = load_model(config["model"])
     if not isinstance(model, TrainableMixin):
-        raise ValueError(f"Model '{model.name}' does not support training (not a TrainableMixin).")
+        raise ValueError(
+            f"Model '{model.name}' does not support training (not a TrainableMixin)."
+        )
 
     # Build the optimizer from config
     optimizer = _build_optimizer(model, training_cfg["optimizer"])
@@ -128,11 +134,15 @@ def train(config_path: str, train_dataset_config: str, val_dataset_config: Optio
     # Compose the training transform: model preprocessing + optional augmentations
     train_transform_params = training_cfg.get("train_transform_params")
     eval_transform_params = training_cfg.get("eval_transform_params")
-    base_train_transform = _build_transform(model.transform_input, train_transform_params)
+    base_train_transform = _build_transform(
+        model.transform_input, train_transform_params
+    )
     base_eval_transform = _build_transform(model.transform_input, eval_transform_params)
 
     pre_augmentations = _build_augmentations(training_cfg.get("augmentations", []))
-    post_augmentations = _build_augmentations(training_cfg.get("post_augmentations", []))
+    post_augmentations = _build_augmentations(
+        training_cfg.get("post_augmentations", [])
+    )
     if pre_augmentations is not None or post_augmentations is not None:
         train_transform = _ChainedTransform(
             base_train_transform,
@@ -143,10 +153,13 @@ def train(config_path: str, train_dataset_config: str, val_dataset_config: Optio
         train_transform = base_train_transform
 
     # Build train and optional validation datasets
-    train_dataset = _build_torch_dataset(train_dataset_config, train_transform, label, pos_label)
+    train_dataset = _build_torch_dataset(
+        train_dataset_config, train_transform, label, pos_label
+    )
     val_dataset = (
         _build_torch_dataset(val_dataset_config, base_eval_transform, label, pos_label)
-        if val_dataset_config else None
+        if val_dataset_config
+        else None
     )
 
     # Configure MLflow tracking if specified in the config
@@ -158,7 +171,9 @@ def train(config_path: str, train_dataset_config: str, val_dataset_config: Optio
         if tracking_uri.endswith(".db") and not tracking_uri.startswith("sqlite:"):
             tracking_uri = f"sqlite:///{tracking_uri}"
         os.environ["MLFLOW_TRACKING_URI"] = tracking_uri
-        os.environ["MLFLOW_EXPERIMENT_NAME"] = mlflow_cfg.get("experiment_name", "deepfake_training")
+        os.environ["MLFLOW_EXPERIMENT_NAME"] = mlflow_cfg.get(
+            "experiment_name", "deepfake_training"
+        )
         if "run_name" in mlflow_cfg:
             os.environ["MLFLOW_RUN_NAME"] = mlflow_cfg["run_name"]
         report_to = "mlflow"
@@ -168,7 +183,9 @@ def train(config_path: str, train_dataset_config: str, val_dataset_config: Optio
         output_dir=training_cfg["output_dir"],
         num_train_epochs=training_cfg["num_train_epochs"],
         per_device_train_batch_size=training_cfg["per_device_train_batch_size"],
-        per_device_eval_batch_size=training_cfg["per_device_eval_batch_size"] if val_dataset else None,
+        per_device_eval_batch_size=training_cfg["per_device_eval_batch_size"]
+        if val_dataset
+        else None,
         dataloader_num_workers=training_cfg["dataloader_num_workers"],
         dataloader_pin_memory=training_cfg.get("dataloader_pin_memory", True),
         dataloader_drop_last=training_cfg.get("dataloader_drop_last", False),
@@ -210,11 +227,27 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Train a deepfake detection model from a YAML configuration file."
     )
-    parser.add_argument("-c", "--config", type=str, required=True,
-                        help="Path to training configuration YAML file.")
-    parser.add_argument("-d", "--train-dataset", type=str, required=True,
-                        help="Path to training dataset configuration YAML file.")
-    parser.add_argument("-v", "--val-dataset", type=str, required=False, default=None,
-                        help="Path to validation dataset configuration YAML file.")
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        required=True,
+        help="Path to training configuration YAML file.",
+    )
+    parser.add_argument(
+        "-d",
+        "--train-dataset",
+        type=str,
+        required=True,
+        help="Path to training dataset configuration YAML file.",
+    )
+    parser.add_argument(
+        "-v",
+        "--val-dataset",
+        type=str,
+        required=False,
+        default=None,
+        help="Path to validation dataset configuration YAML file.",
+    )
     args = parser.parse_args()
     train(args.config, args.train_dataset, args.val_dataset)

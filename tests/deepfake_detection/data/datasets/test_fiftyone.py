@@ -16,7 +16,9 @@ def test_to_fiftyone_dataset_paths_available_without_predictions(image_dataset_p
 
 
 def test_to_fiftyone_dataset_paths_available_with_predictions(image_dataset_path):
-    image_dataset = FileImageDataset(image_dataset_path, labels=['authenticity', 'source'])
+    image_dataset = FileImageDataset(
+        image_dataset_path, labels=["authenticity", "source"]
+    )
     predictions = [Prediction(classification={"test": 0.5}) for _ in image_dataset]
     converted_dataset = to_fiftyone_dataset(image_dataset, predictions)
     assert isinstance(converted_dataset, FoDataset)
@@ -24,7 +26,9 @@ def test_to_fiftyone_dataset_paths_available_with_predictions(image_dataset_path
 
 
 def test_to_fiftyone_dataset_paths_unavailable_cache_dir(image_dataset_path, tmp_path):
-    image_dataset = FileImageDataset(image_dataset_path, labels=['authenticity', 'source'])
+    image_dataset = FileImageDataset(
+        image_dataset_path, labels=["authenticity", "source"]
+    )
     instances = [ImageInstance(data=i.data) for i in image_dataset]
     image_dataset = ListDataset(instances)
     converted_dataset = to_fiftyone_dataset(image_dataset, cache_dir=tmp_path)

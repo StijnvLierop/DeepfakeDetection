@@ -40,7 +40,9 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
             self.dataset = dataset
         else:
             # Check if the dataset exists locally and use the load_from_disk function
-            if os.path.isdir(dataset) and os.path.exists(os.path.join(dataset, "dataset_info.json")):
+            if os.path.isdir(dataset) and os.path.exists(
+                os.path.join(dataset, "dataset_info.json")
+            ):
                 self.dataset = load_from_disk(dataset, **kwargs)
             # Otherwise use load_dataset
             else:
@@ -70,7 +72,6 @@ class HuggingfaceDataset(MapStyleDatasetMixin, Dataset):
         # Loop over label_cols
         labels = {}
         for col, label in self.label_cols.items():
-
             # Assign column value to label
             labels[label] = sample[col]
 

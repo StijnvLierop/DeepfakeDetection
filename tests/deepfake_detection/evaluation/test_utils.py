@@ -30,9 +30,7 @@ def test_get_labels_warning_when_no_overlap_in_labels(instances, source_predicti
 
 
 def test_to_arrays(instances, source_predictions):
-    y_true, y_pred = to_arrays(
-        instances, source_predictions, "B", label_type="source"
-    )
+    y_true, y_pred = to_arrays(instances, source_predictions, "B", label_type="source")
     np.testing.assert_array_equal(y_true, np.array([0, 0, 0, 0, 1, 1, 0, 0]))
     np.testing.assert_array_equal(
         y_pred, np.array([0.1, 0.5, 0.0, 0.1, 0.7, 0.2, 0.4, 0.3])

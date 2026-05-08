@@ -38,7 +38,7 @@ def prediction() -> Prediction:
         classification={"A": 0.8, "B": 0.2},
         embedding=[1, 2, 3, 4],
         text="Test",
-        images={'image': np.array([1, 1])},
+        images={"image": np.array([1, 1])},
     )
 
 

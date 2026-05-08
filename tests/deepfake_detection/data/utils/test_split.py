@@ -43,13 +43,13 @@ def test_split_dataset_stratified_authenticity_label(dummy_dataset: Dataset):
         label="authenticity",
     )
     counter_train = collections.Counter(
-        [instance.annotation['authenticity'] for instance in train_set]
+        [instance.annotation["authenticity"] for instance in train_set]
     )
     counter_test = collections.Counter(
-        [instance.annotation['authenticity'] for instance in test_set]
+        [instance.annotation["authenticity"] for instance in test_set]
     )
     counter_original = collections.Counter(
-        [instance.annotation['authenticity'] for instance in dummy_dataset]
+        [instance.annotation["authenticity"] for instance in dummy_dataset]
     )
     for label in counter_original:
         train_ratio = counter_train[label] / len(train_set)

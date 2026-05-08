@@ -6,7 +6,10 @@ class TimmRandAugment:
     """
     PIL-level RandAugment wrapper using timm policy strings.
     """
-    def __init__(self, config_str: str = "rand-m9-mstd0.5-inc1", interpolation: str = "bicubic"):
+
+    def __init__(
+        self, config_str: str = "rand-m9-mstd0.5-inc1", interpolation: str = "bicubic"
+    ):
         # timm's PIL ops expect a PIL resampling mode (int/enum), not a raw string.
         if isinstance(interpolation, str):
             key = interpolation.strip().lower()
@@ -17,7 +20,9 @@ class TimmRandAugment:
             }
             interpolation = mapping.get(key, Image.Resampling.BICUBIC)
 
-        self.transform = rand_augment_transform(config_str, {"interpolation": interpolation})
+        self.transform = rand_augment_transform(
+            config_str, {"interpolation": interpolation}
+        )
 
     def __call__(self, img):
         return self.transform(img)

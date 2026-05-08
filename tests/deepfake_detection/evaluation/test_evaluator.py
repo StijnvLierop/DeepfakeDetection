@@ -57,9 +57,7 @@ def test_run_group_by(instances, authenticity_predictions):
 def test_run_group_by_value_error(instances, authenticity_predictions):
     evaluator = Evaluator(instances, authenticity_predictions)
     with pytest.raises(ValueError):
-        evaluator.run(
-            accuracy_score, group_by="nonexistent", label_type="authenticity"
-        )
+        evaluator.run(accuracy_score, group_by="nonexistent", label_type="authenticity")
 
 
 def test_accuracy_authenticity(instances, authenticity_predictions):
@@ -70,7 +68,9 @@ def test_accuracy_authenticity(instances, authenticity_predictions):
 
 def test_ap_authenticity_group_by_source(instances, authenticity_predictions):
     evaluator = Evaluator(instances, authenticity_predictions)
-    result = evaluator.run(average_precision_score, label_type="authenticity", group_by="source")
+    result = evaluator.run(
+        average_precision_score, label_type="authenticity", group_by="source"
+    )
     assert pytest.approx(result.scores["A"]["average_precision_score"]) == 0.5
     assert pytest.approx(result.scores["B"]["average_precision_score"]) == 0.5
     assert pytest.approx(result.scores["C"]["average_precision_score"]) == 0.5
@@ -78,13 +78,18 @@ def test_ap_authenticity_group_by_source(instances, authenticity_predictions):
 
 def test_ap_authenticity_group_by_source_neg_label(instances, authenticity_predictions):
     evaluator = Evaluator(instances, authenticity_predictions)
-    result = evaluator.run(average_precision_score,
-                           label_type="authenticity",
-                           group_by="source",
-                           negative_class_label="real")
+    result = evaluator.run(
+        average_precision_score,
+        label_type="authenticity",
+        group_by="source",
+        negative_class_label="real",
+    )
     assert pytest.approx(result.scores["A"]["average_precision_score"]) == 0.811012
     assert pytest.approx(result.scores["B"]["average_precision_score"]) == 0.7625
-    assert pytest.approx(result.scores["C"]["average_precision_score"]) == 0.8916666666666666
+    assert (
+        pytest.approx(result.scores["C"]["average_precision_score"])
+        == 0.8916666666666666
+    )
 
 
 def test_precision_authenticity_specified_label(instances, authenticity_predictions):
@@ -101,13 +106,9 @@ def test_precision_authenticity_specified_label(instances, authenticity_predicti
 
 def test_recall_authenticity_specified_label(instances, authenticity_predictions):
     evaluator = Evaluator(instances, authenticity_predictions)
-    result = evaluator.run(
-        recall_score, target_class="fake", label_type="authenticity"
-    )
+    result = evaluator.run(recall_score, target_class="fake", label_type="authenticity")
     assert pytest.approx(result.scores["all"]["recall_score"]) == 2 / 4
-    result = evaluator.run(
-        recall_score, target_class="real", label_type="authenticity"
-    )
+    result = evaluator.run(recall_score, target_class="real", label_type="authenticity")
     assert pytest.approx(result.scores["all"]["recall_score"]) == 3 / 4
 
 
@@ -146,11 +147,7 @@ def test_mixed_metrics_automation(instances, authenticity_predictions):
 
 def test_accuracy_with_different_thresholds(instances, authenticity_predictions):
     evaluator = Evaluator(instances, authenticity_predictions)
-    res_08 = evaluator.run(
-        accuracy_score, threshold=0.8, label_type="authenticity"
-    )
-    res_01 = evaluator.run(
-        accuracy_score, threshold=0.1, label_type="authenticity"
-    )
+    res_08 = evaluator.run(accuracy_score, threshold=0.8, label_type="authenticity")
+    res_01 = evaluator.run(accuracy_score, threshold=0.1, label_type="authenticity")
     assert pytest.approx(res_08.scores["all"]["accuracy_score"]) == 0.6875
     assert pytest.approx(res_01.scores["all"]["accuracy_score"]) == 0.5625

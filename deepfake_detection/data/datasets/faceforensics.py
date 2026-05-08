@@ -127,7 +127,9 @@ class FaceForensicsDataset(Dataset):
                                         self.modality,
                                         instance,
                                     ),
-                                    Annotation({'authenticity': folder, 'source': subfolder}),
+                                    Annotation(
+                                        {"authenticity": folder, "source": subfolder}
+                                    ),
                                 )
                             else:
                                 yield FileVideoInstance(
@@ -139,7 +141,9 @@ class FaceForensicsDataset(Dataset):
                                         self.modality,
                                         instance,
                                     ),
-                                    Annotation({'authenticity': folder, 'source': subfolder}),
+                                    Annotation(
+                                        {"authenticity": folder, "source": subfolder}
+                                    ),
                                 )
 
     def _instance_in_split(self, instance_path: str) -> bool:

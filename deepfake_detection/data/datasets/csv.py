@@ -13,12 +13,14 @@ class CSVDataset(MapStyleDatasetMixin, Dataset):
     Dataset class that is loaded from a CSV file.
     """
 
-    def __init__(self,
-                 csv_path: str,
-                 data_folder: str,
-                 instance_col: str,
-                 label_cols: Optional[Mapping[str, str]] = {},
-                 dataset_name: Optional[str] = None):
+    def __init__(
+        self,
+        csv_path: str,
+        data_folder: str,
+        instance_col: str,
+        label_cols: Optional[Mapping[str, str]] = {},
+        dataset_name: Optional[str] = None,
+    ):
         """
         :param csv_path: Path to the CSV file.
         :param data_folder: Path to the folder containing the samples.
@@ -52,7 +54,7 @@ class CSVDataset(MapStyleDatasetMixin, Dataset):
 
         # Get instance
         sample_path = os.path.join(self.data_folder, row[self.instance_col])
-        if row[self.instance_col].split('.')[-1] in ('jpg', 'jpeg', 'png', 'webp'):
+        if row[self.instance_col].split(".")[-1] in ("jpg", "jpeg", "png", "webp"):
             instance_class = FileImageInstance
         else:
             raise ValueError("Unknown filetype: " + row[self.instance_col])

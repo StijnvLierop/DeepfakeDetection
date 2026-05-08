@@ -64,7 +64,8 @@ class Evaluator:
             if inst.annotation:
                 row.update(
                     {
-                        label: inst.annotation.get_label(label) for label in inst.annotation.labels
+                        label: inst.annotation.get_label(label)
+                        for label in inst.annotation.labels
                     }
                 )
 
@@ -198,8 +199,12 @@ class Evaluator:
             metrics = [metrics]
 
         # Identify negative and positive class samples
-        neg_indices = self._metadata_index[self._metadata_index[label_type] == negative_class_label].index.tolist()
-        pos_indices = self._metadata_index[self._metadata_index[label_type] != negative_class_label].index.tolist()
+        neg_indices = self._metadata_index[
+            self._metadata_index[label_type] == negative_class_label
+        ].index.tolist()
+        pos_indices = self._metadata_index[
+            self._metadata_index[label_type] != negative_class_label
+        ].index.tolist()
 
         # Prepare Slices
         if group_by:
@@ -216,7 +221,6 @@ class Evaluator:
 
         # Iterate through slices and calculate metrics for each slice
         for slice_name, indices in grouped_indices.items():
-
             # Make slices
             slice_inst = [self.instances[i] for i in indices]
             slice_pred = [self.predictions[i] for i in indices]
@@ -246,14 +250,21 @@ class Evaluator:
             # Filter metrics based on slice composition
             if len(unique_classes) < 2:
                 # If only one class is present, we cannot run probability/ranking metrics
-                active_metrics = [m for m in metrics if not self._is_probability_metric(m)]
+                active_metrics = [
+                    m for m in metrics if not self._is_probability_metric(m)
+                ]
             else:
                 active_metrics = metrics
 
             # If a target class is provided, calculate one vs rest score
             if target_class:
                 scores = self._calculate_one_vs_rest(
-                    slice_inst, slice_pred, target_class, label_type, active_metrics, threshold
+                    slice_inst,
+                    slice_pred,
+                    target_class,
+                    label_type,
+                    active_metrics,
+                    threshold,
                 )
             # Otherwise calculate macro average of all classes
             else:

@@ -20,12 +20,14 @@ class Latte(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/AnaMVasilcoiu/LATTE-Diffusion-Detector.
     """
 
-    def __init__(self,
-                 ckpt: Optional[str] = None,
-                 name: str = "Latte",
-                 load_model: bool = True,
-                 *args,
-                 **kwargs):
+    def __init__(
+        self,
+        ckpt: Optional[str] = None,
+        name: str = "Latte",
+        load_model: bool = True,
+        *args,
+        **kwargs,
+    ):
         self.classifier = None
         self.ckpt = ckpt
         super().__init__(*args, **kwargs)
@@ -37,7 +39,9 @@ class Latte(TrainableMixin, Model):
         from transformers import CLIPTokenizer, CLIPTextModel
 
         # Classifier — registered as an nn.Module submodule, included in checkpoints.
-        self.classifier = LatentTrajectoryClassifier(clip_type="convnext_base_in22k", process_latents_separately=True)
+        self.classifier = LatentTrajectoryClassifier(
+            clip_type="convnext_base_in22k", process_latents_separately=True
+        )
         if self.ckpt:
             state_dict = torch.load(self.ckpt, weights_only=False, map_location="cpu")
             state_dict = state_dict["model_state_dict"]
@@ -47,31 +51,39 @@ class Latte(TrainableMixin, Model):
             )
             self.classifier.load_state_dict(new_state_dict)
         else:
-            print("No checkpoint provided, initializing Latte classifier with random weights.")
+            print(
+                "No checkpoint provided, initializing Latte classifier with random weights."
+            )
 
         # Frozen SD 2.1 pipeline — stored via object.__setattr__ to bypass nn.Module's
         # submodule registration, keeping them out of state_dict() and checkpoints.
         vae = AutoencoderKL.from_pretrained(_SD_MODEL_ID, subfolder="vae").eval()
-        unet = UNet2DConditionModel.from_pretrained(_SD_MODEL_ID, subfolder="unet").eval()
+        unet = UNet2DConditionModel.from_pretrained(
+            _SD_MODEL_ID, subfolder="unet"
+        ).eval()
         tokenizer = CLIPTokenizer.from_pretrained(_SD_MODEL_ID, subfolder="tokenizer")
-        text_encoder = CLIPTextModel.from_pretrained(_SD_MODEL_ID, subfolder="text_encoder").eval()
-        noise_scheduler = DDPMScheduler.from_pretrained(_SD_MODEL_ID, subfolder="scheduler")
+        text_encoder = CLIPTextModel.from_pretrained(
+            _SD_MODEL_ID, subfolder="text_encoder"
+        ).eval()
+        noise_scheduler = DDPMScheduler.from_pretrained(
+            _SD_MODEL_ID, subfolder="scheduler"
+        )
 
         for m in (vae, unet, text_encoder):
             m.requires_grad_(False)
 
-        object.__setattr__(self, '_vae', vae)
-        object.__setattr__(self, '_unet', unet)
-        object.__setattr__(self, '_tokenizer', tokenizer)
-        object.__setattr__(self, '_text_encoder', text_encoder)
-        object.__setattr__(self, '_noise_scheduler', noise_scheduler)
+        object.__setattr__(self, "_vae", vae)
+        object.__setattr__(self, "_unet", unet)
+        object.__setattr__(self, "_tokenizer", tokenizer)
+        object.__setattr__(self, "_text_encoder", text_encoder)
+        object.__setattr__(self, "_noise_scheduler", noise_scheduler)
 
     def to(self, *args, **kwargs):
         result = super().to(*args, **kwargs)
         # Move non-registered diffusion components alongside the classifier.
         if self.classifier is not None:
             device = next(self.classifier.parameters()).device
-            for attr in ('_vae', '_unet', '_text_encoder'):
+            for attr in ("_vae", "_unet", "_text_encoder"):
                 comp = getattr(self, attr, None)
                 if comp is not None:
                     object.__setattr__(self, attr, comp.to(device))
@@ -86,7 +98,9 @@ class Latte(TrainableMixin, Model):
         latent_sequences = []
         for t in _TRACKED_TIMESTEPS:
             noise = torch.randn_like(latents)
-            timesteps = torch.full((latents.shape[0],), t, device=device, dtype=torch.long)
+            timesteps = torch.full(
+                (latents.shape[0],), t, device=device, dtype=torch.long
+            )
             t_scalar = torch.tensor(t, device=device, dtype=torch.long)
             noisy_latents = self._noise_scheduler.add_noise(latents, noise, timesteps)
             text_inputs = self._tokenizer(
@@ -101,10 +115,16 @@ class Latte(TrainableMixin, Model):
             # attention output to be [1, B*H*W, d] instead of [B, H*W, d], breaking
             # the residual add.
             encoder_hidden_states = self._text_encoder(text_inputs["input_ids"])[0]
-            encoder_hidden_states = encoder_hidden_states.expand(latents.shape[0], -1, -1)
-            model_pred = self._unet(noisy_latents, timesteps, encoder_hidden_states).sample
+            encoder_hidden_states = encoder_hidden_states.expand(
+                latents.shape[0], -1, -1
+            )
+            model_pred = self._unet(
+                noisy_latents, timesteps, encoder_hidden_states
+            ).sample
             latent_sequences.append(
-                self._noise_scheduler.step(model_pred, t_scalar, noisy_latents).prev_sample
+                self._noise_scheduler.step(
+                    model_pred, t_scalar, noisy_latents
+                ).prev_sample
             )
         return torch.stack(latent_sequences, dim=1)  # [B, T, 4, 32, 32]
 
@@ -112,7 +132,7 @@ class Latte(TrainableMixin, Model):
         with torch.no_grad():
             # Disable autocast: the SD 2.1 UNet attention produces shape mismatches
             # under fp16 autocast (residual add between tensors of size 3136 vs 784).
-            with torch.amp.autocast(device_type='cuda', enabled=False):
+            with torch.amp.autocast(device_type="cuda", enabled=False):
                 features = self.extract_latent_trajectories(inputs.float())
         # Cast back so the classifier runs normally under the Trainer's autocast context.
         features = features.to(inputs.dtype)
@@ -126,7 +146,9 @@ class Latte(TrainableMixin, Model):
             "output": torch.softmax(logits, dim=1)[:, 1],
         }
 
-    def predict_batch(self, instances: List[Union[ImageInstance, FileImageInstance]]) -> List[Prediction]:
+    def predict_batch(
+        self, instances: List[Union[ImageInstance, FileImageInstance]]
+    ) -> List[Prediction]:
         self.classifier.eval()
         device = next(self.classifier.parameters()).device
         model_inputs = torch.stack(
@@ -143,10 +165,20 @@ class Latte(TrainableMixin, Model):
 
     @staticmethod
     def transform_input(instance: ImageInstance) -> torch.Tensor:
-        img = instance.data.convert("RGB") if hasattr(instance.data, 'convert') else instance.data
-        return v2.Compose([
-            v2.Resize((224, 224), interpolation=v2.InterpolationMode.BILINEAR, antialias=True),
-            v2.ToImage(),
-            v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
-        ])(img)
+        img = (
+            instance.data.convert("RGB")
+            if hasattr(instance.data, "convert")
+            else instance.data
+        )
+        return v2.Compose(
+            [
+                v2.Resize(
+                    (224, 224),
+                    interpolation=v2.InterpolationMode.BILINEAR,
+                    antialias=True,
+                ),
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
+                v2.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
+            ]
+        )(img)

@@ -97,7 +97,7 @@ class FileImageSequenceDataset(MapStyleDatasetMixin, Dataset):
         # Return instance
         return FileImageSequenceInstance(
             str(path),
-            Annotation({'authenticity': authenticity_label, 'source': source_label}),
+            Annotation({"authenticity": authenticity_label, "source": source_label}),
         )
 
     def __len__(self):
