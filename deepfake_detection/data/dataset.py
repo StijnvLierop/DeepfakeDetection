@@ -11,7 +11,7 @@ class Dataset(ABC, Iterable[Instance]):
     An abstract dataset class that other datasets should inherit from.
     """
 
-    def __init__(self, dataset_name: Optional[str] = 'unspecified_dataset'):
+    def __init__(self, dataset_name: Optional[str] = "unspecified_dataset"):
         """
         :param dataset_name: The name of the dataset (optional).
         """
@@ -39,10 +39,14 @@ class Dataset(ABC, Iterable[Instance]):
         :param label: The label to count. Must be a key in 'Annotation'.
                       If not provided, total number of samples will be returned.
         """
-        counts = Counter(instance.annotation.get_label(label)
-                         if (instance.annotation and label is not None) else '<no label>' for instance in self)
+        counts = Counter(
+            instance.annotation.get_label(label)
+            if (instance.annotation and label is not None)
+            else "<no label>"
+            for instance in self
+        )
         return counts
-            
+
     def info(self, label: Optional[str] = None) -> str:
         """
         Returns a string representing the number of samples (per label) in the dataset.
@@ -58,11 +62,14 @@ class Dataset(ABC, Iterable[Instance]):
         separator = "-" * (len(header) - 1) + "\n"
 
         # Create lines for each label, sorted by count (descending)
-        stats = "\n".join([f"{label}: {count}" for label, count in counts.most_common()]) + "\n"
+        stats = (
+            "\n".join([f"{label}: {count}" for label, count in counts.most_common()])
+            + "\n"
+        )
 
         return f"{header}{separator}{stats}{separator}"
 
-    def filter(self, func: Callable[[Instance], bool]) -> 'Dataset':
+    def filter(self, func: Callable[[Instance], bool]) -> "Dataset":
         """
         Returns a new dataset containing only the instances for which the given function returns True.
 
@@ -70,9 +77,10 @@ class Dataset(ABC, Iterable[Instance]):
         :return: A new dataset containing only the instances for which the given function returns True.
         """
         from deepfake_detection.data.datasets import FilteredDataset
+
         return FilteredDataset(self, func)
 
-    def map(self, func: Callable[[Instance], Instance]) -> 'Dataset':
+    def map(self, func: Callable[[Instance], Instance]) -> "Dataset":
         """
         Returns a new dataset where the mapping function has been applied to each instance.
 
@@ -80,6 +88,7 @@ class Dataset(ABC, Iterable[Instance]):
         :return: A new dataset with the function applied to each instance.
         """
         from deepfake_detection.data.datasets import MappedDataset
+
         return MappedDataset(self, func)
 
 

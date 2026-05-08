@@ -12,10 +12,12 @@ def load_model_wrapper(func):
     """
     Decorator that loads the model weights if they haven't been loaded yet.
     """
+
     def wrapper(self, *args, **kwargs):
         if not self.model_loaded:
             self.load_model()
         return func(self, *args, **kwargs)
+
     return wrapper
 
 

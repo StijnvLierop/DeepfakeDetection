@@ -26,7 +26,8 @@ def filter_config_to_func(filter_config: dict) -> Callable:
     """
     This function takes a filter configuration dictionary and returns a function that implements the configured filter.
 
-    A filter is always defined by three keys:
+    A filter can be a predefined filter function or a logical operator (similar to map).
+    Alternatively, when a filter is a logical operator, it is always defined by three keys:
     - 'label': the label in annotation to look at when filtering.
     - 'op': the operator to use for filtering.
     - 'value': the value to filter on.
@@ -36,6 +37,10 @@ def filter_config_to_func(filter_config: dict) -> Callable:
     :param filter_config: Filter configuration dictionary.
     :return: Function that implements the configured filter.
     """
+    # If function is provided
+    if "func" in filter_config:
+        return func_config_to_func(filter_config)
+
     # Handle logical operators
     if "and" in filter_config:
         funcs = [filter_config_to_func(f) for f in filter_config["and"]]
@@ -51,8 +56,13 @@ def filter_config_to_func(filter_config: dict) -> Callable:
 
     # Create filter function
     op = OPS[filter_config["op"]]
+
     def filter_func(instance):
-        return op(instance.annotation.get_label(filter_config["label"]), filter_config["value"])
+        return op(
+            instance.annotation.get_label(filter_config["label"]),
+            filter_config["value"],
+        )
+
     return filter_func
 
 
@@ -70,7 +80,7 @@ def func_config_to_func(config: dict) -> Callable:
     :return: Function that implements the configured function.
     """
     # Retrieve the configured function
-    func = pydoc.locate(config['func'])
+    func = pydoc.locate(config["func"])
     if func is None:
         raise ValueError(f"Function {config['func']} not found.")
 

@@ -27,7 +27,9 @@ class Annotation:
         if label in self.labels:
             return self.labels[label]
         else:
-            raise ValueError(f"Invalid label type: {label}. Must be one of {self.labels.keys()}")
+            raise ValueError(
+                f"Invalid label type: {label}. Must be one of {self.labels.keys()}"
+            )
 
     def set_label(self, label: str, value: Union[str, Mapping[str, str]]):
         """
@@ -47,8 +49,8 @@ class Annotation:
             current_value = self.labels[label]
             if current_value in value:
                 self.labels[label] = value[current_value]
-            elif '*' in value:
-                self.labels[label] = value['*']
+            elif "*" in value:
+                self.labels[label] = value["*"]
         else:
             self.labels[label] = value
 

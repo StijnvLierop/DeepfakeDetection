@@ -4,7 +4,7 @@ from deepfake_detection.data.datasets.filter import FilteredDataset
 def test_filtered_dataset_iter(dummy_dataset):
 
     def filter_func(instance):
-        return instance.annotation['source'] == "A"
+        return instance.annotation["source"] == "A"
 
     filtered_dataset = FilteredDataset(dummy_dataset, filter_func)
     filtered_instances = list(filtered_dataset)

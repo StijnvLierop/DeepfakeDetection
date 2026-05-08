@@ -42,7 +42,6 @@ class CNNSpot(TrainableMixin, Model):
     def load_model(self):
         # Load architecture and weights from checkpoint
         if self.ckpt:
-
             # Load architecture for checkpoint restoration
             self.model = resnet50(num_classes=1)
 
@@ -90,19 +89,26 @@ class CNNSpot(TrainableMixin, Model):
             out = self.forward(model_inputs)
 
         # Transform to Prediction
-        return [Prediction(classification={"fake": float(output), "real": 1 - float(output)},
-                           embedding=embedding.detach().cpu().numpy().flatten().tolist())
-                for output, embedding in zip(out['output'], out['penultimate_layer'])]
+        return [
+            Prediction(
+                classification={"fake": float(output), "real": 1 - float(output)},
+                embedding=embedding.detach().cpu().numpy().flatten().tolist(),
+            )
+            for output, embedding in zip(out["output"], out["penultimate_layer"])
+        ]
 
     def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Any:
 
         # Attach a hook to the penultimate layer of the model
         features = {}
+
         def get_features(name):
             def hook(model, input, output):
                 features[name] = output.detach()
+
             return hook
-        self.model.avgpool.register_forward_hook(get_features('penultimate'))
+
+        self.model.avgpool.register_forward_hook(get_features("penultimate"))
 
         # Run forward pass
         logits = self.model(inputs)["logits"]
@@ -113,15 +119,17 @@ class CNNSpot(TrainableMixin, Model):
             loss = self.loss_fn(logits.view(-1), labels.float())
 
         # Return logits and (optionally) loss
-        return {"loss": loss,
-                "logits": logits,
-                "penultimate_layer": features['penultimate'],
-                'output': logits.sigmoid().flatten()}
+        return {
+            "loss": loss,
+            "logits": logits,
+            "penultimate_layer": features["penultimate"],
+            "output": logits.sigmoid().flatten(),
+        }
 
     @staticmethod
     def transform_input(instance: ImageInstance, resize: bool = False) -> torch.Tensor:
         transforms = [
-            v2.Lambda(lambda x: x.convert('RGB') if hasattr(x, 'convert') else x),
+            v2.Lambda(lambda x: x.convert("RGB") if hasattr(x, "convert") else x),
             v2.ToImage(),
             v2.CenterCrop(224),
             v2.ToDtype(torch.float32, scale=True),

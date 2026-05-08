@@ -13,7 +13,8 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
-    roc_auc_score, balanced_accuracy_score,
+    roc_auc_score,
+    balanced_accuracy_score,
 )
 
 from deepfake_detection.data.dataset import Dataset
@@ -30,14 +31,16 @@ from deepfake_detection.utils.io import (
 logging.basicConfig(level=logging.INFO)
 
 
-def evaluate(dataset_config: str,
-             model_config: str,
-             output_dir: str,
-             label: str,
-             device: str,
-             predictions_file: Optional[str] = None,
-             subset_labels: Optional[List[str]] = None,
-             neg_label: Optional[str] = None) -> None:
+def evaluate(
+    dataset_config: str,
+    model_config: str,
+    output_dir: str,
+    label: str,
+    device: str,
+    predictions_file: Optional[str] = None,
+    subset_labels: Optional[List[str]] = None,
+    neg_label: Optional[str] = None,
+) -> None:
     """
     Evaluates a model on specified datasets and generates metrics and visualizations.
 
@@ -68,9 +71,7 @@ def evaluate(dataset_config: str,
         model = model.to(device)
 
     # Log evaluation information
-    logging.info(
-        f"Evaluating {model.name} model on dataset: {dataset.dataset_name}"
-    )
+    logging.info(f"Evaluating {model.name} model on dataset: {dataset.dataset_name}")
 
     logging.info(f"Evaluating {dataset.dataset_name}...")
 
@@ -82,27 +83,35 @@ def evaluate(dataset_config: str,
         # Make predictions
         predictions = []
         for instance in tqdm(
-                dataset, desc=f"Making predictions for {dataset.dataset_name}", total=len(dataset)
+            dataset,
+            desc=f"Making predictions for {dataset.dataset_name}",
+            total=len(dataset),
         ):
             prediction = model.predict(instance)
             predictions.append(prediction)
 
         # Write predictions to a file
-        predictions_file = os.path.join(output_dir, f"{model.name}_{dataset.dataset_name}.json")
+        predictions_file = os.path.join(
+            output_dir, f"{model.name}_{dataset.dataset_name}.json"
+        )
         write_predictions_to_file(predictions, Path(predictions_file))
         logging.info(f"Saved predictions to {predictions_file}")
 
     # Calculate metrics / make plots and write to output dir
-    evaluate_model_on_dataset(dataset, model, predictions, output_dir, label, subset_labels, neg_label)
+    evaluate_model_on_dataset(
+        dataset, model, predictions, output_dir, label, subset_labels, neg_label
+    )
 
 
-def evaluate_model_on_dataset(dataset: Dataset,
-                              model: Model,
-                              predictions: List[Prediction],
-                              output_dir: str,
-                              label: str,
-                              subset_labels: Optional[List[str]] = None,
-                              neg_label: Optional[str] = None) -> None:
+def evaluate_model_on_dataset(
+    dataset: Dataset,
+    model: Model,
+    predictions: List[Prediction],
+    output_dir: str,
+    label: str,
+    subset_labels: Optional[List[str]] = None,
+    neg_label: Optional[str] = None,
+) -> None:
     """
     Evaluates the performance of a prediction model on a given dataset by computing classification metrics,
     generating outputs, and saving the metrics to a file in the specified directory.
@@ -122,20 +131,20 @@ def evaluate_model_on_dataset(dataset: Dataset,
 
     # Define metrics
     metrics = [
-            balanced_accuracy_score,
-            accuracy_score,
-            average_precision_score,
-            precision_score,
-            recall_score,
-            f1_score,
-            roc_auc_score,
-        ]
+        balanced_accuracy_score,
+        accuracy_score,
+        average_precision_score,
+        precision_score,
+        recall_score,
+        f1_score,
+        roc_auc_score,
+    ]
 
     # Get overall evaluation results
     overall_results = evaluator.run(metrics, label_type=label)
     overall_df = overall_results.to_df()
-    overall_df['evaluation'] = ['all']
-    overall_df['label'] = overall_df.index
+    overall_df["evaluation"] = ["all"]
+    overall_df["label"] = overall_df.index
     combined_df = overall_df
 
     # Get per-subset results
@@ -145,12 +154,14 @@ def evaluate_model_on_dataset(dataset: Dataset,
                 metrics,
                 label_type=label,
                 group_by=subset_label,
-                negative_class_label=neg_label
+                negative_class_label=neg_label,
             )
             per_subset_results = per_subset_results.to_df()
-            per_subset_results['evaluation'] = subset_label
-            per_subset_results['label'] = per_subset_results.index
-            combined_df = pd.concat([overall_df, per_subset_results], axis=0, ignore_index=True)
+            per_subset_results["evaluation"] = subset_label
+            per_subset_results["label"] = per_subset_results.index
+            combined_df = pd.concat(
+                [overall_df, per_subset_results], axis=0, ignore_index=True
+            )
 
     # Make output directory
     os.makedirs(output_dir, exist_ok=True)
@@ -161,7 +172,9 @@ def evaluate_model_on_dataset(dataset: Dataset,
         index=False,
     )
 
-    logging.info(f"Exported evaluation results to '{dataset.dataset_name}_{model.name}_metrics.csv'")
+    logging.info(
+        f"Exported evaluation results to '{dataset.dataset_name}_{model.name}_metrics.csv'"
+    )
 
 
 if __name__ == "__main__":
@@ -201,7 +214,7 @@ if __name__ == "__main__":
         "--label",
         type=str,
         required=True,
-        help="Label to use for calculating metrics."
+        help="Label to use for calculating metrics.",
     )
     parser.add_argument(
         "-s",
@@ -210,7 +223,7 @@ if __name__ == "__main__":
         nargs="+",
         required=False,
         help="Optional list of subset labels to calculate metrics for separately."
-             "If left empty, metrics are only calculated for the full dataset."
+        "If left empty, metrics are only calculated for the full dataset.",
     )
     parser.add_argument(
         "-n",
@@ -218,7 +231,7 @@ if __name__ == "__main__":
         type=str,
         required=False,
         help="Optional negative label to use for calculating subset metrics that need two classes."
-             "If not provided, these metrics will not be included in the evaluation."
+        "If not provided, these metrics will not be included in the evaluation.",
     )
     parser.add_argument(
         "-dev",
@@ -226,7 +239,7 @@ if __name__ == "__main__":
         type=str,
         required=False,
         default="cuda" if torch.cuda.is_available() else "cpu",
-        help="Device to use for model inference. Defaults to 'cuda' if available, otherwise 'cpu'."
+        help="Device to use for model inference. Defaults to 'cuda' if available, otherwise 'cpu'.",
     )
     args = vars(parser.parse_args())
 

@@ -16,15 +16,15 @@ class MockInstance(Instance):
         super().__init__(annotation)
 
     def __hash__(self):
-        return hash(self.annotation['authenticity'])
+        return hash(self.annotation["authenticity"])
 
 
 @pytest.fixture
 def test_instances():
     return [
-        MockInstance(Annotation({'authenticity': "fake", 'source': "genA"})),
-        MockInstance(Annotation({'authenticity': "real", 'source': "cam1"})),
-        MockInstance(Annotation({'authenticity': "fake", 'source': "genB"})),
+        MockInstance(Annotation({"authenticity": "fake", "source": "genA"})),
+        MockInstance(Annotation({"authenticity": "real", "source": "cam1"})),
+        MockInstance(Annotation({"authenticity": "fake", "source": "genB"})),
     ]
 
 

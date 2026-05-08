@@ -91,7 +91,7 @@ class FileVideoDataset(MapStyleDatasetMixin, Dataset):
         # Return instance
         return FileVideoInstance(
             str(path),
-            Annotation({'authenticity': authenticity_label, 'source': source_label}),
+            Annotation({"authenticity": authenticity_label, "source": source_label}),
         )
 
     def __len__(self):

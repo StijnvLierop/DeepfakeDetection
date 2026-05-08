@@ -11,9 +11,11 @@ from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.instance import ImageInstance
 
 
-def isolate_generative_traces(instances: Union[Sequence[ImageInstance], Dataset],
-                              real_spectrum: Optional[str] = None,
-                              cmap: str = 'plasma') -> ImageInstance:
+def isolate_generative_traces(
+    instances: Union[Sequence[ImageInstance], Dataset],
+    real_spectrum: Optional[str] = None,
+    cmap: str = "plasma",
+) -> ImageInstance:
     """
     Isolates the generative traces from a generator by taking the average frequency spectrum of the noise residuals
     of the given instances. It optionally subtracts the average spectrum from a real image dataset to remove
@@ -35,18 +37,26 @@ def isolate_generative_traces(instances: Union[Sequence[ImageInstance], Dataset]
 
     # Convert to image and apply a color map
     cmap = plt.get_cmap(cmap).reversed()
-    gray_traces = Image.fromarray((traces * 255).astype(np.uint8)).convert('L')
-    colored_traces = ImageInstance(data=Image.fromarray((cmap(np.array(gray_traces))[:, :, :3] * 255).astype(np.uint8)))
+    gray_traces = Image.fromarray((traces * 255).astype(np.uint8)).convert("L")
+    colored_traces = ImageInstance(
+        data=Image.fromarray(
+            (cmap(np.array(gray_traces))[:, :, :3] * 255).astype(np.uint8)
+        )
+    )
 
     return colored_traces
 
 
-def avg_fft_of_noise_residual(instances: Union[Sequence[ImageInstance], Dataset]) -> np.ndarray:
+def avg_fft_of_noise_residual(
+    instances: Union[Sequence[ImageInstance], Dataset],
+) -> np.ndarray:
     """
     This function computes the average FFT of the PRNU noise residual of a sequence of image instances.
 
     :param instances: A sequence of instances.
     :return: The average FFT of the PRNU noise residual.
     """
-    extracted = average_over_images(instances, lambda img: fft(prnu_fstv(img))).astype(np.uint8)
+    extracted = average_over_images(instances, lambda img: fft(prnu_fstv(img))).astype(
+        np.uint8
+    )
     return extracted

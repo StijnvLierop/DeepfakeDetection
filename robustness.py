@@ -51,12 +51,14 @@ def evaluate_robustness(model: str, dataset: str, output_dir: str):
         print(f"{idx}/{len(intensities)}: Processing intensity {intensity}...")
 
         # Loop over dataset samples
-        pbar = tqdm(dataset, desc='Making predictions...')
+        pbar = tqdm(dataset, desc="Making predictions...")
         predictions = []
         for batch in dataset.iter(batch_size=10):
-
             # Apply transformation
-            batch = [jpeg_compression(i, qf=int(intensity)) if intensity < 100 else i for i in batch]
+            batch = [
+                jpeg_compression(i, qf=int(intensity)) if intensity < 100 else i
+                for i in batch
+            ]
 
             # Make predictions
             predictions.extend(model.predict_batch(batch))
@@ -66,39 +68,38 @@ def evaluate_robustness(model: str, dataset: str, output_dir: str):
 
         # Evaluate predictions
         evaluator = Evaluator(dataset, predictions)
-        metrics = evaluator.run(metrics=[balanced_accuracy_score,
-                                         precision_score,
-                                         recall_score],
-                                label_type='authenticity'
-                                )
+        metrics = evaluator.run(
+            metrics=[balanced_accuracy_score, precision_score, recall_score],
+            label_type="authenticity",
+        )
 
         # Store results
-        results[intensity] = {metric: val['all'] for metric, val in metrics.to_df().to_dict().items()}
+        results[intensity] = {
+            metric: val["all"] for metric, val in metrics.to_df().to_dict().items()
+        }
 
     # Export results
     output_file = os.path.join(output_dir, f"{model.name}_robustness_results.csv")
-    df = pd.DataFrame.from_dict(results, orient='index')
-    df.index.name = 'JPEG quality factor'
+    df = pd.DataFrame.from_dict(results, orient="index")
+    df.index.name = "JPEG quality factor"
     df.to_csv(output_file, index=True)
     print(f"Saved results in {output_file}!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d',
-                        '--dataset',
-                        type=str,
-                        required=True,
-                        help='Path to dataset config file.')
-    parser.add_argument('-m',
-                        '--model',
-                        type=str,
-                        required=True,
-                        help='Path to model config file.')
-    parser.add_argument('-o',
-                        '--output-dir',
-                        default='results',
-                        type=str,
-                        required=False,
-                        help='Path to directory where evaluation predictions should be saved.')
+    parser.add_argument(
+        "-d", "--dataset", type=str, required=True, help="Path to dataset config file."
+    )
+    parser.add_argument(
+        "-m", "--model", type=str, required=True, help="Path to model config file."
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        default="results",
+        type=str,
+        required=False,
+        help="Path to directory where evaluation predictions should be saved.",
+    )
     evaluate_robustness(**vars(parser.parse_args()))

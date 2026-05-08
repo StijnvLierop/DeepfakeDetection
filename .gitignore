@@ -10,3 +10,4 @@ deepfake_detection/models/weights/**
 .venv
 .claude
 *.db
+checkpoints

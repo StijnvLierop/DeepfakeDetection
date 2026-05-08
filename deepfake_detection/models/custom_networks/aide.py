@@ -6,203 +6,181 @@ import numpy as np
 
 
 filter_class_1 = [
-  np.array([
-    [1, 0, 0],
-    [0, -1, 0],
-    [0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 1, 0],
-    [0, -1, 0],
-    [0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 1],
-    [0, -1, 0],
-    [0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0],
-    [1, -1, 0],
-    [0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0],
-    [0, -1, 1],
-    [0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0],
-    [0, -1, 0],
-    [1, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0],
-    [0, -1, 0],
-    [0, 1, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0],
-    [0, -1, 0],
-    [0, 0, 1]
-  ], dtype=np.float32)
+    np.array([[1, 0, 0], [0, -1, 0], [0, 0, 0]], dtype=np.float32),
+    np.array([[0, 1, 0], [0, -1, 0], [0, 0, 0]], dtype=np.float32),
+    np.array([[0, 0, 1], [0, -1, 0], [0, 0, 0]], dtype=np.float32),
+    np.array([[0, 0, 0], [1, -1, 0], [0, 0, 0]], dtype=np.float32),
+    np.array([[0, 0, 0], [0, -1, 1], [0, 0, 0]], dtype=np.float32),
+    np.array([[0, 0, 0], [0, -1, 0], [1, 0, 0]], dtype=np.float32),
+    np.array([[0, 0, 0], [0, -1, 0], [0, 1, 0]], dtype=np.float32),
+    np.array([[0, 0, 0], [0, -1, 0], [0, 0, 1]], dtype=np.float32),
 ]
 
 
 filter_class_2 = [
-  np.array([
-    [1, 0, 0],
-    [0, -2, 0],
-    [0, 0, 1]
-  ], dtype=np.float32),
-  np.array([
-    [0, 1, 0],
-    [0, -2, 0],
-    [0, 1, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 1],
-    [0, -2, 0],
-    [1, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0],
-    [1, -2, 1],
-    [0, 0, 0]
-  ], dtype=np.float32),
+    np.array([[1, 0, 0], [0, -2, 0], [0, 0, 1]], dtype=np.float32),
+    np.array([[0, 1, 0], [0, -2, 0], [0, 1, 0]], dtype=np.float32),
+    np.array([[0, 0, 1], [0, -2, 0], [1, 0, 0]], dtype=np.float32),
+    np.array([[0, 0, 0], [1, -2, 1], [0, 0, 0]], dtype=np.float32),
 ]
 
 
 filter_class_3 = [
-  np.array([
-    [-1, 0, 0, 0, 0],
-    [0, 3, 0, 0, 0],
-    [0, 0, -3, 0, 0],
-    [0, 0, 0, 1, 0],
-    [0, 0, 0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, -1, 0, 0],
-    [0, 0, 3, 0, 0],
-    [0, 0, -3, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0, 0, -1],
-    [0, 0, 0, 3, 0],
-    [0, 0, -3, 0, 0],
-    [0, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 1, -3, 3, -1],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0],
-    [0, 0, -3, 0, 0],
-    [0, 0, 0, 3, 0],
-    [0, 0, 0, 0, -1]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, -3, 0, 0],
-    [0, 0, 3, 0, 0],
-    [0, 0, -1, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 1, 0],
-    [0, 0, -3, 0, 0],
-    [0, 3, 0, 0, 0],
-    [-1, 0, 0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [-1, 3, -3, 1, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-  ], dtype=np.float32)
+    np.array(
+        [
+            [-1, 0, 0, 0, 0],
+            [0, 3, 0, 0, 0],
+            [0, 0, -3, 0, 0],
+            [0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, -1, 0, 0],
+            [0, 0, 3, 0, 0],
+            [0, 0, -3, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, 0, 0, -1],
+            [0, 0, 0, 3, 0],
+            [0, 0, -3, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 1, -3, 3, -1],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0],
+            [0, 0, -3, 0, 0],
+            [0, 0, 0, 3, 0],
+            [0, 0, 0, 0, -1],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, -3, 0, 0],
+            [0, 0, 3, 0, 0],
+            [0, 0, -1, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0],
+            [0, 0, -3, 0, 0],
+            [0, 3, 0, 0, 0],
+            [-1, 0, 0, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [-1, 3, -3, 1, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
 ]
 
 
 filter_edge_3x3 = [
-  np.array([
-    [-1, 2, -1],
-    [2, -4, 2],
-    [0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 2, -1],
-    [0, -4, 2],
-    [0, 2, -1]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0],
-    [2, -4, 2],
-    [-1, 2, -1]
-  ], dtype=np.float32),
-  np.array([
-    [-1, 2, 0],
-    [2, -4, 0],
-    [-1, 2, 0]
-  ], dtype=np.float32),
+    np.array([[-1, 2, -1], [2, -4, 2], [0, 0, 0]], dtype=np.float32),
+    np.array([[0, 2, -1], [0, -4, 2], [0, 2, -1]], dtype=np.float32),
+    np.array([[0, 0, 0], [2, -4, 2], [-1, 2, -1]], dtype=np.float32),
+    np.array([[-1, 2, 0], [2, -4, 0], [-1, 2, 0]], dtype=np.float32),
 ]
 
 filter_edge_5x5 = [
-  np.array([
-    [-1, 2, -2, 2, -1],
-    [2, -6, 8, -6, 2],
-    [-2, 8, -12, 8, -2],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, -2, 2, -1],
-    [0, 0, 8, -6, 2],
-    [0, 0, -12, 8, -2],
-    [0, 0, 8, -6, 2],
-    [0, 0, -2, 2, -1]
-  ], dtype=np.float32),
-  np.array([
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [-2, 8, -12, 8, -2],
-    [2, -6, 8, -6, 2],
-    [-1, 2, -2, 2, -1]
-  ], dtype=np.float32),
-  np.array([
-    [-1, 2, -2, 0, 0],
-    [2, -6, 8, 0, 0],
-    [-2, 8, -12, 0, 0],
-    [2, -6, 8, 0, 0],
-    [-1, 2, -2, 0, 0]
-  ], dtype=np.float32),
+    np.array(
+        [
+            [-1, 2, -2, 2, -1],
+            [2, -6, 8, -6, 2],
+            [-2, 8, -12, 8, -2],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, -2, 2, -1],
+            [0, 0, 8, -6, 2],
+            [0, 0, -12, 8, -2],
+            [0, 0, 8, -6, 2],
+            [0, 0, -2, 2, -1],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [-2, 8, -12, 8, -2],
+            [2, -6, 8, -6, 2],
+            [-1, 2, -2, 2, -1],
+        ],
+        dtype=np.float32,
+    ),
+    np.array(
+        [
+            [-1, 2, -2, 0, 0],
+            [2, -6, 8, 0, 0],
+            [-2, 8, -12, 0, 0],
+            [2, -6, 8, 0, 0],
+            [-1, 2, -2, 0, 0],
+        ],
+        dtype=np.float32,
+    ),
 ]
 
-square_3x3 = np.array([
-  [-1, 2, -1],
-  [2, -4, 2],
-  [-1, 2, -1]
-], dtype=np.float32)
+square_3x3 = np.array([[-1, 2, -1], [2, -4, 2], [-1, 2, -1]], dtype=np.float32)
 
-square_5x5 = np.array([
-  [-1, 2, -2, 2, -1],
-  [2, -6, 8, -6, 2],
-  [-2, 8, -12, 8, -2],
-  [2, -6, 8, -6, 2],
-  [-1, 2, -2, 2, -1]
-], dtype=np.float32)
+square_5x5 = np.array(
+    [
+        [-1, 2, -2, 2, -1],
+        [2, -6, 8, -6, 2],
+        [-2, 8, -12, 8, -2],
+        [2, -6, 8, -6, 2],
+        [-1, 2, -2, 2, -1],
+    ],
+    dtype=np.float32,
+)
 
 
-all_hpf_list = filter_class_1 + filter_class_2 + filter_class_3 + filter_edge_3x3 + filter_edge_5x5 + [square_3x3, square_5x5]
+all_hpf_list = (
+    filter_class_1
+    + filter_class_2
+    + filter_class_3
+    + filter_edge_3x3
+    + filter_edge_5x5
+    + [square_3x3, square_5x5]
+)
 
 hpf_3x3_list = filter_class_1 + filter_class_2 + filter_edge_3x3 + [square_3x3]
 hpf_5x5_list = filter_class_3 + filter_edge_5x5 + [square_5x5]
@@ -214,11 +192,24 @@ normalized_square_3x3 = square_3x3 / 4
 normalized_filter_edge_5x5 = [hpf / 12 for hpf in filter_edge_5x5]
 normalized_square_5x5 = square_5x5 / 12
 
-all_normalized_hpf_list = filter_class_1 + normalized_filter_class_2 + normalized_filter_class_3 + \
- normalized_filter_edge_3x3 + normalized_filter_edge_5x5 + [normalized_square_3x3, normalized_square_5x5]
+all_normalized_hpf_list = (
+    filter_class_1
+    + normalized_filter_class_2
+    + normalized_filter_class_3
+    + normalized_filter_edge_3x3
+    + normalized_filter_edge_5x5
+    + [normalized_square_3x3, normalized_square_5x5]
+)
 
-normalized_hpf_3x3_list = filter_class_1 + normalized_filter_class_2 + normalized_filter_edge_3x3 + [normalized_square_3x3]
-normalized_hpf_5x5_list = normalized_filter_class_3 + normalized_filter_edge_5x5 + [normalized_square_5x5]
+normalized_hpf_3x3_list = (
+    filter_class_1
+    + normalized_filter_class_2
+    + normalized_filter_edge_3x3
+    + [normalized_square_3x3]
+)
+normalized_hpf_5x5_list = (
+    normalized_filter_class_3 + normalized_filter_edge_5x5 + [normalized_square_5x5]
+)
 
 normalized_3x3_list = normalized_filter_edge_3x3 + [normalized_square_3x3]
 normalized_5x5_list = normalized_filter_edge_5x5 + [normalized_square_5x5]
@@ -233,12 +224,16 @@ class HPF(nn.Module):
 
         for hpf_item in all_normalized_hpf_list:
             if hpf_item.shape[0] == 3:
-                hpf_item = np.pad(hpf_item, pad_width=((1, 1), (1, 1)), mode='constant')
+                hpf_item = np.pad(hpf_item, pad_width=((1, 1), (1, 1)), mode="constant")
 
             all_hpf_list_5x5.append(hpf_item)
 
-        hpf_weight = torch.Tensor(np.array(all_hpf_list_5x5)).view(30, 1, 5, 5).contiguous()
-        hpf_weight = torch.nn.Parameter(hpf_weight.repeat(1, 3, 1, 1), requires_grad=False)
+        hpf_weight = (
+            torch.Tensor(np.array(all_hpf_list_5x5)).view(30, 1, 5, 5).contiguous()
+        )
+        hpf_weight = torch.nn.Parameter(
+            hpf_weight.repeat(1, 3, 1, 1), requires_grad=False
+        )
 
         self.hpf = nn.Conv2d(3, 30, kernel_size=5, padding=2, bias=False)
         self.hpf.weight = hpf_weight
@@ -252,8 +247,9 @@ class HPF(nn.Module):
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(
+        in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False
+    )
 
 
 def conv1x1(in_planes, out_planes, stride=1):
@@ -332,13 +328,11 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-
     def __init__(self, block, layers, num_classes=1000, zero_init_residual=True):
         super(ResNet, self).__init__()
 
         self.inplanes = 64
-        self.conv1 = nn.Conv2d(30, 64, kernel_size=7, stride=2, padding=3,
-                               bias=False)
+        self.conv1 = nn.Conv2d(30, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -351,7 +345,7 @@ class ResNet(nn.Module):
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -401,10 +395,11 @@ class ResNet(nn.Module):
 
 
 class Mlp(nn.Module):
-    """ MLP as used in Vision Transformer, MLP-Mixer and related networks
-    """
+    """MLP as used in Vision Transformer, MLP-Mixer and related networks"""
 
-    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU):
+    def __init__(
+        self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU
+    ):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
@@ -420,30 +415,47 @@ class Mlp(nn.Module):
         return x
 
 
-
 def DCT_mat(size):
-    m = [[ (np.sqrt(1./size) if i == 0 else np.sqrt(2./size)) * np.cos((j + 0.5) * np.pi * i / size) for j in range(size)] for i in range(size)]
+    m = [
+        [
+            (np.sqrt(1.0 / size) if i == 0 else np.sqrt(2.0 / size))
+            * np.cos((j + 0.5) * np.pi * i / size)
+            for j in range(size)
+        ]
+        for i in range(size)
+    ]
     return m
 
+
 def generate_filter(start, end, size):
-    return [[0. if i + j > end or i + j < start else 1. for j in range(size)] for i in range(size)]
+    return [
+        [0.0 if i + j > end or i + j < start else 1.0 for j in range(size)]
+        for i in range(size)
+    ]
+
 
 def norm_sigma(x):
-    return 2. * torch.sigmoid(x) - 1.
+    return 2.0 * torch.sigmoid(x) - 1.0
+
 
 class Filter(nn.Module):
     def __init__(self, size, band_start, band_end, use_learnable=False, norm=False):
         super(Filter, self).__init__()
         self.use_learnable = use_learnable
 
-        self.base = nn.Parameter(torch.tensor(generate_filter(band_start, band_end, size)), requires_grad=False)
+        self.base = nn.Parameter(
+            torch.tensor(generate_filter(band_start, band_end, size)),
+            requires_grad=False,
+        )
         if self.use_learnable:
             self.learnable = nn.Parameter(torch.randn(size, size), requires_grad=True)
-            self.learnable.data.normal_(0., 0.1)
+            self.learnable.data.normal_(0.0, 0.1)
         self.norm = norm
         if norm:
-            self.ft_num = nn.Parameter(torch.sum(torch.tensor(generate_filter(band_start, band_end, size))), requires_grad=False)
-
+            self.ft_num = nn.Parameter(
+                torch.sum(torch.tensor(generate_filter(band_start, band_end, size))),
+                requires_grad=False,
+            )
 
     def forward(self, x):
         if self.use_learnable:
@@ -465,7 +477,9 @@ class DCT_base_Rec_Module(nn.Module):
         x: [C, H, W] -> [C*level, output, output]
     """
 
-    def __init__(self, window_size=32, stride=16, output=256, grade_N=6, level_fliter=[0]):
+    def __init__(
+        self, window_size=32, stride=16, output=256, grade_N=6, level_fliter=[0]
+    ):
         super().__init__()
 
         assert output % window_size == 0
@@ -476,27 +490,35 @@ class DCT_base_Rec_Module(nn.Module):
         self.level_N = len(level_fliter)
         self.N = (output // window_size) * (output // window_size)
 
-        self._DCT_patch = nn.Parameter(torch.tensor(DCT_mat(window_size)).float(), requires_grad=False)
-        self._DCT_patch_T = nn.Parameter(torch.transpose(torch.tensor(DCT_mat(window_size)).float(), 0, 1),
-                                         requires_grad=False).contiguous()
-
-        self.unfold = nn.Unfold(
-            kernel_size=(window_size, window_size), stride=stride
+        self._DCT_patch = nn.Parameter(
+            torch.tensor(DCT_mat(window_size)).float(), requires_grad=False
         )
+        self._DCT_patch_T = nn.Parameter(
+            torch.transpose(torch.tensor(DCT_mat(window_size)).float(), 0, 1),
+            requires_grad=False,
+        ).contiguous()
+
+        self.unfold = nn.Unfold(kernel_size=(window_size, window_size), stride=stride)
         self.fold0 = nn.Fold(
             output_size=(window_size, window_size),
             kernel_size=(window_size, window_size),
-            stride=window_size
+            stride=window_size,
         )
 
-        level_f = [
-            Filter(window_size, 0, window_size * 2)
-        ]
+        level_f = [Filter(window_size, 0, window_size * 2)]
 
         self.level_filters = nn.ModuleList([level_f[i] for i in level_fliter])
         self.grade_filters = nn.ModuleList(
-            [Filter(window_size, window_size * 2. / grade_N * i, window_size * 2. / grade_N * (i + 1), norm=True) for i
-             in range(grade_N)])
+            [
+                Filter(
+                    window_size,
+                    window_size * 2.0 / grade_N * i,
+                    window_size * 2.0 / grade_N * (i + 1),
+                    norm=True,
+                )
+                for i in range(grade_N)
+            ]
+        )
 
     def forward(self, x):
 
@@ -510,7 +532,11 @@ class DCT_base_Rec_Module(nn.Module):
         self._DCT_patch_T = self._DCT_patch_T.to(x.device)
         self._DCT_patch = self._DCT_patch.to(x.device)
         _, L = x_unfold.shape
-        x_unfold = x_unfold.transpose(0, 1).reshape(L, C, window_size, window_size).to(x.device)
+        x_unfold = (
+            x_unfold.transpose(0, 1)
+            .reshape(L, C, window_size, window_size)
+            .to(x.device)
+        )
         x_dct = self._DCT_patch @ x_unfold @ self._DCT_patch_T
 
         y_list = []
@@ -550,10 +576,18 @@ class DCT_base_Rec_Module(nn.Module):
         x_minmin1 = torch.index_select(level_x_unfold, 0, minmin_idx1)
         x_maxmax1 = torch.index_select(level_x_unfold, 0, maxmax_idx1)
 
-        x_minmin = x_minmin.reshape(1, level_N * C * window_size * window_size).transpose(0, 1)
-        x_maxmax = x_maxmax.reshape(1, level_N * C * window_size * window_size).transpose(0, 1)
-        x_minmin1 = x_minmin1.reshape(1, level_N * C * window_size * window_size).transpose(0, 1)
-        x_maxmax1 = x_maxmax1.reshape(1, level_N * C * window_size * window_size).transpose(0, 1)
+        x_minmin = x_minmin.reshape(
+            1, level_N * C * window_size * window_size
+        ).transpose(0, 1)
+        x_maxmax = x_maxmax.reshape(
+            1, level_N * C * window_size * window_size
+        ).transpose(0, 1)
+        x_minmin1 = x_minmin1.reshape(
+            1, level_N * C * window_size * window_size
+        ).transpose(0, 1)
+        x_maxmax1 = x_maxmax1.reshape(
+            1, level_N * C * window_size * window_size
+        ).transpose(0, 1)
 
         x_minmin = self.fold0(x_minmin)
         x_maxmax = self.fold0(x_maxmax)

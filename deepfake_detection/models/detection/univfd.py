@@ -18,12 +18,14 @@ class UnivFD(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/WisconsinAIVision/UniversalFakeDetect.
     """
 
-    def __init__(self,
-                 ckpt: Optional[str] = None,
-                 name: str = "UnivFD",
-                 load_model: bool = True,
-                 *args,
-                 **kwargs):
+    def __init__(
+        self,
+        ckpt: Optional[str] = None,
+        name: str = "UnivFD",
+        load_model: bool = True,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         self.clip_encoder = None
@@ -61,7 +63,12 @@ class UnivFD(TrainableMixin, Model):
             loss = self.loss_fn(logits.view(-1), labels.float())
 
         # Return logits and (optionally) loss
-        return {"loss": loss, "logits": logits, "embeddings": features, "out": logits.sigmoid().flatten()}
+        return {
+            "loss": loss,
+            "logits": logits,
+            "embeddings": features,
+            "out": logits.sigmoid().flatten(),
+        }
 
     def predict_batch(
         self, instances: Union[List[Union[ImageInstance, FileImageInstance]], Dataset]
@@ -77,9 +84,12 @@ class UnivFD(TrainableMixin, Model):
             out = self.forward(model_inputs)
 
         # Transform to Prediction
-        return [Prediction(classification={"fake": out, "real": 1 - out},
-                           embedding=embed) for out, embed in zip(out['out'].cpu().tolist(),
-                                                                  out['embeddings'].cpu().tolist())]
+        return [
+            Prediction(classification={"fake": out, "real": 1 - out}, embedding=embed)
+            for out, embed in zip(
+                out["out"].cpu().tolist(), out["embeddings"].cpu().tolist()
+            )
+        ]
 
     @staticmethod
     def transform_input(instance: ImageInstance, resize: bool = True) -> torch.Tensor:

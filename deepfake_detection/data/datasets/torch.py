@@ -11,11 +11,13 @@ class TorchDataset(torch.utils.data.Dataset):
     A wrapper to load a dataset as a Pytorch Map-style dataset.
     """
 
-    def __init__(self,
-                 dataset: MapStyleDatasetMixin,
-                 transform: Union[v2.Compose, Callable[[Any], torch.Tensor]],
-                 label: str,
-                 pos_label: str):
+    def __init__(
+        self,
+        dataset: MapStyleDatasetMixin,
+        transform: Union[v2.Compose, Callable[[Any], torch.Tensor]],
+        label: str,
+        pos_label: str,
+    ):
         super().__init__()
         self.dataset = dataset
         self.transforms = transform
@@ -26,7 +28,10 @@ class TorchDataset(torch.utils.data.Dataset):
         instance = self.dataset[idx]
         return {
             "inputs": self.transforms(instance),
-            "labels": torch.tensor(instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.long),
+            "labels": torch.tensor(
+                instance.annotation.get_label(self.label) == self.pos_label,
+                dtype=torch.long,
+            ),
         }
 
     def __len__(self):
@@ -38,11 +43,13 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
     A wrapper to load a dataset as a Pytorch iterable dataset.
     """
 
-    def __init__(self,
-                 dataset: Dataset,
-                 transform: Union[v2.Compose, Callable[[Any], torch.Tensor]],
-                 label: str,
-                 pos_label: str):
+    def __init__(
+        self,
+        dataset: Dataset,
+        transform: Union[v2.Compose, Callable[[Any], torch.Tensor]],
+        label: str,
+        pos_label: str,
+    ):
         super().__init__()
         self.dataset = dataset
         self.transforms = transform
@@ -57,6 +64,7 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
             yield {
                 "inputs": self.transforms(instance),
                 "labels": torch.tensor(
-                    instance.annotation.get_label(self.label) == self.pos_label, dtype=torch.long
+                    instance.annotation.get_label(self.label) == self.pos_label,
+                    dtype=torch.long,
                 ),
             }

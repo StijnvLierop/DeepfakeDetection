@@ -1,8 +1,12 @@
 import os
 import pytest
 
-from deepfake_detection.data.datasets import (ListDataset, FileImageSequenceDataset, FileImageDataset,
-                                              FileVideoDataset)
+from deepfake_detection.data.datasets import (
+    ListDataset,
+    FileImageSequenceDataset,
+    FileImageDataset,
+    FileVideoDataset,
+)
 from tests.deepfake_detection.paths import RESOURCES_DIR
 
 
@@ -32,7 +36,9 @@ def test_load_file_image_dataset(image_dataset_path):
 
 
 def test_load_file_image_sequence_dataset(image_sequence_dataset_path):
-    dataset = FileImageSequenceDataset(dataset_name="test", path=image_sequence_dataset_path)
+    dataset = FileImageSequenceDataset(
+        dataset_name="test", path=image_sequence_dataset_path
+    )
     instances = list(dataset)
 
     assert len(dataset) == 6
@@ -123,9 +129,9 @@ def test_iter_with_large_batch_size(dummy_dataset):
 
 def test_get_item(dummy_dataset):
     instance = dummy_dataset[0]
-    assert instance.annotation['authenticity'] == "real"
+    assert instance.annotation["authenticity"] == "real"
 
 
 def test_get_label(dummy_dataset):
     instance = dummy_dataset[0]
-    assert instance.annotation.get_label('authenticity') == "real"
+    assert instance.annotation.get_label("authenticity") == "real"

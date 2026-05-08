@@ -15,14 +15,17 @@ class FilteredDataset(MapStyleDatasetMixin, Dataset):
     """
 
     def __init__(self, dataset: Dataset, filter_func: Callable[[Instance], bool]):
-        super().__init__(dataset_name=None if dataset.dataset_name is None else f"filtered_{dataset.dataset_name}")
+        super().__init__(
+            dataset_name=None
+            if dataset.dataset_name is None
+            else f"filtered_{dataset.dataset_name}"
+        )
         self.dataset = dataset
         self.filter_func = filter_func
 
         # Pre-calculate the valid indices once
         self.valid_indices = [
-            idx for idx, instance in enumerate(dataset)
-            if filter_func(instance)
+            idx for idx, instance in enumerate(dataset) if filter_func(instance)
         ]
 
     def __getitem__(self, idx):

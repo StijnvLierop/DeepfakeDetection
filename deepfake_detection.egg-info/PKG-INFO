@@ -1,3 +1,13 @@
+Metadata-Version: 2.4
+Name: deepfake_detection
+Version: 0.35.1
+Summary: Default template for PDM package
+Author-email: Stijn van Lierop <s.van.lierop@nfi.nl>, Stijn van Lierop <150940112+StijnvLierop@users.noreply.github.com>
+License: MIT
+Requires-Python: ==3.12.*
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=2.6.0
+
 # DeepfakeDetection
 
 Configuration-driven toolkit for deepfake detection research and benchmarking.
@@ -27,7 +37,7 @@ The repository contains:
 
 ## Requirements
 
-- Python `3.12.x` (project is pinned to `==3.12.*`)
+- Python `3.10.x` (project is pinned to `==3.10.*`)
 - CUDA-enabled PyTorch is recommended for training speed
 
 ## Installation
@@ -35,10 +45,14 @@ The repository contains:
 From the repository root:
 
 ```bash
-conda create -n deepfake_detection python=3.12 cuda-toolkit -c nvidia
-conda activate deepfake_detection
+python -m venv .venv
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+# Linux/macOS
+# source .venv/bin/activate
 
-pdm install
+python -m pip install --upgrade pip
+pip install .
 ```
 
 ### Optional: development tools

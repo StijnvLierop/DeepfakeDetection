@@ -18,7 +18,7 @@ def prnu_fstv(img_array: np.ndarray) -> np.ndarray:
 
     # Calculate the strength of the gradients (add small epsilon to avoid taking the square root of 0)
     epsilon = 1e-8
-    grad_mag = np.sqrt(grad_x ** 2 + grad_y ** 2 + epsilon ** 2)
+    grad_mag = np.sqrt(grad_x**2 + grad_y**2 + epsilon**2)
 
     # Normalize gradients
     norm_grad_x = grad_x / grad_mag

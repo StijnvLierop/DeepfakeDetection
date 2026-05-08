@@ -83,7 +83,7 @@ class DiffusionDataset(MapStyleDatasetMixin, Dataset):
         # Return instance
         return FileImageInstance(
             str(path),
-            Annotation({'authenticity': authenticity_label, 'source': source_label}),
+            Annotation({"authenticity": authenticity_label, "source": source_label}),
         )
 
     def __len__(self):

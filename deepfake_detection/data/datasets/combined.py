@@ -12,7 +12,11 @@ class CombinedDataset(MapStyleDatasetMixin, Dataset):
     Can only be used with MapStyleDatasets.
     """
 
-    def __init__(self, datasets: Iterable[MapStyleDatasetMixin], dataset_name: Optional[str] = None):
+    def __init__(
+        self,
+        datasets: Iterable[MapStyleDatasetMixin],
+        dataset_name: Optional[str] = None,
+    ):
         """
         :param datasets: The datasets to combine.
         :param dataset_name: The name of the combined dataset.
@@ -36,7 +40,9 @@ class CombinedDataset(MapStyleDatasetMixin, Dataset):
         current_total = 0
         for d in self.datasets:
             if not isinstance(d, Sized):
-                raise ValueError(f"Dataset {d} must support __len__ to be used in Mapstyle.")
+                raise ValueError(
+                    f"Dataset {d} must support __len__ to be used in Mapstyle."
+                )
             current_total += len(d)
             sizes.append(current_total)
         return sizes
@@ -44,13 +50,17 @@ class CombinedDataset(MapStyleDatasetMixin, Dataset):
     def __len__(self) -> int:
         # Only return length of MapStyle datasets
         if not self.is_map_style:
-            raise TypeError("CombinedDataset contains IterableDatasets and has no length.")
+            raise TypeError(
+                "CombinedDataset contains IterableDatasets and has no length."
+            )
         return self.cumulative_sizes[-1] if self.cumulative_sizes else 0
 
     def __getitem__(self, idx):
         # Method only works for MapStyle datasets
         if not self.is_map_style:
-            raise TypeError("Cannot index a CombinedDataset containing IterableDatasets.")
+            raise TypeError(
+                "Cannot index a CombinedDataset containing IterableDatasets."
+            )
 
         if idx < 0:
             idx = len(self) + idx

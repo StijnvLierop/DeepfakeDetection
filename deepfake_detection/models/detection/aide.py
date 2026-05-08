@@ -9,7 +9,13 @@ from torchvision import transforms
 from deepfake_detection.data.instance import FileImageInstance, ImageInstance
 from deepfake_detection.models import Model, TrainableMixin
 from deepfake_detection.models import Prediction
-from deepfake_detection.models.custom_networks.aide import ResNet, HPF, Bottleneck, Mlp, DCT_base_Rec_Module
+from deepfake_detection.models.custom_networks.aide import (
+    ResNet,
+    HPF,
+    Bottleneck,
+    Mlp,
+    DCT_base_Rec_Module,
+)
 
 
 class AIDE(TrainableMixin, Model):
@@ -19,14 +25,16 @@ class AIDE(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/shilinyan99/AIDE/tree/main.
     """
 
-    def __init__(self,
-                 ckpt: Optional[str] = None,
-                 resnet_ckpt: Optional[str] = None,
-                 convnext_ckpt: Optional[str] = None,
-                 name: str = "AIDE",
-                 load_model: bool = True,
-                 *args,
-                 **kwargs):
+    def __init__(
+        self,
+        ckpt: Optional[str] = None,
+        resnet_ckpt: Optional[str] = None,
+        convnext_ckpt: Optional[str] = None,
+        name: str = "AIDE",
+        load_model: bool = True,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         # Initialize DCT module
@@ -72,14 +80,24 @@ class AIDE(TrainableMixin, Model):
             clip_mean = clip_mean.to(tokens, non_blocking=True).view(3, 1, 1)
             clip_std = torch.Tensor([0.26862954, 0.26130258, 0.27577711])
             clip_std = clip_std.to(tokens, non_blocking=True).view(3, 1, 1)
-            dinov2_mean = torch.Tensor([0.485, 0.456, 0.406]).to(tokens, non_blocking=True).view(3, 1, 1)
-            dinov2_std = torch.Tensor([0.229, 0.224, 0.225]).to(tokens, non_blocking=True).view(3, 1, 1)
+            dinov2_mean = (
+                torch.Tensor([0.485, 0.456, 0.406])
+                .to(tokens, non_blocking=True)
+                .view(3, 1, 1)
+            )
+            dinov2_std = (
+                torch.Tensor([0.229, 0.224, 0.225])
+                .to(tokens, non_blocking=True)
+                .view(3, 1, 1)
+            )
 
             local_convnext_image_feats = self.openclip_convnext_xxl(
                 tokens * (dinov2_std / clip_std) + (dinov2_mean - clip_mean) / clip_std
             )  # [b, 3072, 8, 8]
             assert local_convnext_image_feats.size()[1:] == (3072, 8, 8)
-            local_convnext_image_feats = self.avgpool(local_convnext_image_feats).view(tokens.size(0), -1)
+            local_convnext_image_feats = self.avgpool(local_convnext_image_feats).view(
+                tokens.size(0), -1
+            )
             x_0 = self.convnext_proj(local_convnext_image_feats)
 
         x_min = self.model_min(x_minmin)
@@ -98,8 +116,7 @@ class AIDE(TrainableMixin, Model):
         else:
             loss = None
 
-        return {'logits': logits, 'loss': loss, 'output': torch.softmax(logits, dim=1)}
-
+        return {"logits": logits, "loss": loss, "output": torch.softmax(logits, dim=1)}
 
     def _load_aide_checkpoint(self, ckpt_path: str):
         """
@@ -121,12 +138,24 @@ class AIDE(TrainableMixin, Model):
             state_dict = load_safetensors_file(str(path))
         else:
             payload = torch.load(path, map_location="cpu")
-            if isinstance(payload, dict) and "model" in payload and isinstance(payload["model"], dict):
+            if (
+                isinstance(payload, dict)
+                and "model" in payload
+                and isinstance(payload["model"], dict)
+            ):
                 # Original AIDE checkpoints keep model weights under "model".
                 state_dict = payload["model"]
-            elif isinstance(payload, dict) and "state_dict" in payload and isinstance(payload["state_dict"], dict):
+            elif (
+                isinstance(payload, dict)
+                and "state_dict" in payload
+                and isinstance(payload["state_dict"], dict)
+            ):
                 state_dict = payload["state_dict"]
-            elif isinstance(payload, dict) and "model_state_dict" in payload and isinstance(payload["model_state_dict"], dict):
+            elif (
+                isinstance(payload, dict)
+                and "model_state_dict" in payload
+                and isinstance(payload["model_state_dict"], dict)
+            ):
                 state_dict = payload["model_state_dict"]
             else:
                 # HF Trainer / plain torch state_dict checkpoint.
@@ -137,7 +166,9 @@ class AIDE(TrainableMixin, Model):
 
         return state_dict
 
-    def load_model(self, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None) -> None:
+    def load_model(
+        self, resnet_ckpt: Optional[str] = None, convnext_ckpt: Optional[str] = None
+    ) -> None:
         if resnet_ckpt is None:
             resnet_ckpt = self.resnet_ckpt
         if convnext_ckpt is None:
@@ -145,13 +176,16 @@ class AIDE(TrainableMixin, Model):
 
         # If resnet weights are provided, load them
         if resnet_ckpt is not None:
-            pretrained_dict = torch.load(resnet_ckpt, map_location='cpu')
+            pretrained_dict = torch.load(resnet_ckpt, map_location="cpu")
 
             model_min_dict = self.model_min.state_dict()
             model_max_dict = self.model_max.state_dict()
 
             for k in pretrained_dict.keys():
-                if k in model_min_dict and pretrained_dict[k].size() == model_min_dict[k].size():
+                if (
+                    k in model_min_dict
+                    and pretrained_dict[k].size() == model_min_dict[k].size()
+                ):
                     model_min_dict[k] = pretrained_dict[k]
                     model_max_dict[k] = pretrained_dict[k]
 
@@ -160,8 +194,7 @@ class AIDE(TrainableMixin, Model):
 
         # Load openclip model
         self.openclip_convnext_xxl, _, _ = open_clip.create_model_and_transforms(
-            "convnext_xxlarge",
-            pretrained=convnext_ckpt
+            "convnext_xxlarge", pretrained=convnext_ckpt
         )
         self.openclip_convnext_xxl = self.openclip_convnext_xxl.visual.trunk
         self.openclip_convnext_xxl.head.global_pool = nn.Identity()
@@ -193,17 +226,21 @@ class AIDE(TrainableMixin, Model):
         Transform func for dataloader.
         """
         transform = transforms.Compose([transforms.ToTensor()])
-        return transform(instance.data.convert('RGB'))
+        return transform(instance.data.convert("RGB"))
 
     def preprocess_gpu(self, x_list: List[torch.Tensor]) -> torch.Tensor:
         """
         Preprocesses a list of CPU tensors to a single GPU batch tensor (or CPU tensor if no GPU available).
         """
         # Define transform func
-        transform_func = transforms.Compose([
-            transforms.Resize([256, 256]),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-        ])
+        transform_func = transforms.Compose(
+            [
+                transforms.Resize([256, 256]),
+                transforms.Normalize(
+                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+                ),
+            ]
+        )
 
         # Check current main model device (GPU)
         device = next(self.fc.parameters()).device
@@ -214,7 +251,6 @@ class AIDE(TrainableMixin, Model):
         # Loop over (differently-sized) tensors
         processed = []
         for x in x_list:
-
             # Move x to device
             x = x.to(device)
 
@@ -233,8 +269,9 @@ class AIDE(TrainableMixin, Model):
 
         return torch.stack(processed, dim=0)
 
-
-    def predict_batch(self, instances: List[Union[ImageInstance, FileImageInstance]]) -> List[Prediction]:
+    def predict_batch(
+        self, instances: List[Union[ImageInstance, FileImageInstance]]
+    ) -> List[Prediction]:
 
         # Transform inputs
         inputs = [self.transform_input(instance) for instance in instances]
@@ -245,4 +282,7 @@ class AIDE(TrainableMixin, Model):
             out = self.forward(inputs)
 
         # Return predictions
-        return [Prediction(classification={"real": float(o[0]), "fake": float(o[1])}) for o in out['output']]
+        return [
+            Prediction(classification={"real": float(o[0]), "fake": float(o[1])})
+            for o in out["output"]
+        ]

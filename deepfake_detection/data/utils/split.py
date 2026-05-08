@@ -46,8 +46,12 @@ def split_dataset(
     )
 
     # Set new dataset names
-    dataset1_name = dataset.dataset_name + "_split1" if dataset.dataset_name else "split1"
-    dataset2_name = dataset.dataset_name + "_split2" if dataset.dataset_name else "split2"
+    dataset1_name = (
+        dataset.dataset_name + "_split1" if dataset.dataset_name else "split1"
+    )
+    dataset2_name = (
+        dataset.dataset_name + "_split2" if dataset.dataset_name else "split2"
+    )
 
     return (
         SubsetDataset(dataset=dataset, dataset_name=dataset1_name, indices=train_set),

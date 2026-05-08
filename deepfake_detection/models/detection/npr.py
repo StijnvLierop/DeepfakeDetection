@@ -22,12 +22,14 @@ class NPR(TrainableMixin, Model):
     More info about the model can be found here: https://github.com/chuangchuangtan/NPR-DeepfakeDetection.
     """
 
-    def __init__(self,
-                 ckpt: Optional[str] = None,
-                 name: str = "NPR",
-                 load_model: bool = True,
-                 *args,
-                 **kwargs):
+    def __init__(
+        self,
+        ckpt: Optional[str] = None,
+        name: str = "NPR",
+        load_model: bool = True,
+        *args,
+        **kwargs,
+    ):
         self.model = None
         self.ckpt = ckpt
 
@@ -73,8 +75,13 @@ class NPR(TrainableMixin, Model):
 
         # Transform inputs
         model_inputs = torch.stack(
-            [self.transform_input(i, resize=False, crop=True, translate_and_duplicate=True)
-             for i in instances], dim=0
+            [
+                self.transform_input(
+                    i, resize=False, crop=True, translate_and_duplicate=True
+                )
+                for i in instances
+            ],
+            dim=0,
         ).to(next(self.model.parameters()).device)
 
         # Run inference
@@ -82,19 +89,26 @@ class NPR(TrainableMixin, Model):
             out = self.forward(model_inputs)
 
         # Transform to Prediction
-        return [Prediction(classification={"fake": float(output), "real": 1 - float(output)},
-                           embedding=embedding.detach().cpu().numpy().flatten().tolist())
-                for output, embedding in zip(out['output'], out['penultimate_layer'])]
+        return [
+            Prediction(
+                classification={"fake": float(output), "real": 1 - float(output)},
+                embedding=embedding.detach().cpu().numpy().flatten().tolist(),
+            )
+            for output, embedding in zip(out["output"], out["penultimate_layer"])
+        ]
 
     def forward(self, inputs: Any, labels: Any = None, **kwargs) -> Any:
 
         # Attach a hook to the penultimate layer of the model
         features = {}
+
         def get_features(name):
             def hook(model, input, output):
                 features[name] = output.detach()
+
             return hook
-        self.model.avgpool.register_forward_hook(get_features('penultimate'))
+
+        self.model.avgpool.register_forward_hook(get_features("penultimate"))
 
         # Run forward pass
         logits = self.model(inputs)
@@ -105,14 +119,19 @@ class NPR(TrainableMixin, Model):
             loss = self.loss_fn(logits.view(-1), labels.float())
 
         # Return logits and (optionally) loss
-        return {"loss": loss,
-                "logits": logits,
-                "penultimate_layer": features['penultimate'],
-                'output': logits.sigmoid().flatten()}
+        return {
+            "loss": loss,
+            "logits": logits,
+            "penultimate_layer": features["penultimate"],
+            "output": logits.sigmoid().flatten(),
+        }
 
     @staticmethod
-    def transform_input(instance: ImageInstance, resize: bool = False,
-                        crop: bool = True, translate_and_duplicate: bool = False
+    def transform_input(
+        instance: ImageInstance,
+        resize: bool = False,
+        crop: bool = True,
+        translate_and_duplicate: bool = False,
     ) -> torch.Tensor:
         # Define base transforms
         transforms = [
