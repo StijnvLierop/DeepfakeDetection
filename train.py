@@ -115,8 +115,8 @@ def train(
         config = yaml.safe_load(f)
 
     training_cfg = config["training"]
-    label: str = training_cfg["label"]
-    pos_label: str = training_cfg["pos_label"]
+    label: str = training_cfg.get("label")
+    pos_label: str = training_cfg.get("pos_label")
 
     if "seed" in training_cfg:
         set_seed(int(training_cfg["seed"]))
