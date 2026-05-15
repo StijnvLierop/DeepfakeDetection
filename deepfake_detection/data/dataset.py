@@ -17,9 +17,10 @@ class Dataset(ABC, Iterable[Instance]):
         """
         self.dataset_name = dataset_name
 
+    @abstractmethod
     def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
+        """Iterates over the dataset, yielding instances. Should be implemented by subclasses."""
+        raise NotImplementedError
 
     def __eq__(self, other):
         return set(self.__iter__()) == set(other.__iter__())

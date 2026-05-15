@@ -22,6 +22,10 @@ class MappedDataset(Dataset):
         instance = self.dataset[idx]
         return self.mapping_func(instance.deepcopy())
 
+    def __iter__(self):
+        for instance in self.dataset:
+            yield self.mapping_func(instance.deepcopy())
+
     def __len__(self):
         if isinstance(self.dataset, Sized):
             return len(self.dataset)

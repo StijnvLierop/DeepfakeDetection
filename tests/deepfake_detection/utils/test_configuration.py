@@ -528,3 +528,122 @@ def test_operator_in():
 
     inst.annotation.get_label.return_value = "bird"
     assert filter_func(inst) is False
+
+
+# ── map config formats ────────────────────────────────────────────────────────
+
+def test_build_dataset_with_legacy_map_format():
+    """The old {funcs: [...]} map format is still accepted."""
+    config = {
+        "class": "deepfake_detection.data.datasets.ListDataset",
+        "params": {
+            "instances": [
+                ImageInstance(data=None, annotation=Annotation({"label": "old"})),
+            ],
+            "map": {
+                "funcs": [{
+                    "func": "deepfake_detection.data.utils.map.map_label_values",
+                    "params": {"label": "label", "value": "new"},
+                }]
+            },
+        },
+    }
+    dataset = build_dataset(config)
+    assert isinstance(dataset, MappedDataset)
+    assert dataset[0].annotation.get_label("label") == "new"
+
+
+def test_build_dataset_map_at_top_level():
+    """map can live at the top level of the config (not inside params)."""
+    config = {
+        "class": "deepfake_detection.data.datasets.ListDataset",
+        "params": {
+            "instances": [
+                ImageInstance(data=None, annotation=Annotation({"label": "old"})),
+            ],
+        },
+        "map": [{
+            "func": "deepfake_detection.data.utils.map.map_label_values",
+            "params": {"label": "label", "value": "top"},
+        }],
+    }
+    dataset = build_dataset(config)
+    assert isinstance(dataset, MappedDataset)
+    assert dataset[0].annotation.get_label("label") == "top"
+
+
+def test_build_dataset_filter_at_top_level():
+    """filter can live at the top level of the config (not inside params)."""
+    config = {
+        "class": "deepfake_detection.data.datasets.ListDataset",
+        "params": {
+            "instances": [
+                ImageInstance(data=None, annotation=Annotation({"label": "keep"})),
+                ImageInstance(data=None, annotation=Annotation({"label": "drop"})),
+            ],
+        },
+        "filter": {"label": "label", "op": "==", "value": "keep"},
+    }
+    dataset = build_dataset(config)
+    assert isinstance(dataset, FilteredDataset)
+    assert len(dataset) == 1
+
+
+# ── combined with interleave via config ───────────────────────────────────────
+
+def test_build_combined_with_interleave():
+    from deepfake_detection.data.datasets.combined import CombinedDataset
+
+    config = {
+        "class": "deepfake_detection.data.datasets.CombinedDataset",
+        "params": {
+            "interleave": True,
+            "datasets": [
+                {
+                    "class": "deepfake_detection.data.datasets.ListDataset",
+                    "params": {"instances": [
+                        ImageInstance(data=None, annotation=Annotation({"src": "A"})),
+                    ]},
+                },
+                {
+                    "class": "deepfake_detection.data.datasets.ListDataset",
+                    "params": {"instances": [
+                        ImageInstance(data=None, annotation=Annotation({"src": "B"})),
+                    ]},
+                },
+            ],
+        },
+    }
+    dataset = build_dataset(config)
+    assert isinstance(dataset, CombinedDataset)
+    assert dataset._interleave is True
+    srcs = [i.annotation.get_label("src") for i in dataset]
+    assert srcs == ["A", "B"]
+
+
+def test_build_combined_with_probabilities():
+    from deepfake_detection.data.datasets.combined import CombinedDataset
+
+    instances_a = [ImageInstance(data=None, annotation=Annotation({"src": "A"})) for _ in range(5)]
+    instances_b = [ImageInstance(data=None, annotation=Annotation({"src": "B"})) for _ in range(5)]
+
+    config = {
+        "class": "deepfake_detection.data.datasets.CombinedDataset",
+        "params": {
+            "probabilities": [0.5, 0.5],
+            "seed": 0,
+            "datasets": [
+                {"class": "deepfake_detection.data.datasets.ListDataset",
+                 "params": {"instances": instances_a}},
+                {"class": "deepfake_detection.data.datasets.ListDataset",
+                 "params": {"instances": instances_b}},
+            ],
+        },
+    }
+    dataset = build_dataset(config)
+    assert isinstance(dataset, CombinedDataset)
+    assert dataset._interleave is True
+    result = list(dataset)
+    assert len(result) == 10
+    assert any(i.annotation.get_label("src") == "A" for i in result)
+    assert any(i.annotation.get_label("src") == "B" for i in result)

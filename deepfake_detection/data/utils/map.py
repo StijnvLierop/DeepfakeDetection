@@ -41,3 +41,58 @@ def get_label_from_filename(
         if value in instance.path.name:
             instance.annotation = Annotation({label: value})
     return instance
+
+
+def hf_parse_json_labels(row: dict, json_col: str, label_per_col: Mapping[str, str], drop_json_col: bool = True) -> dict:
+    """
+    Parses JSON labels from a HuggingFace dataset row and adds them as new columns.
+
+    :param row: The HuggingFace dataset row to parse.
+    :param json_col: The name of the JSON column in the row.
+    :param label_per_col: A mapping of columns to labels in the json_col.
+    :param drop_json_col: Whether to remove the original JSON column after parsing.
+    """
+    # Get/Parse JSON
+    json_data = row.get(json_col, {})
+
+    # Add new columns
+    for json_key, new_col in label_per_col.items():
+        row[new_col] = json_data.get(json_key)
+
+    # Remove JSON column
+    if drop_json_col:
+        row.pop(json_col, None)
+
+    return row
+
+
+def hf_rename_column(row: dict, mapping: dict[str, str]) -> dict:
+    """
+    Renames columns of a HuggingFace dataset by modifying the row dictionary.
+
+    :param row: The HuggingFace dataset row containing the columns to rename.
+    :param mapping: {"old_col_name": "new_col_name"}
+    """
+    for old_name, new_name in mapping.items():
+        if old_name in row:
+            row[new_name] = row.pop(old_name)
+    return row
+
+
+def hf_map_label_values(
+    row: dict, label: str, value: Union[str, Mapping[str, str]]
+) -> dict:
+    """
+    This function maps the values of a particular label to a new value. This can be useful when renaming label values.
+
+    :param row: The instance to remap the label value of.
+    :param label: The label to remap the values of.
+    :param value: The value to set. Can be a single value to replace a particular label value or a
+                  mapping for more fine-grained changes.
+                  If a mapping is provided, each value will be replaced by the
+                  corresponding value in the mapping. A '*' functions as a wildcard and will be used
+                  when no key is specified.
+    :return: The instance with the remapped label value(s).
+    """
+    row[label] = value
+    return row

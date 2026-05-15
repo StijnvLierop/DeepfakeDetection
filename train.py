@@ -10,7 +10,6 @@ import yaml
 from torchvision.transforms import v2
 from transformers import Trainer, TrainingArguments, set_seed
 
-from deepfake_detection.data.dataset import MapStyleDatasetMixin
 from deepfake_detection.data.datasets.torch import TorchDataset, TorchIterableDataset
 from deepfake_detection.models import TrainableMixin
 from deepfake_detection.utils.configuration import load_model, load_dataset
@@ -97,10 +96,11 @@ class _ChainedTransform:
 def _build_torch_dataset(dataset_cfg: dict, transform, label: str, pos_label: str):
     """Wrap a dataset config in the appropriate Torch dataset class based on its type."""
     dataset = load_dataset(dataset_cfg)
-    # Map-style datasets support random access; iterable datasets do not
-    if isinstance(dataset, MapStyleDatasetMixin):
+    try:
+        len(dataset)
         return TorchDataset(dataset, transform, label, pos_label)
-    return TorchIterableDataset(dataset, transform, label, pos_label)
+    except TypeError:
+        return TorchIterableDataset(dataset, transform, label, pos_label)
 
 
 def train(
@@ -221,6 +221,9 @@ def train(
     # Train the model
     trainer.train()
     logger.info("Training complete.")
+
+    # Save trained model
+    torch.save(model.state_dict(), os.path.join(training_cfg["output_dir"], "model.pth"))
 
 
 if __name__ == "__main__":

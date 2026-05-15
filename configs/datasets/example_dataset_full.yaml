@@ -1,9 +1,18 @@
 # Full example dataset config showcasing all supported features.
 # Transformations are applied in order: map → filter → sample.
+#
+# CombinedDataset supports three iteration modes:
+#   (default)            — sequential concatenation; map-style (__len__, indexing) available
+#                          when all sub-datasets are map-style.
+#   interleave: true     — round-robin across sub-datasets; map-style disabled.
+#   probabilities: [...] — weighted-random interleaving; implies interleave; map-style disabled.
 
 class: deepfake_detection.data.datasets.CombinedDataset
 params:
   dataset_name: FullExampleDataset
+  # interleave: true          # optional: round-robin across all sub-datasets
+  # probabilities: [0.4, 0.3, 0.1, 0.1, 0.05, 0.05]  # optional: weighted interleave
+  # seed: 42                  # random seed used for weighted interleaving
   datasets:
 
     # ── File-based image dataset ──────────────────────────────────────────────
@@ -115,14 +124,54 @@ params:
           random_state: 7
 
     # ── Hugging Face dataset (local or remote) ────────────────────────────────
+    #
+    # HuggingFace-native operations (hf_map, hf_filter, shuffle, take) are applied
+    # at the HF dataset level before rows are wrapped into Instance objects. This
+    # keeps streaming datasets efficient — no data is materialised until iteration.
+    #
+    # Post-wrap operations (map, filter, sample at the top level) work identically
+    # to any other dataset type and operate on the resulting Instance objects.
     - class: deepfake_detection.data.datasets.HuggingfaceDataset
       params:
         dataset_name: HFDataset
         dataset: /data/hf_dataset/   # or a Hub identifier like "username/dataset"
         instance_col: image
         label_cols:
-          label: real_or_fake
+          label: real_or_fake        # maps HF column "label" → instance label "real_or_fake"
 
+        # HF-level map — applied before hf_filter / shuffle / take.
+        # Functions receive and return raw HF row dicts.
+        # hf_map:
+        #   - func: deepfake_detection.data.utils.map.hf_rename_column
+        #     params:
+        #       mapping: {raw_label: label}
+
+        # HF-level filter — applied before shuffle / take (efficient for streaming).
+        # Supports the same and / or / not / op structure as the instance-level filter.
+        hf_filter:
+          and:
+            - label: real_or_fake   # column name in the HF dataset
+              op: "in"
+              value: [real, fake]
+            - not:
+                label: split
+                op: "=="
+                value: test
+
+        # Shuffle at the HF level before taking.
+        # buffer_size is only used for streaming (IterableDataset) datasets.
+        shuffle:
+          seed: 42
+          buffer_size: 1000
+
+        # Keep at most N samples after shuffle (HF-level, not instance-level).
+        take: 500
+
+        # Set in_memory: true to materialise a streaming dataset into RAM after
+        # all HF-level operations, enabling map-style access and __len__.
+        # in_memory: false
+
+      # Instance-level filter applied after wrapping (works the same as for any dataset).
       filter:
         label: real_or_fake
         op: "in"
