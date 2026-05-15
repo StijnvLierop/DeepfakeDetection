@@ -3,7 +3,7 @@ from typing import Union, Callable, Any
 import torch
 from torchvision.transforms import v2
 
-from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
+from deepfake_detection.data.dataset import Dataset
 
 
 class TorchDataset(torch.utils.data.Dataset):
@@ -13,7 +13,7 @@ class TorchDataset(torch.utils.data.Dataset):
 
     def __init__(
         self,
-        dataset: MapStyleDatasetMixin,
+        dataset: Dataset,
         transform: Union[v2.Compose, Callable[[Any], torch.Tensor]],
         label: str,
         pos_label: str,
@@ -55,9 +55,6 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
         self.transforms = transform
         self.label = label
         self.pos_label = pos_label
-
-    def __len__(self):
-        return len(self.dataset)
 
     def __iter__(self):
         for instance in self.dataset:
