@@ -225,10 +225,13 @@ def train(
 
     # Train the model
     trainer.train()
-    logger.info("Training complete.")
 
-    # Save trained model
-    torch.save(model.state_dict(), os.path.join(training_cfg["output_dir"], "model.pth"))
+    # After training, the Trainer restores the best checkpoint when
+    # load_best_model_at_end=True, so model weights here are the best seen.
+    model_label = "best" if val_dataset else "final"
+    save_path = os.path.join(training_cfg["output_dir"], "model.pth")
+    torch.save(model.state_dict(), save_path)
+    logger.info("Training complete. %s model saved to %s", model_label, save_path)
 
 
 if __name__ == "__main__":

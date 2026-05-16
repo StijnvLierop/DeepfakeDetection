@@ -112,15 +112,24 @@ class SegFormerDetector(TrainableMixin, Model):
     def predict_batch(
         self, instances: List[Union[ImageInstance, FileImageInstance]]
     ) -> List[Prediction]:
+        # Get model device
         device = next(self.model.parameters()).device
-        predictions = []
-        for instance in instances:
-            tensor = self.transform_input(instance).unsqueeze(0).to(device)
+        was_training = self.model.training
+
+        # Set model to eval mode
+        self.model.eval()
+        try:
+            # Transform inputs to tensor
+            batch = torch.stack([self.transform_input(i) for i in instances]).to(device)
+
+            # Run prediction
             with torch.no_grad():
-                out = self.forward(tensor)
-            prob_map = out["logits"].softmax(dim=1)[0, 1].cpu().numpy()
-            predictions.append(Prediction(images={"forgery mask": prob_map}))
-        return predictions
+                out = self.forward(batch)
+            prob_maps = out["logits"].softmax(dim=1)[:, 1].cpu().numpy()
+            return [Prediction(images={"forgery mask": p}) for p in prob_maps]
+        finally:
+            if was_training:
+                self.model.train()
 
     def transform_input(self, instance, size: Optional[int] = None) -> torch.Tensor:
         size = size or self.size
