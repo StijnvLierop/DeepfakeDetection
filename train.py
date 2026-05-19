@@ -180,9 +180,15 @@ def train(
         report_to = "mlflow"
 
     # Build HuggingFace TrainingArguments from config values
+    max_steps: int = training_cfg.get("max_steps", -1)
+    # When the dataset has no __len__ the Trainer requires max_steps instead of
+    # num_train_epochs.  If the config only specifies num_train_epochs we leave
+    # max_steps=-1 (HF default) so epoch-based training works for sized datasets.
+    use_steps = max_steps > 0
     training_args = TrainingArguments(
         output_dir=training_cfg["output_dir"],
-        num_train_epochs=training_cfg["num_train_epochs"],
+        num_train_epochs=training_cfg["num_train_epochs"] if not use_steps else 1,
+        max_steps=max_steps,
         per_device_train_batch_size=training_cfg["per_device_train_batch_size"],
         per_device_eval_batch_size=training_cfg["per_device_eval_batch_size"]
         if val_dataset
@@ -200,8 +206,10 @@ def train(
         max_grad_norm=training_cfg.get("max_grad_norm", 1.0),
         lr_scheduler_type=training_cfg["lr_scheduler_type"],
         warmup_steps=training_cfg["warmup_steps"],
-        save_strategy="epoch",
-        eval_strategy="epoch" if val_dataset else "no",
+        save_strategy="steps" if use_steps else "epoch",
+        save_steps=training_cfg.get("save_steps", 500) if use_steps else 500,
+        eval_strategy=("steps" if use_steps else "epoch") if val_dataset else "no",
+        eval_steps=training_cfg.get("eval_steps", 500) if use_steps else None,
         load_best_model_at_end=bool(val_dataset),
         metric_for_best_model=training_cfg.get("metric_for_best_model", "eval_loss"),
         label_names=training_cfg.get("label_names", None),

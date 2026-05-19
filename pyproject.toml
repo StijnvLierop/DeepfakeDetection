@@ -46,6 +46,9 @@ test = [
     "pytest>=8.4.1",
     "ruff>=0.11.0",
 ]
+rppg = [
+    "mediapipe>=0.10.32",
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -76,13 +79,14 @@ prerelease = false
 [tool.pytest.ini_options]
 filterwarnings = ["ignore"]
 
+
+[tool.pdm]
+distribution = false
 [[tool.pdm.source]]
 name = "torch-cuda"
 url = "https://download.pytorch.org/whl/cu124"
 include_packages = ["torch", "torchvision", "torchaudio"]
 
-[tool.pdm]
-distribution = false
 
 [tool.pdm.scripts]
 lint = "ruff check ."

@@ -4,6 +4,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
 from PIL import Image
 import cv2
 import copy
@@ -182,3 +183,48 @@ class FileVideoInstance(Instance):
     def save(self, path: Path) -> Path:
         # TODO: implement video saving in the future
         raise NotImplementedError
+
+
+class VideoFeatureInstance(Instance):
+    """
+    Holds precomputed features for a single video (e.g. rPPG features), either as
+    an in-memory numpy array or as a reference to a ``.npy`` file on disk.
+
+    Use this during training to avoid re-extracting features on every epoch.
+
+    :param data: Numpy array of precomputed features.
+    :param path: Path to a ``.npy`` file containing the features. Loaded lazily.
+    :param annotation: An annotation for the instance.
+    :param meta: Optional metadata dict.
+    """
+
+    def __init__(
+        self,
+        data: Optional[np.ndarray] = None,
+        path: Optional[str] = None,
+        annotation: Optional[Annotation] = None,
+        meta: Optional[dict] = None,
+    ):
+        if data is None and path is None:
+            raise ValueError("Either data or path must be provided.")
+        super().__init__(annotation, meta)
+        self._data = data
+        self.path = Path(path) if path is not None else None
+
+    @property
+    def data(self) -> np.ndarray:
+        if self._data is not None:
+            return self._data
+        return np.load(self.path)
+
+    def __hash__(self):
+        if self.path is not None:
+            return hash(self.path)
+        return hash(self._data.tobytes())
+
+    def save(self, path: Path) -> Path:
+        if not isinstance(path, Path):
+            raise ValueError("Path must be of type Path.")
+        path = path.with_suffix(".npy")
+        np.save(str(path), self.data)
+        return path

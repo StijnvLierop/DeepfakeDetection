@@ -5,6 +5,7 @@ from deepfake_detection.models.detection.latte import Latte
 from deepfake_detection.models.detection.npr import NPR
 from deepfake_detection.models.detection.univfd import UnivFD
 from deepfake_detection.models.detection.aide import AIDE
+from deepfake_detection.models.detection.rppg import rPPGLSTM
 
 
 __all__ = [
@@ -15,4 +16,5 @@ __all__ = [
     "UnivFD",
     "FatFormer",
     "AIDE",
+    "rPPGLSTM",
 ]
