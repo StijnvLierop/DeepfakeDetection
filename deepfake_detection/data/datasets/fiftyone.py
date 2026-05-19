@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Sequence
 from itertools import zip_longest
 
 import numpy as np
@@ -56,7 +56,9 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
 
     def __iter__(self):
         # Loop over instances in the dataset
-        for instance, prediction in zip_longest(self.dataset, self.predictions or [], fillvalue=None):
+        for instance, prediction in zip_longest(
+            self.dataset, self.predictions or [], fillvalue=None
+        ):
             yield _instance_to_fo_sample(instance, prediction, self.cache_dir)
 
 
@@ -74,8 +76,8 @@ def _instance_to_fo_sample(
     """
     # If instance has an image path
     if (
-            hasattr(instance, "path")
-            and os.path.splitext(instance.path)[1].lower() in IMAGE_EXTS
+        hasattr(instance, "path")
+        and os.path.splitext(instance.path)[1].lower() in IMAGE_EXTS
     ):
         path = instance.path
 
@@ -107,15 +109,15 @@ def _instance_to_fo_sample(
         # Add mask
         if instance.annotation.mask is not None:
             # Convert mask to numpy array
-            mask_array = np.array(
-                instance.annotation.mask.convert("L"), dtype=np.uint8
-            )
+            mask_array = np.array(instance.annotation.mask.convert("L"), dtype=np.uint8)
             # Drop any trailing channel dimensions (e.g., turning (H, W, 1) -> (H, W))
             if len(mask_array.shape) == 3:
                 if mask_array.shape[2] == 1:
                     mask_array = np.squeeze(mask_array, axis=2)
             elif len(mask_array.shape) != 2:
-                raise ValueError(f"Expected a 2D mask array, but got shape {mask_array.shape}")
+                raise ValueError(
+                    f"Expected a 2D mask array, but got shape {mask_array.shape}"
+                )
             sample["mask"] = fo.Segmentation(mask=mask_array)
 
     # Add predictions
@@ -185,7 +187,11 @@ def to_fiftyone_dataset(
 
             samples = []
             for instance in batch_instances:
-                pred = predictions_list[pred_idx] if pred_idx < len(predictions_list) else None
+                pred = (
+                    predictions_list[pred_idx]
+                    if pred_idx < len(predictions_list)
+                    else None
+                )
                 samples.append(_instance_to_fo_sample(instance, pred, cache_dir))
                 pred_idx += 1
             fo_dataset.add_samples(samples)

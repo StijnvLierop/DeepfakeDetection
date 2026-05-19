@@ -137,7 +137,9 @@ class HuggingfaceDataset(Dataset):
                     buffer_size=shuffle.get("buffer_size", 1000),
                 )
             else:
-                self._hf_dataset = self._hf_dataset.shuffle(seed=shuffle.get("seed", 42))
+                self._hf_dataset = self._hf_dataset.shuffle(
+                    seed=shuffle.get("seed", 42)
+                )
 
         # Apply HuggingFace take function if provided
         if take is not None:
@@ -158,7 +160,9 @@ class HuggingfaceDataset(Dataset):
         # features may be None for streaming datasets without a pre-defined schema.
         features = self._hf_dataset.features
         if features is not None:
-            image_cols = [c for c in [instance_col, mask_col] if c is not None and c in features]
+            image_cols = [
+                c for c in [instance_col, mask_col] if c is not None and c in features
+            ]
             for col in image_cols:
                 if not isinstance(features[col], Image):
                     raise ValueError(
@@ -197,5 +201,11 @@ class HuggingfaceDataset(Dataset):
         mask = None
         if self.mask_col is not None and self.mask_col in sample:
             mask = sample[self.mask_col].convert("L")
-        annotation = Annotation(labels=labels, mask=mask) if (labels or mask is not None) else None
-        return self._instance_class(data=sample[self.instance_col], annotation=annotation)
+        annotation = (
+            Annotation(labels=labels, mask=mask)
+            if (labels or mask is not None)
+            else None
+        )
+        return self._instance_class(
+            data=sample[self.instance_col], annotation=annotation
+        )

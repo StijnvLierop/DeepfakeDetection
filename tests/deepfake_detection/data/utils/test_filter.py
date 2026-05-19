@@ -8,13 +8,19 @@ from deepfake_detection.data.instance import Instance
 
 # ── hf_hash_filter ────────────────────────────────────────────────────────────
 
+
 def _bucket(value: str) -> float:
     """Expected hash bucket for a value — mirrors the implementation."""
     return int(hashlib.md5(value.encode()).hexdigest(), 16) % 100 / 100
 
 
 def test_hf_hash_filter_full_range_keeps_all():
-    assert hf_hash_filter({"filename": "img.jpg"}, column="filename", range_min=0.0, range_max=1.0) is True
+    assert (
+        hf_hash_filter(
+            {"filename": "img.jpg"}, column="filename", range_min=0.0, range_max=1.0
+        )
+        is True
+    )
 
 
 def test_hf_hash_filter_missing_column_returns_false():
@@ -27,12 +33,28 @@ def test_hf_hash_filter_none_value_returns_false():
 
 def test_hf_hash_filter_lower_bound_inclusive():
     b = _bucket("img.jpg")
-    assert hf_hash_filter({"filename": "img.jpg"}, "filename", range_min=b, range_max=min(b + 0.01, 1.0)) is True
+    assert (
+        hf_hash_filter(
+            {"filename": "img.jpg"},
+            "filename",
+            range_min=b,
+            range_max=min(b + 0.01, 1.0),
+        )
+        is True
+    )
 
 
 def test_hf_hash_filter_upper_bound_exclusive():
     b = _bucket("img.jpg")
-    assert hf_hash_filter({"filename": "img.jpg"}, "filename", range_min=max(b - 0.01, 0.0), range_max=b) is False
+    assert (
+        hf_hash_filter(
+            {"filename": "img.jpg"},
+            "filename",
+            range_min=max(b - 0.01, 0.0),
+            range_max=b,
+        )
+        is False
+    )
 
 
 def test_hf_hash_filter_stable_across_calls():
@@ -46,7 +68,7 @@ def test_hf_hash_filter_no_split_overlap():
     """train and val splits are disjoint and together cover all rows."""
     rows = [{"filename": f"img_{i:04d}.jpg"} for i in range(200)]
     train = [r for r in rows if hf_hash_filter(r, "filename", 0.0, 0.8)]
-    val   = [r for r in rows if hf_hash_filter(r, "filename", 0.8, 1.0)]
+    val = [r for r in rows if hf_hash_filter(r, "filename", 0.8, 1.0)]
     assert set(r["filename"] for r in train) & set(r["filename"] for r in val) == set()
     assert len(train) + len(val) == len(rows)
 
@@ -55,7 +77,9 @@ def test_hf_hash_filter_same_value_same_split():
     """Two rows sharing a column value always land in the same split (no frame leakage)."""
     row1 = {"filename": "video_001_frame_01.jpg", "label": "real"}
     row2 = {"filename": "video_001_frame_01.jpg", "label": "fake"}
-    assert hf_hash_filter(row1, "filename", 0.0, 0.8) == hf_hash_filter(row2, "filename", 0.0, 0.8)
+    assert hf_hash_filter(row1, "filename", 0.0, 0.8) == hf_hash_filter(
+        row2, "filename", 0.0, 0.8
+    )
 
 
 # ── filter_on_hash_value ──────────────────────────────────────────────────────

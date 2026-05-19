@@ -11,7 +11,9 @@ from deepfake_detection.utils.configuration import load_dataset, load_model
 mimetypes.add_type("image/webp", ".webp")
 
 
-def display(dataset: str, cache_dir: str, model: Optional[str] = None, batch_size: int = 128):
+def display(
+    dataset: str, cache_dir: str, model: Optional[str] = None, batch_size: int = 128
+):
     """
     Display a given dataset in FiftyOne to allow for interactive exploration and analysis.
 
@@ -38,7 +40,11 @@ def display(dataset: str, cache_dir: str, model: Optional[str] = None, batch_siz
 
     # Stream samples into FiftyOne dataset
     to_fiftyone_dataset(
-        dataset, cache_dir=cache_dir, embedding_model=model, fo_dataset=fo_dataset, batch_size=batch_size
+        dataset,
+        cache_dir=cache_dir,
+        embedding_model=model,
+        fo_dataset=fo_dataset,
+        batch_size=batch_size,
     )
 
     # Keep session alive

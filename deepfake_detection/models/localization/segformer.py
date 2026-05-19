@@ -56,44 +56,61 @@ class SegFormerDetector(TrainableMixin, Model):
                 self.model.gradient_checkpointing_enable()
             except ValueError:
                 import warnings
-                warnings.warn("SegFormer does not support gradient checkpointing; ignoring.")
+
+                warnings.warn(
+                    "SegFormer does not support gradient checkpointing; ignoring."
+                )
                 self.gradient_checkpointing = False
         if self.ckpt is not None:
             if self.ckpt.endswith(".safetensors"):
                 state_dict = load_safetensors(self.ckpt)
             else:
                 try:
-                    state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
+                    state_dict = torch.load(
+                        self.ckpt, map_location="cpu", weights_only=True
+                    )
                 except Exception:
                     # Checkpoint contains non-tensor objects (e.g. saved with optimizer state);
                     # weights_only=False is safe for locally-produced checkpoints.
-                    state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=False)
+                    state_dict = torch.load(
+                        self.ckpt, map_location="cpu", weights_only=False
+                    )
             if isinstance(state_dict, dict) and "state_dict" in state_dict:
                 state_dict = state_dict["state_dict"]
             if any(k.startswith("model.") for k in state_dict):
-                state_dict = {k[len("model."):]: v for k, v in state_dict.items()}
+                state_dict = {k[len("model.") :]: v for k, v in state_dict.items()}
             self.model.load_state_dict(state_dict)
         self._resize_transform = self._build_resize_transform(self.size)
         self._normalize_transform = self._build_normalize_transform()
         self._input_transform = self._build_transform(self.size)
 
     def _build_resize_transform(self, size: int) -> v2.Compose:
-        return v2.Compose([
-            v2.ToImage(),
-            v2.Resize((size, size), interpolation=v2.InterpolationMode.BILINEAR, antialias=True),
-        ])
+        return v2.Compose(
+            [
+                v2.ToImage(),
+                v2.Resize(
+                    (size, size),
+                    interpolation=v2.InterpolationMode.BILINEAR,
+                    antialias=True,
+                ),
+            ]
+        )
 
     def _build_normalize_transform(self) -> v2.Compose:
-        return v2.Compose([
-            v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
+        return v2.Compose(
+            [
+                v2.ToDtype(torch.float32, scale=True),
+                v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            ]
+        )
 
     def _build_transform(self, size: int) -> v2.Compose:
-        return v2.Compose([
-            *self._build_resize_transform(size).transforms,
-            *self._build_normalize_transform().transforms,
-        ])
+        return v2.Compose(
+            [
+                *self._build_resize_transform(size).transforms,
+                *self._build_normalize_transform().transforms,
+            ]
+        )
 
     def forward(self, inputs, masks=None, **kwargs):
         outputs = self.model(pixel_values=inputs, labels=masks)
@@ -129,6 +146,14 @@ class SegFormerDetector(TrainableMixin, Model):
 
     def transform_input(self, instance, size: Optional[int] = None) -> torch.Tensor:
         size = size or self.size
-        img = instance.data.convert("RGB") if hasattr(instance.data, "convert") else instance.data
-        transform = self._input_transform if (size == self.size and self._input_transform is not None) else self._build_transform(size)
+        img = (
+            instance.data.convert("RGB")
+            if hasattr(instance.data, "convert")
+            else instance.data
+        )
+        transform = (
+            self._input_transform
+            if (size == self.size and self._input_transform is not None)
+            else self._build_transform(size)
+        )
         return transform(img)

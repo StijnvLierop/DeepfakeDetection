@@ -44,9 +44,7 @@ class FileImageDataset(MapStyleDatasetMixin, Dataset):
         extensions = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff"}
         image_paths = [
             Path(p)
-            for p in glob_func(
-                self.glob_pattern if self.glob_pattern else "*"
-            )
+            for p in glob_func(self.glob_pattern if self.glob_pattern else "*")
             if p.suffix.lower() in extensions
         ]
         return image_paths

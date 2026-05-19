@@ -6,7 +6,9 @@ from torchvision.transforms import v2
 from deepfake_detection.data.dataset import Dataset
 
 
-def _build_item(instance, inputs: torch.Tensor, label: Optional[str], pos_label: Optional[str]) -> dict:
+def _build_item(
+    instance, inputs: torch.Tensor, label: Optional[str], pos_label: Optional[str]
+) -> dict:
     item = {"inputs": inputs}
     if label is not None:
         item["labels"] = torch.tensor(
@@ -44,7 +46,9 @@ class TorchDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx: int):
         instance = self.dataset[idx]
-        return _build_item(instance, self.transforms(instance), self.label, self.pos_label)
+        return _build_item(
+            instance, self.transforms(instance), self.label, self.pos_label
+        )
 
     def __len__(self):
         return len(self.dataset)
@@ -70,4 +74,6 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
 
     def __iter__(self):
         for instance in self.dataset:
-            yield _build_item(instance, self.transforms(instance), self.label, self.pos_label)
+            yield _build_item(
+                instance, self.transforms(instance), self.label, self.pos_label
+            )

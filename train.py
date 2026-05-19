@@ -189,7 +189,9 @@ def train(
         else None,
         dataloader_num_workers=training_cfg["dataloader_num_workers"],
         dataloader_pin_memory=training_cfg.get("dataloader_pin_memory", True),
-        dataloader_persistent_workers=training_cfg.get("dataloader_persistent_workers", False),
+        dataloader_persistent_workers=training_cfg.get(
+            "dataloader_persistent_workers", False
+        ),
         dataloader_drop_last=training_cfg.get("dataloader_drop_last", False),
         fp16=training_cfg.get("fp16", False),
         bf16=training_cfg.get("bf16", False),

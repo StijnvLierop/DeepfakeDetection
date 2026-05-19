@@ -3,7 +3,9 @@ import hashlib
 from deepfake_detection.data.instance import Instance
 
 
-def hf_hash_filter(row: dict, column: str, range_min: float = 0.0, range_max: float = 1.0) -> bool:
+def hf_hash_filter(
+    row: dict, column: str, range_min: float = 0.0, range_max: float = 1.0
+) -> bool:
     """
     HuggingFace-level hash filter for reproducible splits without a split file.
 

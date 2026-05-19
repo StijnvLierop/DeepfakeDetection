@@ -8,7 +8,11 @@ class Annotation:
     Represents an annotation for an instance. Each annotation has one or multiple labels and optionally a mask.
     """
 
-    def __init__(self, labels: Optional[Mapping[str, str]] = None, mask: Optional[Image.Image] = None):
+    def __init__(
+        self,
+        labels: Optional[Mapping[str, str]] = None,
+        mask: Optional[Image.Image] = None,
+    ):
         """
         :param labels: A mapping of label keys to their values.
         :param mask: An optional mask image for the annotation.

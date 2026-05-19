@@ -6,6 +6,7 @@ from deepfake_detection.data.dataset import Dataset, MapStyleDatasetMixin
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
+
 class MockDataset(MapStyleDatasetMixin, Dataset):
     """Map-style dataset backed by a list."""
 
@@ -48,6 +49,7 @@ class StreamingDataset(Dataset):
 
 # ── sequential – existing tests ───────────────────────────────────────────────
 
+
 def test_combined_dataset_length():
     dataset1 = MockDataset(size=5, dataset_name="dataset1")
     dataset2 = MockDataset(size=10, dataset_name="dataset2")
@@ -59,8 +61,13 @@ def test_combined_dataset_iteration():
     dataset1 = MockDataset(size=3, dataset_name="dataset1")
     dataset2 = MockDataset(size=2, dataset_name="dataset2")
     combined = CombinedDataset([dataset1, dataset2])
-    assert list(combined) == ["instance_0", "instance_1", "instance_2",
-                               "instance_0", "instance_1"]
+    assert list(combined) == [
+        "instance_0",
+        "instance_1",
+        "instance_2",
+        "instance_0",
+        "instance_1",
+    ]
 
 
 def test_combined_dataset_empty():
@@ -70,6 +77,7 @@ def test_combined_dataset_empty():
 
 
 # ── sequential – map-style indexing ──────────────────────────────────────────
+
 
 def test_combined_sequential_getitem():
     d1 = ItemDataset([10, 20, 30])
@@ -97,6 +105,7 @@ def test_combined_sequential_index_out_of_range():
 
 # ── sequential – streaming disables map-style ─────────────────────────────────
 
+
 def test_combined_with_streaming_has_no_len():
     c = CombinedDataset([ItemDataset([1, 2]), StreamingDataset([3, 4])])
     with pytest.raises(TypeError):
@@ -115,6 +124,7 @@ def test_combined_with_streaming_iterates():
 
 
 # ── round-robin interleave ────────────────────────────────────────────────────
+
 
 def test_combined_interleave_equal_sizes():
     d1 = ItemDataset(["a", "b", "c"])
@@ -160,6 +170,7 @@ def test_combined_interleave_three_datasets():
 
 
 # ── weighted interleave ───────────────────────────────────────────────────────
+
 
 def test_combined_weighted_yields_all_items():
     d1 = ItemDataset(list(range(5)))
