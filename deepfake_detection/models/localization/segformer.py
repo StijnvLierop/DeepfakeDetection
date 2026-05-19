@@ -43,10 +43,6 @@ class SegFormerDetector(TrainableMixin, Model):
         super().__init__(*args, **kwargs)
         Model.__init__(self, name=name, load_model=load_model)
 
-    @property
-    def label_names(self) -> List[str]:
-        return ["masks"]
-
     def load_model(self):
         self.model = SegformerForSemanticSegmentation.from_pretrained(
             self.pretrained_model_name,
