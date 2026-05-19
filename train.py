@@ -107,6 +107,7 @@ def train(
     config_path: str,
     train_dataset_config: str,
     val_dataset_config: Optional[str] = None,
+    resume_from_checkpoint: Optional[str] = None,
 ) -> None:
     """Run the full training pipeline from a YAML config and dataset config paths."""
 
@@ -201,7 +202,7 @@ def train(
         eval_strategy="epoch" if val_dataset else "no",
         load_best_model_at_end=bool(val_dataset),
         metric_for_best_model=training_cfg.get("metric_for_best_model", "eval_loss"),
-        label_names=getattr(model, "label_names", None),
+        label_names=training_cfg.get("label_names", None),
         report_to=report_to,
         remove_unused_columns=False,
         logging_steps=10,
@@ -223,8 +224,17 @@ def train(
     for callback in _build_callbacks(callback_cfgs):
         trainer.add_callback(callback)
 
+    # Resolve checkpoint: explicit path, "latest" (auto-detect), or None (fresh start)
+    checkpoint = None
+    if resume_from_checkpoint == "latest":
+        checkpoint = True  # HF Trainer finds the latest checkpoint in output_dir
+        logger.info("Resuming from latest checkpoint in %s", training_cfg["output_dir"])
+    elif resume_from_checkpoint is not None:
+        checkpoint = resume_from_checkpoint
+        logger.info("Resuming from checkpoint: %s", checkpoint)
+
     # Train the model
-    trainer.train()
+    trainer.train(resume_from_checkpoint=checkpoint)
 
     # After training, the Trainer restores the best checkpoint when
     # load_best_model_at_end=True, so model weights here are the best seen.
@@ -260,5 +270,18 @@ if __name__ == "__main__":
         default=None,
         help="Path to validation dataset configuration YAML file.",
     )
+    parser.add_argument(
+        "-r",
+        "--resume",
+        type=str,
+        nargs="?",
+        const="latest",
+        default=None,
+        metavar="CHECKPOINT_DIR",
+        help=(
+            "Resume training from a checkpoint. Pass no value to auto-detect the "
+            "latest checkpoint in output_dir, or supply an explicit checkpoint path."
+        ),
+    )
     args = parser.parse_args()
-    train(args.config, args.train_dataset, args.val_dataset)
+    train(args.config, args.train_dataset, args.val_dataset, args.resume)
