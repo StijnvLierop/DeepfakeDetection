@@ -532,6 +532,7 @@ def test_operator_in():
 
 # ── map config formats ────────────────────────────────────────────────────────
 
+
 def test_build_dataset_with_legacy_map_format():
     """The old {funcs: [...]} map format is still accepted."""
     config = {
@@ -541,10 +542,12 @@ def test_build_dataset_with_legacy_map_format():
                 ImageInstance(data=None, annotation=Annotation({"label": "old"})),
             ],
             "map": {
-                "funcs": [{
-                    "func": "deepfake_detection.data.utils.map.map_label_values",
-                    "params": {"label": "label", "value": "new"},
-                }]
+                "funcs": [
+                    {
+                        "func": "deepfake_detection.data.utils.map.map_label_values",
+                        "params": {"label": "label", "value": "new"},
+                    }
+                ]
             },
         },
     }
@@ -562,10 +565,12 @@ def test_build_dataset_map_at_top_level():
                 ImageInstance(data=None, annotation=Annotation({"label": "old"})),
             ],
         },
-        "map": [{
-            "func": "deepfake_detection.data.utils.map.map_label_values",
-            "params": {"label": "label", "value": "top"},
-        }],
+        "map": [
+            {
+                "func": "deepfake_detection.data.utils.map.map_label_values",
+                "params": {"label": "label", "value": "top"},
+            }
+        ],
     }
     dataset = build_dataset(config)
     assert isinstance(dataset, MappedDataset)
@@ -591,6 +596,7 @@ def test_build_dataset_filter_at_top_level():
 
 # ── combined with interleave via config ───────────────────────────────────────
 
+
 def test_build_combined_with_interleave():
     from deepfake_detection.data.datasets.combined import CombinedDataset
 
@@ -601,15 +607,23 @@ def test_build_combined_with_interleave():
             "datasets": [
                 {
                     "class": "deepfake_detection.data.datasets.ListDataset",
-                    "params": {"instances": [
-                        ImageInstance(data=None, annotation=Annotation({"src": "A"})),
-                    ]},
+                    "params": {
+                        "instances": [
+                            ImageInstance(
+                                data=None, annotation=Annotation({"src": "A"})
+                            ),
+                        ]
+                    },
                 },
                 {
                     "class": "deepfake_detection.data.datasets.ListDataset",
-                    "params": {"instances": [
-                        ImageInstance(data=None, annotation=Annotation({"src": "B"})),
-                    ]},
+                    "params": {
+                        "instances": [
+                            ImageInstance(
+                                data=None, annotation=Annotation({"src": "B"})
+                            ),
+                        ]
+                    },
                 },
             ],
         },
@@ -624,8 +638,12 @@ def test_build_combined_with_interleave():
 def test_build_combined_with_probabilities():
     from deepfake_detection.data.datasets.combined import CombinedDataset
 
-    instances_a = [ImageInstance(data=None, annotation=Annotation({"src": "A"})) for _ in range(5)]
-    instances_b = [ImageInstance(data=None, annotation=Annotation({"src": "B"})) for _ in range(5)]
+    instances_a = [
+        ImageInstance(data=None, annotation=Annotation({"src": "A"})) for _ in range(5)
+    ]
+    instances_b = [
+        ImageInstance(data=None, annotation=Annotation({"src": "B"})) for _ in range(5)
+    ]
 
     config = {
         "class": "deepfake_detection.data.datasets.CombinedDataset",
@@ -633,10 +651,14 @@ def test_build_combined_with_probabilities():
             "probabilities": [0.5, 0.5],
             "seed": 0,
             "datasets": [
-                {"class": "deepfake_detection.data.datasets.ListDataset",
-                 "params": {"instances": instances_a}},
-                {"class": "deepfake_detection.data.datasets.ListDataset",
-                 "params": {"instances": instances_b}},
+                {
+                    "class": "deepfake_detection.data.datasets.ListDataset",
+                    "params": {"instances": instances_a},
+                },
+                {
+                    "class": "deepfake_detection.data.datasets.ListDataset",
+                    "params": {"instances": instances_b},
+                },
             ],
         },
     }

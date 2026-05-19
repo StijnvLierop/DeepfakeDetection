@@ -51,7 +51,9 @@ class CombinedDataset(Dataset):
         self._probabilities = probabilities
         self._seed = seed
 
-        if self._probabilities is not None and len(self._probabilities) != len(self.datasets):
+        if self._probabilities is not None and len(self._probabilities) != len(
+            self.datasets
+        ):
             raise ValueError(
                 f"len(probabilities)={len(self._probabilities)} must match "
                 f"len(datasets)={len(self.datasets)}."
@@ -92,7 +94,9 @@ class CombinedDataset(Dataset):
         if idx >= len(self) or idx < 0:
             raise IndexError("Index out of range")
         dataset_idx = bisect.bisect_right(self._cumulative_sizes, idx)
-        local_idx = idx if dataset_idx == 0 else idx - self._cumulative_sizes[dataset_idx - 1]
+        local_idx = (
+            idx if dataset_idx == 0 else idx - self._cumulative_sizes[dataset_idx - 1]
+        )
         return self.datasets[dataset_idx][local_idx]
 
     def __iter__(self):

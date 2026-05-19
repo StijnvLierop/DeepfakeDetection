@@ -1,0 +1,41 @@
+model:
+  class: deepfake_detection.models.localization.SegFormerDetector
+  params:
+    name: SegFormerDetector
+    pretrained_model_name: nvidia/mit-b2
+    num_labels: 2
+    size: 512
+    load_model: true
+    gradient_checkpointing: false
+
+training:
+  # label / pos_label are omitted — the dataset supplies masks via annotation.mask
+  num_train_epochs: 50
+  per_device_train_batch_size: 8
+  per_device_eval_batch_size: 8
+  output_dir: checkpoints/segformer/
+  label_names: ["mask"]
+  fp16: false
+  bf16: true
+  torch_compile: true
+  gradient_accumulation_steps: 2
+  dataloader_num_workers: 8
+  dataloader_pin_memory: true
+  dataloader_persistent_workers: true
+  dataloader_drop_last: false
+  lr_scheduler_type: cosine
+  warmup_steps: 100
+  max_grad_norm: 1.0
+  train_transform_params:
+    size: 512
+  augmentations:
+    - class: deepfake_detection.models.training.augmentations.blur.RandomGaussianBlur
+    - class: deepfake_detection.models.training.augmentations.compression.RandomPILJpegCompression
+  optimizer:
+    class: torch.optim.AdamW
+    params:
+      lr: 0.00006
+      weight_decay: 0.01
+  mlflow:
+    tracking_uri: mlflow.db
+    experiment_name: deepfake_training

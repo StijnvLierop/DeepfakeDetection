@@ -43,7 +43,12 @@ def get_label_from_filename(
     return instance
 
 
-def hf_parse_json_labels(row: dict, json_col: str, label_per_col: Mapping[str, str], drop_json_col: bool = True) -> dict:
+def hf_parse_json_labels(
+    row: dict,
+    json_col: str,
+    label_per_col: Mapping[str, str],
+    drop_json_col: bool = True,
+) -> dict:
     """
     Parses JSON labels from a HuggingFace dataset row and adds them as new columns.
 

@@ -71,6 +71,7 @@ class HuggingfaceDataset(Dataset):
         dataset: Union[str, datasets.Dataset],
         instance_col: str,
         label_cols: Optional[Mapping[str, str]] = None,
+        mask_col: Optional[str] = None,
         dataset_name: Optional[str] = None,
         hf_map: Optional[list] = None,
         hf_filter: Optional[dict] = None,
@@ -83,6 +84,9 @@ class HuggingfaceDataset(Dataset):
         :param dataset: HuggingFace dataset object, Hub identifier, or local path.
         :param instance_col: Column name containing the image data.
         :param label_cols: Mapping from HF column names to instance label keys.
+        :param mask_col: Optional column name containing a grayscale binary forgery mask
+                         (>128 = forged region). When set, the mask is attached to the
+                         instance annotation and emitted as ``"masks"`` by TorchDataset.
         :param dataset_name: Name for this dataset.
         :param hf_map: List of map-function configs applied at the HF level before wrapping.
                        Each entry: {func: "dotted.path", params: {...}}.
@@ -97,6 +101,7 @@ class HuggingfaceDataset(Dataset):
         super().__init__(dataset_name=dataset_name)
         self.instance_col = instance_col
         self.label_cols = label_cols or {}
+        self.mask_col = mask_col
 
         # If a dataset is already provided, use that
         if not isinstance(dataset, str):
@@ -132,7 +137,9 @@ class HuggingfaceDataset(Dataset):
                     buffer_size=shuffle.get("buffer_size", 1000),
                 )
             else:
-                self._hf_dataset = self._hf_dataset.shuffle(seed=shuffle.get("seed", 42))
+                self._hf_dataset = self._hf_dataset.shuffle(
+                    seed=shuffle.get("seed", 42)
+                )
 
         # Apply HuggingFace take function if provided
         if take is not None:
@@ -149,16 +156,19 @@ class HuggingfaceDataset(Dataset):
 
         self._streaming = isinstance(self._hf_dataset, IterableDataset)
 
-        # Determine instance class based on column type.
+        # Validate that all declared image columns are actually Image-typed.
         # features may be None for streaming datasets without a pre-defined schema.
         features = self._hf_dataset.features
-        if features is not None and instance_col in features:
-            data_type = features[instance_col]
-            if not isinstance(data_type, Image):
-                raise ValueError(
-                    f"Column type {data_type!r} is not supported. "
-                    "Only Image columns are currently handled."
-                )
+        if features is not None:
+            image_cols = [
+                c for c in [instance_col, mask_col] if c is not None and c in features
+            ]
+            for col in image_cols:
+                if not isinstance(features[col], Image):
+                    raise ValueError(
+                        f"Column {col!r} has type {features[col]!r} which is not supported. "
+                        "Only Image columns are currently handled."
+                    )
         self._instance_class = ImageInstance
 
     def __len__(self):
@@ -188,5 +198,14 @@ class HuggingfaceDataset(Dataset):
             for col, label in self.label_cols.items()
             if col in sample
         }
-        annotation = Annotation(labels=labels) if labels else None
-        return self._instance_class(data=sample[self.instance_col], annotation=annotation)
+        mask = None
+        if self.mask_col is not None and self.mask_col in sample:
+            mask = sample[self.mask_col].convert("L")
+        annotation = (
+            Annotation(labels=labels, mask=mask)
+            if (labels or mask is not None)
+            else None
+        )
+        return self._instance_class(
+            data=sample[self.instance_col], annotation=annotation
+        )

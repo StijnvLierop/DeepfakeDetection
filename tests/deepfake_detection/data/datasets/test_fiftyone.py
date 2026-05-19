@@ -20,7 +20,7 @@ def test_to_fiftyone_dataset_paths_available_with_predictions(image_dataset_path
         image_dataset_path, labels=["authenticity", "source"]
     )
     predictions = [Prediction(classification={"test": 0.5}) for _ in image_dataset]
-    converted_dataset = to_fiftyone_dataset(image_dataset, predictions)
+    converted_dataset = to_fiftyone_dataset(image_dataset, predictions=predictions)
     assert isinstance(converted_dataset, FoDataset)
     assert len(image_dataset) == len(converted_dataset)
 

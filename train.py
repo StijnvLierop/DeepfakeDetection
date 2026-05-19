@@ -107,6 +107,7 @@ def train(
     config_path: str,
     train_dataset_config: str,
     val_dataset_config: Optional[str] = None,
+    resume_from_checkpoint: Optional[str] = None,
 ) -> None:
     """Run the full training pipeline from a YAML config and dataset config paths."""
 
@@ -115,8 +116,8 @@ def train(
         config = yaml.safe_load(f)
 
     training_cfg = config["training"]
-    label: str = training_cfg["label"]
-    pos_label: str = training_cfg["pos_label"]
+    label: str = training_cfg.get("label")
+    pos_label: str = training_cfg.get("pos_label")
 
     if "seed" in training_cfg:
         set_seed(int(training_cfg["seed"]))
@@ -188,8 +189,13 @@ def train(
         else None,
         dataloader_num_workers=training_cfg["dataloader_num_workers"],
         dataloader_pin_memory=training_cfg.get("dataloader_pin_memory", True),
+        dataloader_persistent_workers=training_cfg.get(
+            "dataloader_persistent_workers", False
+        ),
         dataloader_drop_last=training_cfg.get("dataloader_drop_last", False),
-        fp16=training_cfg["fp16"],
+        fp16=training_cfg.get("fp16", False),
+        bf16=training_cfg.get("bf16", False),
+        torch_compile=training_cfg.get("torch_compile", False),
         gradient_accumulation_steps=training_cfg["gradient_accumulation_steps"],
         max_grad_norm=training_cfg.get("max_grad_norm", 1.0),
         lr_scheduler_type=training_cfg["lr_scheduler_type"],
@@ -197,6 +203,8 @@ def train(
         save_strategy="epoch",
         eval_strategy="epoch" if val_dataset else "no",
         load_best_model_at_end=bool(val_dataset),
+        metric_for_best_model=training_cfg.get("metric_for_best_model", "eval_loss"),
+        label_names=training_cfg.get("label_names", None),
         report_to=report_to,
         remove_unused_columns=False,
         logging_steps=10,
@@ -218,12 +226,24 @@ def train(
     for callback in _build_callbacks(callback_cfgs):
         trainer.add_callback(callback)
 
-    # Train the model
-    trainer.train()
-    logger.info("Training complete.")
+    # Resolve checkpoint: explicit path, "latest" (auto-detect), or None (fresh start)
+    checkpoint = None
+    if resume_from_checkpoint == "latest":
+        checkpoint = True  # HF Trainer finds the latest checkpoint in output_dir
+        logger.info("Resuming from latest checkpoint in %s", training_cfg["output_dir"])
+    elif resume_from_checkpoint is not None:
+        checkpoint = resume_from_checkpoint
+        logger.info("Resuming from checkpoint: %s", checkpoint)
 
-    # Save trained model
-    torch.save(model.state_dict(), os.path.join(training_cfg["output_dir"], "model.pth"))
+    # Train the model
+    trainer.train(resume_from_checkpoint=checkpoint)
+
+    # After training, the Trainer restores the best checkpoint when
+    # load_best_model_at_end=True, so model weights here are the best seen.
+    model_label = "best" if val_dataset else "final"
+    save_path = os.path.join(training_cfg["output_dir"], "model.pth")
+    torch.save(model.state_dict(), save_path)
+    logger.info("Training complete. %s model saved to %s", model_label, save_path)
 
 
 if __name__ == "__main__":
@@ -252,5 +272,18 @@ if __name__ == "__main__":
         default=None,
         help="Path to validation dataset configuration YAML file.",
     )
+    parser.add_argument(
+        "-r",
+        "--resume",
+        type=str,
+        nargs="?",
+        const="latest",
+        default=None,
+        metavar="CHECKPOINT_DIR",
+        help=(
+            "Resume training from a checkpoint. Pass no value to auto-detect the "
+            "latest checkpoint in output_dir, or supply an explicit checkpoint path."
+        ),
+    )
     args = parser.parse_args()
-    train(args.config, args.train_dataset, args.val_dataset)
+    train(args.config, args.train_dataset, args.val_dataset, args.resume)
