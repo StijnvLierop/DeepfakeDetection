@@ -1,4 +1,5 @@
 import argparse
+import tempfile
 from typing import Optional
 
 import fiftyone as fo
@@ -12,13 +13,16 @@ mimetypes.add_type("image/webp", ".webp")
 
 
 def display(
-    dataset: str, cache_dir: str, model: Optional[str] = None, batch_size: int = 128
+    dataset: str, cache_dir: Optional[str] = None, model: Optional[str] = None, batch_size: int = 128
 ):
     """
     Display a given dataset in FiftyOne to allow for interactive exploration and analysis.
 
     :param dataset: Path to dataset config file of the dataset to display.
-    :param cache_dir: Directory to cache dataset files.
+    :param cache_dir: Directory to cache dataset files. When omitted, a temporary
+                      directory is created automatically and cleaned up after the
+                      session ends. Required for datasets whose images are not
+                      already stored as individual files on disk (e.g. HuggingFace).
     :param model: Optional path to embedding model.
     :param batch_size: Batch size for streaming samples into FiftyOne dataset.
     """
@@ -38,17 +42,21 @@ def display(
     fo_dataset = fo.Dataset(name=dataset.dataset_name)
     session = fo.launch_app(fo_dataset)
 
-    # Stream samples into FiftyOne dataset
-    to_fiftyone_dataset(
-        dataset,
-        cache_dir=cache_dir,
-        embedding_model=model,
-        fo_dataset=fo_dataset,
-        batch_size=batch_size,
-    )
+    # Use an auto-created temp dir when no cache_dir is given
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        resolved_cache_dir = cache_dir or tmp_dir
 
-    # Keep session alive
-    session.wait()
+        # Stream samples into FiftyOne dataset
+        to_fiftyone_dataset(
+            dataset,
+            cache_dir=resolved_cache_dir,
+            embedding_model=model,
+            fo_dataset=fo_dataset,
+            batch_size=batch_size,
+        )
+
+        # Keep session alive
+        session.wait()
 
 
 if __name__ == "__main__":
@@ -80,6 +88,7 @@ if __name__ == "__main__":
         "--batch-size",
         type=int,
         required=False,
+        default=128,
         help="Batch size for streaming samples into FiftyOne dataset.",
     )
     display(**vars(parser.parse_args()))

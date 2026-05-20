@@ -202,8 +202,8 @@ def train(
         warmup_steps=training_cfg["warmup_steps"],
         save_strategy="epoch",
         eval_strategy="epoch" if val_dataset else "no",
-        load_best_model_at_end=bool(val_dataset),
-        metric_for_best_model=training_cfg.get("metric_for_best_model", "eval_loss"),
+        metric_for_best_model=training_cfg.get("metric_for_best_model"),
+        load_best_model_at_end=bool(val_dataset) and training_cfg.get("metric_for_best_model") is not None,
         label_names=training_cfg.get("label_names", None),
         report_to=report_to,
         remove_unused_columns=False,
@@ -240,7 +240,7 @@ def train(
 
     # After training, the Trainer restores the best checkpoint when
     # load_best_model_at_end=True, so model weights here are the best seen.
-    model_label = "best" if val_dataset else "final"
+    model_label = "best" if (val_dataset and training_cfg.get("metric_for_best_model")) else "final"
     save_path = os.path.join(training_cfg["output_dir"], "model.pth")
     torch.save(model.state_dict(), save_path)
     logger.info("Training complete. %s model saved to %s", model_label, save_path)
