@@ -4,10 +4,12 @@ from typing import Optional, Sequence
 from itertools import zip_longest
 
 import numpy as np
+from PIL import Image
 import fiftyone as fo
 import fiftyone.brain as fob
 from fiftyone.utils.data.importers import GenericSampleDatasetImporter
 
+from deepfake_detection.analysis.transforms.base import AnalysisTransform
 from deepfake_detection.data.instance import Instance
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.models import Prediction, Model
@@ -25,17 +27,21 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
         dataset: Dataset,
         predictions: Optional[Sequence[Prediction]] = None,
         cache_dir: Optional[str] = None,
+        transforms: Sequence[AnalysisTransform] = (),
     ):
         """
         :param dataset: The deepfake_detection.data.Dataset to import.
         :param predictions: An optional sequence of predictions.
         :param cache_dir: The directory to store temporary files in case
                           instances are not stored on disk yet.
+        :param transforms: Analysis transforms whose results are attached to each
+                           sample as named heatmap fields.
         """
         super().__init__(dataset_dir=None, shuffle=False, seed=None, max_samples=None)
         self.dataset = dataset
         self.cache_dir = cache_dir
         self.predictions = predictions
+        self.transforms = transforms
 
     @property
     def has_sample_field_schema(self):
@@ -59,13 +65,27 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
         for instance, prediction in zip_longest(
             self.dataset, self.predictions or [], fillvalue=None
         ):
-            yield _instance_to_fo_sample(instance, prediction, self.cache_dir)
+            yield _instance_to_fo_sample(instance, prediction, self.cache_dir, self.transforms)
+
+
+def _array_to_fo_heatmap(array: np.ndarray) -> fo.Heatmap:
+    """Convert an analysis result array to a FiftyOne Heatmap field."""
+    if array.ndim == 3:
+        array = array.max(axis=-1)
+    array = array.astype(np.float32)
+    lo, hi = array.min(), array.max()
+    if hi > lo:
+        array = (array - lo) / (hi - lo)
+    else:
+        array = np.zeros_like(array)
+    return fo.Heatmap(map=array)
 
 
 def _instance_to_fo_sample(
     instance: Instance,
     prediction: Optional["Prediction"],
     cache_dir: Optional[str],
+    transforms: Sequence[AnalysisTransform] = (),
 ) -> fo.Sample:
     """
     Converts a given instance to a FiftyOne sample.
@@ -137,6 +157,13 @@ def _instance_to_fo_sample(
             label=top_pred, confidence=prediction.classification[top_pred]
         )
 
+    # Apply analysis transforms and attach results as heatmap fields
+    if transforms and hasattr(instance, "data") and isinstance(instance.data, Image.Image):
+        img = np.array(instance.data)
+        for transform in transforms:
+            result = transform.apply(img)
+            sample[transform.name] = _array_to_fo_heatmap(result)
+
     return sample
 
 
@@ -147,6 +174,7 @@ def to_fiftyone_dataset(
     cache_dir: Optional[str] = None,
     embedding_model: Optional[Model] = None,
     fo_dataset: Optional[fo.Dataset] = None,
+    transforms: Sequence[AnalysisTransform] = (),
 ) -> fo.Dataset:
     """
     Function that converts a Dataset to a FiftyOne dataset.
@@ -160,6 +188,8 @@ def to_fiftyone_dataset(
     :param fo_dataset: An existing FiftyOne dataset to populate. When provided,
                        the caller is responsible for prior deletion/creation so
                        the app can be launched before samples start loading.
+    :param transforms: Analysis transforms whose results are attached to each
+                       sample as named heatmap fields.
     :return: The populated FiftyOne dataset.
     """
     # If no fo_dataset is provided, create a new one
@@ -192,7 +222,7 @@ def to_fiftyone_dataset(
                     if pred_idx < len(predictions_list)
                     else None
                 )
-                samples.append(_instance_to_fo_sample(instance, pred, cache_dir))
+                samples.append(_instance_to_fo_sample(instance, pred, cache_dir, transforms))
                 pred_idx += 1
             fo_dataset.add_samples(samples)
 
@@ -206,7 +236,7 @@ def to_fiftyone_dataset(
         )
     else:
         # Stream samples in batches so a live session updates progressively
-        importer = FiftyOneDatasetImporter(dataset, predictions, cache_dir)
+        importer = FiftyOneDatasetImporter(dataset, predictions, cache_dir, transforms)
         batch = []
         for sample in importer:
             batch.append(sample)
