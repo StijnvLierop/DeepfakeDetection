@@ -1,6 +1,38 @@
 # CHANGELOG
 
 
+## v0.36.0 (2026-05-25)
+
+### Bug Fixes
+
+- Add datasetname parameter to cnndetect dataset
+  ([`27b25bb`](https://github.com/StijnvLierop/DeepfakeDetection/commit/27b25bbfcfcc7a62451d185f47b686032453fb80))
+
+- Formatting
+  ([`f4482f2`](https://github.com/StijnvLierop/DeepfakeDetection/commit/f4482f29d04121210a08487081e95f6c5df0377b))
+
+- Small fixes in input preprocessing and weights loading of NPR and AIDE"
+  ([`7402b46`](https://github.com/StijnvLierop/DeepfakeDetection/commit/7402b461c1566f436a70a80f691d996166404138))
+
+### Documentation
+
+- Update prediction class docs
+  ([`890a935`](https://github.com/StijnvLierop/DeepfakeDetection/commit/890a93528097490b062c6efb5a2ef481e5949f33))
+
+### Features
+
+- Add truefor model
+  ([`d0154b8`](https://github.com/StijnvLierop/DeepfakeDetection/commit/d0154b803486e21962e89c5a54e4dbcfe3e95115))
+
+### Refactoring
+
+- Overhaul models so multi-gpu training can be possible
+  ([`6aea085`](https://github.com/StijnvLierop/DeepfakeDetection/commit/6aea0857d29ee45f44bde8a173fa2c3ab0b829df))
+
+- **aide**: Model class now supports multi-gpu training
+  ([`07ea6f9`](https://github.com/StijnvLierop/DeepfakeDetection/commit/07ea6f95a808a22688a5c17d4e1bed401dbc7503))
+
+
 ## v0.35.1 (2026-01-30)
 
 ### Bug Fixes
