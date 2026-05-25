@@ -3,19 +3,22 @@ import tempfile
 from PIL import Image, ImageChops, ImageEnhance
 
 
-def ela(path: str) -> Image:
+def ela(img: Image.Image, quality: int = 95) -> Image.Image:
     """
     Computes the Error Level Analysis (ELA) image of a given image instance.
+
+    :param img: Input PIL image.
+    :param quality: JPEG compression quality (1–95) used for recompression. Lower values
+                    produce stronger compression artefacts, making differences more visible.
     """
 
     # Temporary save filename for compressed image
     tmp_savename = tempfile.NamedTemporaryFile(delete=True).name
 
-    # Open image
-    img = Image.open(path).convert("RGB")
+    img = img.convert("RGB")
 
     # Save compressed image
-    img.save(tmp_savename, "JPEG", quality=95)
+    img.save(tmp_savename, "JPEG", quality=quality)
 
     # Open compressed image
     resaved_im = Image.open(tmp_savename)
