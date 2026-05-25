@@ -1,0 +1,25 @@
+# Analysis transforms applied to each sample during FiftyOne display.
+# Each entry requires a 'class' (full Python import path) and optional 'params'.
+
+- class: deepfake_detection.analysis.transforms.channels.ChannelThresholdMap
+  params:
+    channels: [2]
+    threshold: 254
+    mode: any
+    direction: above
+
+- class: deepfake_detection.analysis.transforms.ela.ELATransform
+  params:
+    quality: 95
+
+- class: deepfake_detection.analysis.transforms.ela.ELATransform
+  params:
+    quality: 90
+
+- class: deepfake_detection.analysis.transforms.ela.ELATransform
+  params:
+    quality: 85
+
+- class: deepfake_detection.analysis.transforms.ela.ELATransform
+  params:
+    quality: 80

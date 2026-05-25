@@ -14,15 +14,17 @@ class ChannelThresholdMap(AnalysisTransform):
         channels: Sequence[int],
         threshold: float,
         mode: str = "any",
+        direction: str = "above",
     ):
         self.channels = list(channels)
         self.threshold = threshold
         self.mode = mode
+        self.direction = direction
 
     @property
     def name(self) -> str:
         ch = "_".join(str(c) for c in self.channels)
-        return f"channel_threshold_ch{ch}_t{int(self.threshold)}_{self.mode}"
+        return f"channel_threshold_ch{ch}_t{int(self.threshold)}_{self.mode}_{self.direction}"
 
     def apply(self, img: np.ndarray) -> np.ndarray:
-        return channel_threshold_map(img, self.channels, self.threshold, self.mode)
+        return channel_threshold_map(img, self.channels, self.threshold, self.mode, self.direction)
