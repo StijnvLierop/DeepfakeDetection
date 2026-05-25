@@ -1,6 +1,6 @@
 [project]
 name = "DeepfakeDetection"
-version = "0.1.0"
+version = "0.36.0"
 description = "Default template for PDM package"
 readme = "README.md"
 requires-python = "==3.12.*"
@@ -55,6 +55,7 @@ include = ["deepfake_detection*"]
 dependencies = { file = ["requirements.txt"] }
 optional-dependencies = {dev = { file = ["requirements-dev.txt"] }}
 
+
 [tool.semantic_release]
 assets = []
 build_command_env = []
@@ -73,28 +74,6 @@ match = "(main|master)"
 prerelease_token = "rc"
 prerelease = false
 
-[tool.pytest.ini_options]
-filterwarnings = ["ignore"]
-
-[[tool.pdm.source]]
-name = "torch-cuda"
-url = "https://download.pytorch.org/whl/cu124"
-include_packages = ["torch", "torchvision", "torchaudio"]
-
-[tool.pdm]
-distribution = false
-
-[tool.pdm.scripts]
-lint = "ruff check ."
-test = "pytest -s -vv --import-mode=append tests/"
-all = {composite = ["lint", "test"]}
-
-[changelog.default_templates]
-changelog_file = ""
-exclude_commit_patterns = []
-mode = "update"
-insertion_flag = "<!-- version list -->"
-template_dir = "templates"
 
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"
@@ -114,6 +93,7 @@ newline_sequence = "\n"
 keep_trailing_newline = false
 extensions = []
 autoescape = false
+
 
 [tool.semantic_release.commit_author]
 env = "GIT_COMMIT_AUTHOR"
@@ -137,4 +117,30 @@ insecure = false
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
 upload_to_vcs_release = true
+
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore"]
+
+
+[tool.pdm]
+distribution = false
+[[tool.pdm.source]]
+name = "torch-cuda"
+url = "https://download.pytorch.org/whl/cu124"
+include_packages = ["torch", "torchvision", "torchaudio"]
+
+
+[tool.pdm.scripts]
+lint = "ruff check ."
+test = "pytest -s -vv --import-mode=append tests/"
+all = {composite = ["lint", "test"]}
+
+
+[changelog.default_templates]
+changelog_file = ""
+exclude_commit_patterns = []
+mode = "update"
+insertion_flag = "<!-- version list -->"
+template_dir = "templates"
 
