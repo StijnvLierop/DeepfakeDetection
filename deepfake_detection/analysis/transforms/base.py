@@ -6,15 +6,14 @@ import numpy as np
 class AnalysisTransform(ABC):
     """
     Base class for analysis transforms. Each transform wraps a signal analysis
-    function with a fixed configuration, giving it a name and a standardised
-    interface for use in FiftyOne views and analysis pipelines.
+    function with a fixed configuration, giving it a name and a standardized interface.
     """
 
     @property
     @abstractmethod
     def name(self) -> str:
         """A valid Python identifier that uniquely describes this configured transform."""
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def apply(self, img: np.ndarray) -> np.ndarray:
@@ -24,4 +23,4 @@ class AnalysisTransform(ABC):
         :param img: Input image as a numpy array.
         :return: Transformed image array.
         """
-        ...
+        raise NotImplementedError

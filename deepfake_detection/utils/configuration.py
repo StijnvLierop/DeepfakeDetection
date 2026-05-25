@@ -1,10 +1,11 @@
 import functools
 import operator
 import pydoc
-from typing import Callable, Union
+from typing import Callable, Sequence, Union
 
 import yaml
 
+from deepfake_detection.analysis.transforms.base import AnalysisTransform
 from deepfake_detection.data.dataset import Dataset
 from deepfake_detection.data.datasets import FilteredDataset, MappedDataset
 from deepfake_detection.models import Model
@@ -167,3 +168,34 @@ def load_model(config: Union[str, dict]) -> Model:
     if model_class is None:
         raise ValueError(f"Model class not found: {config['class']}")
     return model_class(**config.get("params", {}))
+
+
+def load_transforms(config: Union[str, list]) -> Sequence[AnalysisTransform]:
+    """
+    Loads a list of analysis transforms from a YAML file path or a list of config dicts.
+
+    The YAML file should contain a list of transform configs, each with a 'class' key
+    and optional 'params', e.g.:
+
+    - class: deepfake_detection.analysis.transforms.channels.ChannelThresholdMap
+      params:
+        channels: [2]
+        threshold: 254
+        mode: any
+        direction: above
+    - class: deepfake_detection.analysis.transforms.ela.ELATransform
+
+    :param config: Path to a YAML file or a list of transform config dicts.
+    :return: List of instantiated AnalysisTransform objects.
+    """
+    if isinstance(config, str):
+        with open(config, "r") as f:
+            config = yaml.safe_load(f)
+
+    transforms = []
+    for entry in config:
+        cls = pydoc.locate(entry["class"])
+        if cls is None:
+            raise ValueError(f"Transform class not found: {entry['class']}")
+        transforms.append(cls(**entry.get("params", {})))
+    return transforms
