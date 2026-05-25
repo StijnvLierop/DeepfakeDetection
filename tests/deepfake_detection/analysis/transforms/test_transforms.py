@@ -39,10 +39,10 @@ class TestChannelThresholdMap:
         np.testing.assert_array_equal(t.apply(img_3d), expected)
 
     def test_name_encodes_config(self):
-        assert ChannelThresholdMap([0, 2], 128, "all").name == "channel_threshold_ch0_2_t128_all"
+        assert ChannelThresholdMap([0, 2], 128, "all").name == "channel_threshold_ch0_2_t128_all_above"
 
     def test_name_default_mode(self):
-        assert ChannelThresholdMap([1], 50).name == "channel_threshold_ch1_t50_any"
+        assert ChannelThresholdMap([1], 50).name == "channel_threshold_ch1_t50_any_above"
 
     def test_apply_does_not_mutate_input(self, img_3d):
         original = img_3d.copy()
@@ -150,7 +150,10 @@ class TestELATransform:
         assert result.shape == img_3d.shape
 
     def test_name(self):
-        assert ELATransform().name == "ela"
+        assert ELATransform().name == "ela_q95"
+
+    def test_name_custom_quality(self):
+        assert ELATransform(quality=75).name == "ela_q75"
 
     def test_apply_does_not_mutate_input(self, img_3d):
         original = img_3d.copy()
