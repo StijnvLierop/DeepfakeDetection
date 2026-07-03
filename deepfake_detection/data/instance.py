@@ -75,7 +75,10 @@ class ImageInstance(Instance):
             raise ValueError("Path must be of type Path.")
         if "." not in str(path):
             path = path.with_suffix(".png")
-        self.data.save(path)
+        image = self.data
+        if image.mode not in ("RGB", "RGBA", "L"):
+            image = image.convert("RGB")
+        image.save(path)
         return path
 
 

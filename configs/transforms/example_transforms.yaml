@@ -8,18 +8,53 @@
     mode: any
     direction: above
 
-- class: deepfake_detection.analysis.transforms.ela.ELATransform
+- class: deepfake_detection.analysis.transforms.channels.ChannelThresholdMap
   params:
-    quality: 95
+    channels: [0]
+    threshold: 254
+    mode: any
+    direction: above
 
-- class: deepfake_detection.analysis.transforms.ela.ELATransform
+- class: deepfake_detection.analysis.transforms.channels.ChannelThresholdMap
   params:
-    quality: 90
+    channels: [1]
+    threshold: 254
+    mode: any
+    direction: above
 
-- class: deepfake_detection.analysis.transforms.ela.ELATransform
+- class: deepfake_detection.analysis.transforms.channels.ChannelThresholdMap
   params:
-    quality: 85
+    channels: [2]
+    threshold: 1
+    mode: any
+    direction: below
 
-- class: deepfake_detection.analysis.transforms.ela.ELATransform
+- class: deepfake_detection.analysis.transforms.channels.ChannelThresholdMap
   params:
-    quality: 80
+    channels: [0]
+    threshold: 1
+    mode: any
+    direction: below
+
+- class: deepfake_detection.analysis.transforms.channels.ChannelThresholdMap
+  params:
+    channels: [1]
+    threshold: 1
+    mode: any
+    direction: below
+
+#- class: deepfake_detection.analysis.transforms.ela.ELATransform
+#  params:
+#    quality: 95
+#
+#- class: deepfake_detection.analysis.transforms.ela.ELATransform
+#  params:
+#    quality: 90
+#
+#- class: deepfake_detection.analysis.transforms.ela.ELATransform
+#  params:
+#    quality: 85
+#
+#- class: deepfake_detection.analysis.transforms.ela.ELATransform
+#  params:
+#    quality: 80

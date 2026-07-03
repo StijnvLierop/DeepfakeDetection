@@ -124,7 +124,7 @@ def _instance_to_fo_sample(
         # Add labels
         for label in instance.annotation.labels:
             sample[label] = fo.Classification(
-                label=instance.annotation.get_label(label)
+                label=str(instance.annotation.get_label(label))
             )
         # Add mask
         if instance.annotation.mask is not None:
