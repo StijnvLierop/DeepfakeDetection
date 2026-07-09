@@ -5,7 +5,11 @@ import fiftyone as fo
 import mimetypes
 
 from deepfake_detection.data.datasets.fiftyone import to_fiftyone_dataset
-from deepfake_detection.utils.configuration import load_dataset, load_model, load_transforms
+from deepfake_detection.utils.configuration import (
+    load_dataset,
+    load_model,
+    load_transforms,
+)
 
 
 mimetypes.add_type("image/webp", ".webp")

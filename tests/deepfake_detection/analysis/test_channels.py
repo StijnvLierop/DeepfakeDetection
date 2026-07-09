@@ -7,10 +7,10 @@ from deepfake_detection.analysis.channels import channel_threshold_map
 def img():
     # Deterministic 4x4 RGB image with known values
     data = np.zeros((4, 4, 3), dtype=np.uint8)
-    data[0, 0] = [200, 50, 50]   # red bright
-    data[1, 1] = [50, 200, 50]   # green bright
-    data[2, 2] = [50, 50, 200]   # blue bright
-    data[3, 3] = [200, 200, 200] # all channels bright
+    data[0, 0] = [200, 50, 50]  # red bright
+    data[1, 1] = [50, 200, 50]  # green bright
+    data[2, 2] = [50, 50, 200]  # blue bright
+    data[3, 3] = [200, 200, 200]  # all channels bright
     return data
 
 

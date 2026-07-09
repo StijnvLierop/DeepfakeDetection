@@ -68,16 +68,16 @@ class HuggingfaceDataset(Dataset):
     """
 
     def __init__(
-            self,
-            dataset: Union[str, datasets.Dataset],
-            instance_col: str,
-            label_cols: Optional[Mapping[str, str]] = None,
-            mask_col: Optional[str] = None,
-            dataset_name: Optional[str] = None,
-            hf_ops: Optional[list] = None,
-            in_memory: bool = False,
-            num_proc: Optional[int] = None,
-            **kwargs,
+        self,
+        dataset: Union[str, datasets.Dataset],
+        instance_col: str,
+        label_cols: Optional[Mapping[str, str]] = None,
+        mask_col: Optional[str] = None,
+        dataset_name: Optional[str] = None,
+        hf_ops: Optional[list] = None,
+        in_memory: bool = False,
+        num_proc: Optional[int] = None,
+        **kwargs,
     ):
         """
         :param dataset: HuggingFace dataset object, Hub identifier, or local path.
@@ -111,7 +111,7 @@ class HuggingfaceDataset(Dataset):
             self._hf_dataset = dataset
         # If a directory with dataset_info.json exists, assume it's a saved dataset and load it from disk
         elif os.path.isdir(dataset) and os.path.exists(
-                os.path.join(dataset, "dataset_info.json")
+            os.path.join(dataset, "dataset_info.json")
         ):
             self._hf_dataset = load_from_disk(dataset, **kwargs)
         # Otherwise, load the dataset from the Hub
@@ -171,7 +171,9 @@ class HuggingfaceDataset(Dataset):
                         buffer_size=cfg.get("buffer_size", 1000),
                     )
                 else:
-                    self._hf_dataset = self._hf_dataset.shuffle(seed=cfg.get("seed", 42))
+                    self._hf_dataset = self._hf_dataset.shuffle(
+                        seed=cfg.get("seed", 42)
+                    )
             elif "take" in op:
                 n = op["take"]
                 if isinstance(self._hf_dataset, IterableDataset):

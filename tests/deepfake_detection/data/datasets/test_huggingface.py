@@ -303,7 +303,7 @@ def test_hf_filter_on_map_dataset():
         dataset=MockMapDataset(_ROWS),
         instance_col="image",
         label_cols={"label": "authenticity"},
-        hf_filter={"label": "label", "op": "==", "value": "real"},
+        hf_ops=[{"filter": {"label": "label", "op": "==", "value": "real"}}],
     )
     assert len(ds) == 2
     assert all(i.annotation.get_label("authenticity") == "real" for i in ds)
@@ -316,7 +316,7 @@ def test_hf_filter_on_streaming_dataset():
         dataset=MockIterableDataset(_ROWS),
         instance_col="image",
         label_cols={"label": "authenticity"},
-        hf_filter={"label": "label", "op": "==", "value": "fake"},
+        hf_ops=[{"filter": {"label": "label", "op": "==", "value": "fake"}}],
     )
     instances = list(ds)
     assert len(instances) == 1
@@ -333,10 +333,12 @@ def test_hf_map_applied():
         dataset=MockMapDataset(_ROWS),
         instance_col="image",
         label_cols={"label": "authenticity"},
-        hf_map=[
+        hf_ops=[
             {
-                "func": "deepfake_detection.data.utils.map.hf_map_label_values",
-                "params": {"label": "label", "value": "normalized"},
+                "map": {
+                    "func": "deepfake_detection.data.utils.map.hf_map_label_values",
+                    "params": {"label": "label", "value": "normalized"},
+                }
             }
         ],
     )
@@ -349,7 +351,9 @@ def test_hf_map_applied():
 @patch(_PATCH_IMAGE, MockImageFeature)
 @patch(_PATCH_ITERABLE, MockIterableDataset)
 def test_take_on_map_dataset():
-    ds = HuggingfaceDataset(dataset=MockMapDataset(_ROWS), instance_col="image", take=2)
+    ds = HuggingfaceDataset(
+        dataset=MockMapDataset(_ROWS), instance_col="image", hf_ops=[{"take": 2}]
+    )
     assert len(ds) == 2
 
 
@@ -357,7 +361,7 @@ def test_take_on_map_dataset():
 @patch(_PATCH_ITERABLE, MockIterableDataset)
 def test_take_on_streaming_dataset():
     ds = HuggingfaceDataset(
-        dataset=MockIterableDataset(_ROWS), instance_col="image", take=1
+        dataset=MockIterableDataset(_ROWS), instance_col="image", hf_ops=[{"take": 1}]
     )
     assert len(list(ds)) == 1
 
@@ -366,7 +370,7 @@ def test_take_on_streaming_dataset():
 @patch(_PATCH_ITERABLE, MockIterableDataset)
 def test_take_larger_than_dataset():
     ds = HuggingfaceDataset(
-        dataset=MockMapDataset(_ROWS), instance_col="image", take=100
+        dataset=MockMapDataset(_ROWS), instance_col="image", hf_ops=[{"take": 100}]
     )
     assert len(ds) == len(_ROWS)
 

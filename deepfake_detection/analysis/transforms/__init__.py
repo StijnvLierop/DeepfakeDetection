@@ -1,4 +1,6 @@
-from deepfake_detection.analysis.transforms.autocorrelation import AutocorrelationTransform
+from deepfake_detection.analysis.transforms.autocorrelation import (
+    AutocorrelationTransform,
+)
 from deepfake_detection.analysis.transforms.base import AnalysisTransform
 from deepfake_detection.analysis.transforms.channels import ChannelThresholdMap
 from deepfake_detection.analysis.transforms.ela import ELATransform

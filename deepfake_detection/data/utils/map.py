@@ -56,6 +56,7 @@ def get_label_from_filename(
             instance.annotation = Annotation({label: value})
     return instance
 
+
 def hf_parse_json_labels(
     row: dict,
     json_col: str,
