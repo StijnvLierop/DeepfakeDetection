@@ -32,6 +32,7 @@ def img_2d():
 # ChannelThresholdMap
 # ---------------------------------------------------------------------------
 
+
 class TestChannelThresholdMap:
     def test_apply_matches_underlying_function(self, img_3d):
         t = ChannelThresholdMap(channels=[0], threshold=100)
@@ -39,10 +40,15 @@ class TestChannelThresholdMap:
         np.testing.assert_array_equal(t.apply(img_3d), expected)
 
     def test_name_encodes_config(self):
-        assert ChannelThresholdMap([0, 2], 128, "all").name == "channel_threshold_ch0_2_t128_all_above"
+        assert (
+            ChannelThresholdMap([0, 2], 128, "all").name
+            == "channel_threshold_ch0_2_t128_all_above"
+        )
 
     def test_name_default_mode(self):
-        assert ChannelThresholdMap([1], 50).name == "channel_threshold_ch1_t50_any_above"
+        assert (
+            ChannelThresholdMap([1], 50).name == "channel_threshold_ch1_t50_any_above"
+        )
 
     def test_apply_does_not_mutate_input(self, img_3d):
         original = img_3d.copy()
@@ -57,6 +63,7 @@ class TestChannelThresholdMap:
 # ---------------------------------------------------------------------------
 # FFTTransform
 # ---------------------------------------------------------------------------
+
 
 class TestFFTTransform:
     def test_apply_matches_underlying_function(self, img_3d):
@@ -80,6 +87,7 @@ class TestFFTTransform:
 # NoiseResidualTransform
 # ---------------------------------------------------------------------------
 
+
 class TestNoiseResidualTransform:
     def test_apply_matches_underlying_function(self, img_3d):
         t = NoiseResidualTransform()
@@ -101,6 +109,7 @@ class TestNoiseResidualTransform:
 # PRNUTransform
 # ---------------------------------------------------------------------------
 
+
 class TestPRNUTransform:
     def test_apply_matches_underlying_function(self, img_3d):
         expected = prnu_fstv(img_3d)
@@ -116,6 +125,7 @@ class TestPRNUTransform:
 # ---------------------------------------------------------------------------
 # AutocorrelationTransform
 # ---------------------------------------------------------------------------
+
 
 class TestAutocorrelationTransform:
     def test_apply_3d_returns_2d(self, img_3d):
@@ -139,6 +149,7 @@ class TestAutocorrelationTransform:
 # ---------------------------------------------------------------------------
 # ELATransform
 # ---------------------------------------------------------------------------
+
 
 class TestELATransform:
     def test_apply_returns_ndarray(self, img_3d):
@@ -164,6 +175,7 @@ class TestELATransform:
 # ---------------------------------------------------------------------------
 # TransformPipeline
 # ---------------------------------------------------------------------------
+
 
 class TestTransformPipeline:
     def test_name_joins_member_names(self):

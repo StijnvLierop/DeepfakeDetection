@@ -28,25 +28,24 @@ def channel_threshold_map(
     # Guard against invalid inputs
     if img.ndim != 3:
         raise ValueError(
-            "Image must have shape (height, width, channels). "
-            "Got ndim={}.".format(img.ndim)
+            "Image must have shape (height, width, channels). Got ndim={}.".format(
+                img.ndim
+            )
         )
     if mode not in ("any", "all"):
         raise ValueError("mode must be 'any' or 'all', got '{}'.".format(mode))
     if direction not in ("above", "below"):
-        raise ValueError("direction must be 'above' or 'below', got '{}'.".format(direction))
+        raise ValueError(
+            "direction must be 'above' or 'below', got '{}'.".format(direction)
+        )
     if not channels:
         raise ValueError("channels must contain at least one channel index.")
 
     # Create masks for each channel based on the threshold direction
     if direction == "above":
-        channel_masks = np.stack(
-            [img[:, :, c] > threshold for c in channels], axis=-1
-        )
+        channel_masks = np.stack([img[:, :, c] > threshold for c in channels], axis=-1)
     else:
-        channel_masks = np.stack(
-            [img[:, :, c] < threshold for c in channels], axis=-1
-        )
+        channel_masks = np.stack([img[:, :, c] < threshold for c in channels], axis=-1)
 
     # Configure mask
     if mode == "any":

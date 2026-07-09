@@ -67,11 +67,7 @@ def apply_transforms(
         if pil_img is None:
             print(f"Skipping instance {i}: no image data.")
             continue
-        stem = (
-            instance.path.stem
-            if isinstance(instance, FileImageInstance)
-            else str(i)
-        )
+        stem = instance.path.stem if isinstance(instance, FileImageInstance) else str(i)
         _apply_to_image(pil_img, loaded_transforms, output_dir, stem)
 
     print(f"Saved results to {output_dir}")
@@ -81,7 +77,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Apply analysis transforms to an image or dataset and save results."
     )
-    parser.add_argument("-t", "--transforms", required=True, help="Path to transforms config YAML.")
+    parser.add_argument(
+        "-t", "--transforms", required=True, help="Path to transforms config YAML."
+    )
     parser.add_argument("-o", "--output", required=True, help="Output directory.")
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("-i", "--image", help="Path to a single input image.")

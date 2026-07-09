@@ -1,8 +1,22 @@
 from typing import Mapping, Union, List
 
-from deepfake_detection.data.instance import FileImageInstance
+from deepfake_detection.data.instance import FileImageInstance, ImageInstance
 from deepfake_detection.data.annotation import Annotation
 from deepfake_detection.data.instance import Instance
+
+
+def convert_image_mode(instance: ImageInstance, mode: str) -> ImageInstance:
+    """
+    Converts the image data of an instance to the given PIL mode (e.g. ``"RGB"``, ``"L"``).
+    Does not do anything when the image is already in the requested mode.
+
+    :param instance: The image instance to convert.
+    :param mode: Target PIL image mode.
+    :return: The instance with the converted image.
+    """
+    if instance.data.mode != mode:
+        instance.data = instance.data.convert(mode)
+    return instance
 
 
 def map_label_values(

@@ -1,4 +1,5 @@
 import functools
+import hashlib
 import operator
 import os
 import pydoc
@@ -60,10 +61,10 @@ class HuggingfaceDataset(Dataset):
     """
     Wraps a HuggingFace dataset as a deepfake_detection Dataset.
 
-    HuggingFace-native operations (hf_map, hf_filter, shuffle, take) are applied
-    before wrapping so that streaming datasets remain efficient. Regular post-wrap
-    operations (map, filter, sample) are applied by the configuration loader on
-    the resulting Dataset instances.
+    HuggingFace-native operations (map, filter, shuffle, take) are specified via
+    ``hf_ops`` and run in the listed order before wrapping, keeping streaming
+    datasets efficient. Regular post-wrap operations (map, filter, sample) are
+    applied by the configuration loader on the resulting Dataset instances.
     """
 
     def __init__(
@@ -73,11 +74,9 @@ class HuggingfaceDataset(Dataset):
         label_cols: Optional[Mapping[str, str]] = None,
         mask_col: Optional[str] = None,
         dataset_name: Optional[str] = None,
-        hf_map: Optional[list] = None,
-        hf_filter: Optional[dict] = None,
-        shuffle: Optional[dict] = None,
-        take: Optional[int] = None,
+        hf_ops: Optional[list] = None,
         in_memory: bool = False,
+        num_proc: Optional[int] = None,
         **kwargs,
     ):
         """
@@ -88,14 +87,18 @@ class HuggingfaceDataset(Dataset):
                          (>128 = forged region). When set, the mask is attached to the
                          instance annotation and emitted as ``"masks"`` by TorchDataset.
         :param dataset_name: Name for this dataset.
-        :param hf_map: List of map-function configs applied at the HF level before wrapping.
-                       Each entry: {func: "dotted.path", params: {...}}.
-        :param hf_filter: Filter config applied at the HF level (operates on raw rows).
-                          Supports the same and/or/not/op structure as the regular filter.
-        :param shuffle: Shuffle config with 'seed' and optional 'buffer_size' (streaming only).
-        :param take: Number of samples to keep after shuffling.
+        :param hf_ops: Ordered list of HF-level operations to apply before wrapping.
+                       Each entry is a dict with one of these keys:
+                         - map:    {func: "dotted.path", params: {...}}
+                         - filter: <filter config (and/or/not/op/inline shorthand)>
+                         - shuffle: {seed: 42, buffer_size: 1000}  (buffer_size streaming only)
+                         - take:   <int>
+                       Operations run in the order listed.
         :param in_memory: If True, materialize a streaming dataset into memory after all
-                          HF-level operations, enabling map-style access.
+                          hf_ops, enabling map-style access.
+        :param num_proc: Number of processes for parallel map/filter (non-streaming only).
+                         Defaults to None (single process). Set to os.cpu_count() for max
+                         parallelism. Ignored for streaming datasets.
         :param **kwargs: Extra arguments forwarded to load_dataset / load_from_disk.
         """
         super().__init__(dataset_name=dataset_name)
@@ -115,39 +118,73 @@ class HuggingfaceDataset(Dataset):
         else:
             self._hf_dataset = load_dataset(dataset, **kwargs)
 
-        # Apply HuggingFace map function if provided
-        if hf_map:
-            for cfg in hf_map:
+        # Get number of processes to use for map/filter operations
+        streaming = isinstance(self._hf_dataset, IterableDataset)
+        _num_proc = None if streaming else num_proc
+        _proc_kwargs = {"num_proc": _num_proc} if _num_proc is not None else {}
+
+        # Loop over the defined operations
+        for op in hf_ops or []:
+            if "map" in op:
+                cfg = op["map"]
                 func = pydoc.locate(cfg["func"])
                 if func is None:
                     raise ValueError(f"Map function {cfg['func']} not found.")
                 self._hf_dataset = self._hf_dataset.map(
-                    functools.partial(func, **cfg.get("params", {}))
+                    functools.partial(func, **cfg.get("params", {})), **_proc_kwargs
                 )
+            elif "filter" in op:
+                cfg = op["filter"]
 
-        # Apply HuggingFace filter function if provided
-        if hf_filter:
-            self._hf_dataset = self._hf_dataset.filter(_build_hf_filter(hf_filter))
+                # Check if we are using hf_hash_filter on a non-streaming dataset
+                if not streaming and "func" in cfg and "hf_hash_filter" in cfg["func"]:
+                    params = cfg.get("params", {})
+                    column = params["column"]
+                    range_min = params.get("range_min", 0.0)
+                    range_max = params.get("range_max", 1.0)
 
-        # Apply HuggingFace shuffle function if provided
-        if shuffle:
-            if isinstance(self._hf_dataset, IterableDataset):
-                self._hf_dataset = self._hf_dataset.shuffle(
-                    seed=shuffle.get("seed", 42),
-                    buffer_size=shuffle.get("buffer_size", 1000),
-                )
+                    # Pull ONLY the string metadata/ID column into RAM (skips decoding images)
+                    metadata_list = self._hf_dataset[column]
+
+                    # Replicate hf_hash_filter inside a high-speed list comprehension
+                    keep_indices = []
+                    for idx, val in enumerate(metadata_list):
+                        if val is None:
+                            continue
+                        digest = hashlib.md5(str(val).encode()).hexdigest()
+                        bucket = int(digest, 16) % 100 / 100
+                        if range_min <= bucket < range_max:
+                            keep_indices.append(idx)
+
+                    # Create a zero-copy fast view slice of matched indices
+                    self._hf_dataset = self._hf_dataset.select(keep_indices)
+                else:
+                    # Fallback path for standard queries or streaming datasets
+                    self._hf_dataset = self._hf_dataset.filter(
+                        _build_hf_filter(cfg), **_proc_kwargs
+                    )
+            elif "shuffle" in op:
+                cfg = op["shuffle"] or {}
+                if isinstance(self._hf_dataset, IterableDataset):
+                    self._hf_dataset = self._hf_dataset.shuffle(
+                        seed=cfg.get("seed", 42),
+                        buffer_size=cfg.get("buffer_size", 1000),
+                    )
+                else:
+                    self._hf_dataset = self._hf_dataset.shuffle(
+                        seed=cfg.get("seed", 42)
+                    )
+            elif "take" in op:
+                n = op["take"]
+                if isinstance(self._hf_dataset, IterableDataset):
+                    self._hf_dataset = self._hf_dataset.take(n)
+                else:
+                    self._hf_dataset = self._hf_dataset.select(
+                        range(min(n, len(self._hf_dataset)))
+                    )
             else:
-                self._hf_dataset = self._hf_dataset.shuffle(
-                    seed=shuffle.get("seed", 42)
-                )
-
-        # Apply HuggingFace take function if provided
-        if take is not None:
-            if isinstance(self._hf_dataset, IterableDataset):
-                self._hf_dataset = self._hf_dataset.take(take)
-            else:
-                self._hf_dataset = self._hf_dataset.select(
-                    range(min(take, len(self._hf_dataset)))
+                raise ValueError(
+                    f"Unknown hf_ops entry (expected 'map', 'filter', 'shuffle', or 'take'): {op}"
                 )
 
         # Materialize a streaming dataset into memory if requested

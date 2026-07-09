@@ -65,7 +65,9 @@ class FiftyOneDatasetImporter(GenericSampleDatasetImporter):
         for instance, prediction in zip_longest(
             self.dataset, self.predictions or [], fillvalue=None
         ):
-            yield _instance_to_fo_sample(instance, prediction, self.cache_dir, self.transforms)
+            yield _instance_to_fo_sample(
+                instance, prediction, self.cache_dir, self.transforms
+            )
 
 
 def _array_to_fo_heatmap(array: np.ndarray) -> fo.Heatmap:
@@ -158,7 +160,11 @@ def _instance_to_fo_sample(
         )
 
     # Apply analysis transforms and attach results as heatmap fields
-    if transforms and hasattr(instance, "data") and isinstance(instance.data, Image.Image):
+    if (
+        transforms
+        and hasattr(instance, "data")
+        and isinstance(instance.data, Image.Image)
+    ):
         img = np.array(instance.data)
         for transform in transforms:
             result = transform.apply(img)
@@ -222,7 +228,9 @@ def to_fiftyone_dataset(
                     if pred_idx < len(predictions_list)
                     else None
                 )
-                samples.append(_instance_to_fo_sample(instance, pred, cache_dir, transforms))
+                samples.append(
+                    _instance_to_fo_sample(instance, pred, cache_dir, transforms)
+                )
                 pred_idx += 1
             fo_dataset.add_samples(samples)
 
