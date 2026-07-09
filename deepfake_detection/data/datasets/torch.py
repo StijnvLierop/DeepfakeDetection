@@ -11,6 +11,11 @@ def _build_item(
 ) -> dict:
     item = {"inputs": inputs}
     if label is not None:
+        if instance.annotation is None:
+            raise ValueError(
+                f"Label '{label}' was requested but the instance has no annotation. "
+                "Ensure the dataset is configured with the appropriate label columns."
+            )
         item["labels"] = torch.tensor(
             instance.annotation.get_label(label) == pos_label,
             dtype=torch.long,

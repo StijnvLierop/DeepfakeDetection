@@ -1,4 +1,5 @@
 import functools
+import hashlib
 import operator
 import os
 import pydoc
@@ -67,16 +68,16 @@ class HuggingfaceDataset(Dataset):
     """
 
     def __init__(
-        self,
-        dataset: Union[str, datasets.Dataset],
-        instance_col: str,
-        label_cols: Optional[Mapping[str, str]] = None,
-        mask_col: Optional[str] = None,
-        dataset_name: Optional[str] = None,
-        hf_ops: Optional[list] = None,
-        in_memory: bool = False,
-        num_proc: Optional[int] = None,
-        **kwargs,
+            self,
+            dataset: Union[str, datasets.Dataset],
+            instance_col: str,
+            label_cols: Optional[Mapping[str, str]] = None,
+            mask_col: Optional[str] = None,
+            dataset_name: Optional[str] = None,
+            hf_ops: Optional[list] = None,
+            in_memory: bool = False,
+            num_proc: Optional[int] = None,
+            **kwargs,
     ):
         """
         :param dataset: HuggingFace dataset object, Hub identifier, or local path.
@@ -110,7 +111,7 @@ class HuggingfaceDataset(Dataset):
             self._hf_dataset = dataset
         # If a directory with dataset_info.json exists, assume it's a saved dataset and load it from disk
         elif os.path.isdir(dataset) and os.path.exists(
-            os.path.join(dataset, "dataset_info.json")
+                os.path.join(dataset, "dataset_info.json")
         ):
             self._hf_dataset = load_from_disk(dataset, **kwargs)
         # Otherwise, load the dataset from the Hub
@@ -133,9 +134,35 @@ class HuggingfaceDataset(Dataset):
                     functools.partial(func, **cfg.get("params", {})), **_proc_kwargs
                 )
             elif "filter" in op:
-                self._hf_dataset = self._hf_dataset.filter(
-                    _build_hf_filter(op["filter"]), **_proc_kwargs
-                )
+                cfg = op["filter"]
+
+                # Check if we are using hf_hash_filter on a non-streaming dataset
+                if not streaming and "func" in cfg and "hf_hash_filter" in cfg["func"]:
+                    params = cfg.get("params", {})
+                    column = params["column"]
+                    range_min = params.get("range_min", 0.0)
+                    range_max = params.get("range_max", 1.0)
+
+                    # Pull ONLY the string metadata/ID column into RAM (skips decoding images)
+                    metadata_list = self._hf_dataset[column]
+
+                    # Replicate hf_hash_filter inside a high-speed list comprehension
+                    keep_indices = []
+                    for idx, val in enumerate(metadata_list):
+                        if val is None:
+                            continue
+                        digest = hashlib.md5(str(val).encode()).hexdigest()
+                        bucket = int(digest, 16) % 100 / 100
+                        if range_min <= bucket < range_max:
+                            keep_indices.append(idx)
+
+                    # Create a zero-copy fast view slice of matched indices
+                    self._hf_dataset = self._hf_dataset.select(keep_indices)
+                else:
+                    # Fallback path for standard queries or streaming datasets
+                    self._hf_dataset = self._hf_dataset.filter(
+                        _build_hf_filter(cfg), **_proc_kwargs
+                    )
             elif "shuffle" in op:
                 cfg = op["shuffle"] or {}
                 if isinstance(self._hf_dataset, IterableDataset):
