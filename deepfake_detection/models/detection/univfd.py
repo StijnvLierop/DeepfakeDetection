@@ -42,10 +42,20 @@ class UnivFD(TrainableMixin, Model):
         self.clip_encoder, _ = clip.load("ViT-L/14", device="cpu")
         self.clip_encoder.requires_grad_(False)
 
-        # Load fully connected layer
+        # If checkpoint is provided
         if self.ckpt:
+            # Load state dict
             state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
-            self.fc.load_state_dict(state_dict)
+
+            # Extract only the keys starting with "fc." and strip the prefix
+            fc_state_dict = {}
+            for k, v in state_dict.items():
+                if k.startswith("fc."):
+                    clean_key = k.replace("fc.", "")  # "fc.weight" -> "weight"
+                    fc_state_dict[clean_key] = v
+
+            # Load fully connected layer
+            self.fc.load_state_dict(fc_state_dict)
         else:
             print("No checkpoint provided, initializing model with random weights.")
             torch.nn.init.normal_(self.fc.weight.data, 0.0, 0.02)

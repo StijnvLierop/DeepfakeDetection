@@ -108,6 +108,7 @@ def train(
     train_dataset_config: str,
     val_dataset_config: Optional[str] = None,
     resume_from_checkpoint: Optional[str] = None,
+    run_name: Optional[str] = None,
 ) -> None:
     """Run the full training pipeline from a YAML config and dataset config paths."""
 
@@ -116,6 +117,8 @@ def train(
         config = yaml.safe_load(f)
 
     training_cfg = config["training"]
+    if run_name:
+        training_cfg["output_dir"] = os.path.join(training_cfg["output_dir"], run_name)
     label: str = training_cfg.get("label")
     pos_label: str = training_cfg.get("pos_label")
 
@@ -285,5 +288,12 @@ if __name__ == "__main__":
             "latest checkpoint in output_dir, or supply an explicit checkpoint path."
         ),
     )
+    parser.add_argument(
+        "-n",
+        "--run-name",
+        type=str,
+        default=None,
+        help="Name for this run; used as a subfolder under output_dir to store checkpoints.",
+    )
     args = parser.parse_args()
-    train(args.config, args.train_dataset, args.val_dataset, args.resume)
+    train(args.config, args.train_dataset, args.val_dataset, args.resume, args.run_name)
