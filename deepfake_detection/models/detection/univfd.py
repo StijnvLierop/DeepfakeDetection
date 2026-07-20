@@ -48,14 +48,16 @@ class UnivFD(TrainableMixin, Model):
             state_dict = torch.load(self.ckpt, map_location="cpu", weights_only=True)
 
             # Extract only the keys starting with "fc." and strip the prefix
-            fc_state_dict = {}
-            for k, v in state_dict.items():
-                if k.startswith("fc."):
-                    clean_key = k.replace("fc.", "")  # "fc.weight" -> "weight"
-                    fc_state_dict[clean_key] = v
+            if "fc.weight" in state_dict:
+                fc_state_dict = {}
+                for k, v in state_dict.items():
+                    if k.startswith("fc."):
+                        clean_key = k.replace("fc.", "")  # "fc.weight" -> "weight"
+                        fc_state_dict[clean_key] = v
+                state_dict = fc_state_dict
 
             # Load fully connected layer
-            self.fc.load_state_dict(fc_state_dict)
+            self.fc.load_state_dict(state_dict)
         else:
             print("No checkpoint provided, initializing model with random weights.")
             torch.nn.init.normal_(self.fc.weight.data, 0.0, 0.02)

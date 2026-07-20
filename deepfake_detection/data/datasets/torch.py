@@ -1,3 +1,4 @@
+import warnings
 from typing import Union, Callable, Any, Optional
 
 import torch
@@ -50,10 +51,16 @@ class TorchDataset(torch.utils.data.Dataset):
         self.pos_label = pos_label
 
     def __getitem__(self, idx: int):
-        instance = self.dataset[idx]
-        return _build_item(
-            instance, self.transforms(instance), self.label, self.pos_label
-        )
+        for offset in range(len(self)):
+            candidate = (idx + offset) % len(self)
+            instance = self.dataset[candidate]
+            try:
+                return _build_item(
+                    instance, self.transforms(instance), self.label, self.pos_label
+                )
+            except (SyntaxError, OSError) as e:
+                warnings.warn(f"Skipping corrupt file {getattr(instance, 'path', candidate)}: {e}")
+        raise RuntimeError(f"No valid samples found in dataset starting at index {idx}")
 
     def __len__(self):
         return len(self.dataset)
@@ -79,6 +86,9 @@ class TorchIterableDataset(torch.utils.data.IterableDataset):
 
     def __iter__(self):
         for instance in self.dataset:
-            yield _build_item(
-                instance, self.transforms(instance), self.label, self.pos_label
-            )
+            try:
+                yield _build_item(
+                    instance, self.transforms(instance), self.label, self.pos_label
+                )
+            except (SyntaxError, OSError) as e:
+                warnings.warn(f"Skipping corrupt file {getattr(instance, 'path', '?')}: {e}")

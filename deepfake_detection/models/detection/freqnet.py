@@ -58,6 +58,11 @@ class FreqNet(TrainableMixin, Model):
                     self.ckpt, weights_only=True, map_location="cpu"
                 )
 
+                if any(k.startswith("model.") for k in state_dict.keys()):
+                    state_dict = {
+                        k.replace("model.", "", 1): v for k, v in state_dict.items()
+                    }
+
             # Load weights in model
             try:
                 self.model.load_state_dict(state_dict)

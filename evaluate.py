@@ -79,15 +79,22 @@ def evaluate(
     if predictions_file:
         logging.info(f"Reading predictions from {predictions_file}")
         predictions = read_predictions_from_file(predictions_file)
+        instances = list(dataset)
     else:
-        # Make predictions
+        # Make predictions, skipping corrupt files
+        instances = []
         predictions = []
         for instance in tqdm(
             dataset,
             desc=f"Making predictions for {dataset.dataset_name}",
             total=len(dataset),
         ):
-            prediction = model.predict(instance)
+            try:
+                prediction = model.predict(instance)
+            except (SyntaxError, OSError) as e:
+                logging.warning(f"Skipping corrupt file {getattr(instance, 'path', '?')}: {e}")
+                continue
+            instances.append(instance)
             predictions.append(prediction)
 
         # Write predictions to a file
@@ -99,12 +106,13 @@ def evaluate(
 
     # Calculate metrics / make plots and write to output dir
     evaluate_model_on_dataset(
-        dataset, model, predictions, output_dir, label, subset_labels, neg_label
+        dataset, instances, model, predictions, output_dir, label, subset_labels, neg_label
     )
 
 
 def evaluate_model_on_dataset(
     dataset: Dataset,
+    instances: list,
     model: Model,
     predictions: List[Prediction],
     output_dir: str,
@@ -127,7 +135,7 @@ def evaluate_model_on_dataset(
                       If not provided, these metrics will not be included in the evaluation.
     """
     # Make evaluator
-    evaluator = Evaluator(list(dataset), predictions)
+    evaluator = Evaluator(instances, predictions)
 
     # Define metrics
     metrics = [
