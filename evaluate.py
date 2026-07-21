@@ -91,9 +91,10 @@ def evaluate(
         ):
             try:
                 prediction = model.predict(instance)
-            except (SyntaxError, OSError) as e:
+            except (SyntaxError, OSError, RuntimeError) as e:
                 logging.warning(f"Skipping corrupt file {getattr(instance, 'path', '?')}: {e}")
                 continue
+            instance.__dict__.pop("data", None)
             instances.append(instance)
             predictions.append(prediction)
 
